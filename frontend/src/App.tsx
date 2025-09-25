@@ -1,34 +1,19 @@
-import { useState } from 'react'
-import reactLogo from './shared/assets/react.svg'
-import viteLogo from './shared/assets/vite.svg'
-import './shared/styles/App.css'
+import { Routes, Route } from 'react-router'
+import InitPage from './init-page'
+import RecommendationPage from './features/recommendations/pages/RecommendationPage'
+import MovieInputPage from './features/movie-input/pages/MoviePage'
+import LoginPage from './features/user/pages/LoginPage'
+import UserProfilePage from './features/user/pages/UserProfilePage'
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div className='flex justify-between'>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <Routes>
+      <Route path='' element={<InitPage/>}/>
+      <Route path='recommendations' element={<RecommendationPage/>}/>
+      <Route path='add-movies' element={<MovieInputPage/>}/>
+      <Route path='login' element={<LoginPage/>}/>
+      <Route path='profile' element={<UserProfilePage/>}/>
+    </Routes>
   )
 }
 
