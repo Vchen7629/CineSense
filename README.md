@@ -1,4 +1,9 @@
-# Movie-Reccomendation-System
+# Movie-Recommendation-System
+![Frontend](https://img.shields.io/badge/Frontend-React/Typescript/HTML/CSS-orange)
+![BACKEND](https://img.shields.io/badge/Backend-Python-purpleblue)
+![NPM](https://img.shields.io/badge/NPM-23.6.1-blue)
+![API](https://img.shields.io/badge/API-TMDB-fcba03)
+
 A Python-based movie recommendation system designed for groups of friends who can never agree on what to watch. 
 
 ## How it Works
