@@ -3,7 +3,7 @@ import reactLogo from './shared/assets/react.svg'
 import viteLogo from './shared/assets/vite.svg'
 import './shared/styles/App.css'
 
-function InitPage() {
+export default function HomePage() {
   const [count, setCount] = useState(0)
 
   return (
@@ -31,5 +31,3 @@ function InitPage() {
     </>
   )
 }
-
-export default InitPage

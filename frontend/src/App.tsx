@@ -1,17 +1,19 @@
 import { Routes, Route } from 'react-router'
-import InitPage from './init-page'
 import RecommendationPage from './features/recommendations/pages/RecommendationPage'
 import MovieInputPage from './features/movie-input/pages/MoviePage'
 import LoginPage from './features/user/pages/LoginPage'
 import UserProfilePage from './features/user/pages/UserProfilePage'
+import SignUpPage from './features/user/pages/SignUpPage'
+import HomePage from './features/homepage/pages/HomePage'
 
 function App() {
   return (
     <Routes>
-      <Route path='' element={<InitPage/>}/>
+      <Route path='' element={<HomePage/>}/>
       <Route path='recommendations' element={<RecommendationPage/>}/>
       <Route path='add-movies' element={<MovieInputPage/>}/>
       <Route path='login' element={<LoginPage/>}/>
+      <Route path='signup' element={<SignUpPage/>}/>
       <Route path='profile' element={<UserProfilePage/>}/>
     </Routes>
   )
