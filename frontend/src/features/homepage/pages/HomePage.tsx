@@ -1,7 +1,7 @@
 import { useState } from "react"
-import reactLogo from './shared/assets/react.svg'
-import viteLogo from './shared/assets/vite.svg'
-import './shared/styles/App.css'
+import reactLogo from '../../../shared/assets/react.svg'
+import viteLogo from '../../../shared/assets/vite.svg'
+import '../../../shared/styles/App.css'
 
 export default function HomePage() {
   const [count, setCount] = useState(0)
