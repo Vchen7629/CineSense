@@ -3,7 +3,7 @@ name: deploy website to aws
 on:
     push:
         branches: 
-            - cd-test
+            - main
         paths:
             - 'frontend/**'
     
