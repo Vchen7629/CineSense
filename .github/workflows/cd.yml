@@ -22,11 +22,14 @@ jobs:
             
             - name: Install dependencies
               working-directory: frontend
-              run: npm install
+              run: npm CI
 
             - name: build
               working-directory: frontend
               run: npm run build
+
+            - name: List frontend folder after build
+              run: ls -R frontend
             
             - name: set aws credentials
               uses: aws-actions/configure-aws-credentials@v5.0.0
@@ -36,6 +39,6 @@ jobs:
                 aws-region: us-west-1
 
             - name: Sync files to S3
-              run: aws s3 sync ./frontend/build s3://$S3_BUCKET_NAME --delete
+              run: aws s3 sync frontend/build s3://$S3_BUCKET_NAME --delete
               env:
                 S3_BUCKET_NAME: ${{ secrets.AWS_BUCKET_NAME }}
