@@ -19,6 +19,16 @@ resource "cloudflare_dns_record" "acm_validation" {
   proxied = false
 }
 
+# Point www.cinesense.tech to CloudFront
+resource "cloudflare_dns_record" "frontend_cname" {
+  zone_id = var.cloudflare-zone-id
+  name    = "www"
+  type    = "CNAME"
+  content = aws_cloudfront_distribution.frontend_cdn.domain_name
+  ttl     = 1
+  proxied = true # or false if you want to bypass Cloudflare
+}
+
 # This validates the certificate using the txt record created above
 resource "aws_acm_certificate_validation" "frontend_cert_validation" {
   provider = aws.use1
