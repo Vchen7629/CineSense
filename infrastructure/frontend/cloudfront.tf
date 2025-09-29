@@ -12,7 +12,8 @@ resource "aws_cloudfront_distribution" "frontend_cdn" {
     comment             = "CDN for Frontend S3 Bucket"
     default_root_object = "index.html"
     price_class = "PriceClass_100" # Use only US, Canada and Europe edge locations
-    
+    aliases = ["www.cinesense.tech"]
+
     default_cache_behavior {
         allowed_methods  = ["GET", "HEAD"]
         cached_methods   = ["GET", "HEAD"]
