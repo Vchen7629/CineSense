@@ -10,7 +10,7 @@ export const SignUpConfirmButton = () => {
     }
 
     return (
-        <main>
+        <main className="w-full h-full bg-gray-100 margin-top-16">
             <button onClick={handleClick}>Confirm Sign Up</button>
             <input type="text" placeholder="Enter your email" />
             <p>{email}</p>  

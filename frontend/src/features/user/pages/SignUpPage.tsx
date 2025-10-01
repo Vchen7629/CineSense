@@ -1,3 +1,9 @@
+import { SignUpConfirmButton } from "../components/SignUpConfirmButton";
+
 export default function SignUpPage() {
-    return <div>This is placeholder text for the signup page</div>
+    return (
+        <main>
+            <SignUpConfirmButton/>
+        </main>
+    )
 }
