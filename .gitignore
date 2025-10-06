@@ -16,7 +16,6 @@ dist-ssr
 # Backend
 .venv
 __pycache__
-uv.lock
 .pytest_cache
 .ruff_cache
 
