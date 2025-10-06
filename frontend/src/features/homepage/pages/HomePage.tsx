@@ -2,12 +2,14 @@ import { useState } from "react"
 import reactLogo from '../../../shared/assets/react.svg'
 import viteLogo from '../../../shared/assets/vite.svg'
 import '../../../shared/styles/App.css'
+import Header from "../../navbar/Header"
 
 export default function HomePage() {
   const [count, setCount] = useState(0)
 
   return (
     <>
+      <Header/>
       <div className='flex justify-between'>
         <a href="https://vite.dev" target="_blank">
           <img src={viteLogo} className="logo" alt="Vite logo" />
