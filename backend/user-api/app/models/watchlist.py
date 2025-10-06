@@ -1,0 +1,1 @@
+# Define how data is stored in the User Watchlist Table, movie_id, user_id, added_at, etc

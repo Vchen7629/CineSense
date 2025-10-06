@@ -1,0 +1,1 @@
+# Define how data is stored in the Sessions Table, session_id, user_id, expiry_time, etc
