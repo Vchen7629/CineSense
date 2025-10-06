@@ -17,7 +17,8 @@ dist-ssr
 .venv
 __pycache__
 uv.lock
-.python-version
+.pytest_cache
+.ruff_cache
 
 # Editor directories and files
 .vscode/*
