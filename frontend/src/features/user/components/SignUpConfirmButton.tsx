@@ -10,9 +10,14 @@ export const SignUpConfirmButton = () => {
     }
 
     return (
-        <main className="w-full h-full bg-red-500 margin-top-16">
-            <button onClick={handleClick}/>
-            <input type="text" placeholder="Enter your email" />
+        <main className="w-full h-full bg-red-500 mt-16">
+            <button onClick={handleClick}> Confirm</button>
+            <input  
+                type="text"
+                placeholder="Enter your email"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+            />
             <p>{email}</p>  
         </main>
     )

@@ -9,7 +9,7 @@ export function Switch({ className, ...props }: React.ComponentProps<typeof Swit
     <SwitchPrimitive.Root
       className={cn(
         "group relative inline-flex h-[2rem] w-26 items-center rounded-full justify-between px-2 peer",
-        "bg-gray-400! data-[state=checked]:bg-primary data-[state=unchecked]:bg-input dark:data-[state=unchecked]:bg-input/80",
+        "!bg-gray-400 data-[state=checked]:bg-primary data-[state=unchecked]:bg-input dark:data-[state=unchecked]:bg-input/80",
         "shadow-xs transition-all outline-2  disabled:cursor-not-allowed disabled:opacity-50",
         "outline-black",
         className
