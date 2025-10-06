@@ -1,8 +1,11 @@
-# Movie-Recommendation-System
-![Frontend](https://img.shields.io/badge/Frontend-React/Typescript/HTML/CSS-orange)
-![BACKEND](https://img.shields.io/badge/Backend-Python-purpleblue)
+# CineSense
+![React](https://img.shields.io/badge/React-19.1.1-orange)
+![Python](https://img.shields.io/badge/Python-3.13-purple)
+![Database](https://img.shields.io/badge/Database-PostgreSQL-cyan)
 ![NPM](https://img.shields.io/badge/NPM-23.6.1-blue)
 ![API](https://img.shields.io/badge/API-TMDB-fcba03)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.104.1-green.svg)](https://fastapi.tiangolo.com)
+![Infrastructure](https://img.shields.io/badge/Infrastructure-AWS-yellow)
 
 A Python-based movie recommendation system designed for groups of friends who can never agree on what to watch. 
 
@@ -15,27 +18,33 @@ By analyzing each person’s viewing history, ratings, and preferences, The app 
 * User curated movie recommendations based on the ratings
 * Save your user profile via user accounts
 
-## Getting Started (Frontend)
+## Quick Start
+
+### Local Development
+
+#### Frontend Setup
+
+Note: if you don't have node installed on your pc, you need to install it to use the package manager via: https://nodejs.org/en/download
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+#### Backend Setup
+
+This project uses the [UV package manager](https://docs.astral.sh/uv/getting-started/installation/#standalone-installer) to manage dependencies.
+
+Installing UV (Windows)
+
+```bash
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+```
+Skip the previous step if you have UV installed
+
+```bash
+cd backend
+uv sync
+```
     
-1. Clone the project:
-
-    ```
-    git clone https://github.com/Relay-Room/Relay-Room.git
-    ```
-
-2. (optional) if you don't have node installed on your pc, you need to install it to use the package manager via: https://nodejs.org/en/download
-
-3. Once you've cloned the project, change directories into the frontend folder and install the dependencies
-
-    ```
-    cd frontend
-    ```
-
-    ```
-    npm install
-    ```
-
-4. Now you can run the app via:
-    ```
-    npm run dev
-    ```
