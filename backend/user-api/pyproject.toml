@@ -1,0 +1,13 @@
+[project]
+name = "user-api"
+version = "0.1.0"
+description = "Fastao"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "alembic>=1.16.5",
+    "fastapi[standard]>=0.118.0",
+    "pydantic>=2.11.10",
+    "pytest>=8.4.2",
+    "sqlalchemy>=2.0.43",
+]
