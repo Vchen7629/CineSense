@@ -1,5 +1,5 @@
 import '../../../shared/styles/App.css'
-import Header from "../../navbar/Header"
+import Header from "../../navbar/components/Header"
 
 export default function HomePage() {
   return (

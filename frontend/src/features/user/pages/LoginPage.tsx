@@ -1,4 +1,4 @@
-import Header from "@/features/navbar/Header";
+import Header from "@/features/navbar/components/Header";
 
 export default function LoginPage() {
     

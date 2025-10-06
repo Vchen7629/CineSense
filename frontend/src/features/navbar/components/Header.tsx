@@ -1,4 +1,4 @@
-import { Switch } from "@/features/navbar/darkLightModeSwitch"
+import { Switch } from "@/features/navbar/components/darkLightModeSwitch"
 
 const Header = () => {
     
@@ -14,12 +14,12 @@ const Header = () => {
                 <div className="flex items-center space-x-2">
                     <Switch id="airplane-mode"/>
                 </div>
-                <a href="/login" className="text-xl text-white font-medium hover:text-gray-500">
-                    Login
-                </a>
-                <a href="/signup" className="text-xl text-white font-medium hover:text-gray-500">
-                    Signup
-                </a>
+                <div className="flex space-x-[1rem] items-center"> 
+                    <div className="bg-[#D9D9D9] h-[2.5rem] w-[2.5rem] rounded-full"/>
+                    <a href="/profile" className="text-xl text-white font-medium hover:text-gray-500">
+                        User Name
+                    </a>
+                </div>
             </div>
         </header>
     )
