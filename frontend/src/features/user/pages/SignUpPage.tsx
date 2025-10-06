@@ -1,9 +1,12 @@
-import { SignUpConfirmButton } from "../components/SignUpConfirmButton";
+import Header from "@/features/navbar/Header";
 
 export default function SignUpPage() {
     return (
         <main>
-            <SignUpConfirmButton/>
+            <Header/>
+            <div className="flex h-[90vh] w-full justify-center items-center ">
+                <p className="text-white text-3xl"> User Signup Page </p>
+            </div>
         </main>
     )
 }
