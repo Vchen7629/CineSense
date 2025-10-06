@@ -23,8 +23,7 @@ By analyzing each person’s viewing history, ratings, and preferences, The app 
 
 ```
 CineSense/
-├── .github/                         # Github Automation files
-│   ├── workflows/                   # Github Actions files for running the CI/CD Pipeline
+├── .github/workflows/                   # Github Actions files for running the CI/CD Pipeline
 ├── backend/                         # Api backend files
 │   ├── user-api                     # FastAPI user application
 │        └── app/db/                 # configuration files for connecting to the PostgresSQL Database
@@ -63,7 +62,7 @@ CineSense/
 ├── Infrastructure/backend           # Terraform files for provisioning backend infra on AWS (Api Gateway, Lambda, VPC, RDS, Sagemaker)
 ├── Infrastructure/frontend          # Terraform files for provisioning frontend infra on AWS (S3, Cloudfront, Cloudflare)
 ├── .gitignore                       # Ignoring sensitive and unneeded files
-└── 📚 README.md                     # This file
+└── README.md                        # This file
 ```
 
 ## Quick Start
