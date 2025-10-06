@@ -2,9 +2,9 @@ import { Routes, Route } from 'react-router'
 import RecommendationPage from './features/recommendations/pages/RecommendationPage'
 import MovieInputPage from './features/movie-input/pages/MoviePage'
 import LoginPage from './features/user/pages/LoginPage'
-import UserProfilePage from './features/user/pages/UserProfilePage'
 import SignUpPage from './features/user/pages/SignUpPage'
 import HomePage from './features/homepage/pages/HomePage'
+import ProfilePage from './features/user/pages/UserProfilePage'
 
 function App() {
   return (
@@ -14,7 +14,7 @@ function App() {
       <Route path='add-movies' element={<MovieInputPage/>}/>
       <Route path='login' element={<LoginPage/>}/>
       <Route path='signup' element={<SignUpPage/>}/>
-      <Route path='profile' element={<UserProfilePage/>}/>
+      <Route path='profile' element={<ProfilePage/>}/>
     </Routes>
   )
 }

@@ -1,1 +1,0 @@
-// This typescript file is for the header component
