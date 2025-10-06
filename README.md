@@ -18,6 +18,54 @@ By analyzing each person’s viewing history, ratings, and preferences, The app 
 * User curated movie recommendations based on the ratings
 * Save your user profile via user accounts
 
+
+## Project Structure
+
+```
+CineSense/
+├── .github/                         # Github Automation files
+│   ├── workflows/                   # Github Actions files for running the CI/CD Pipeline
+├── backend/                         # Api backend files
+│   ├── user-api                     # FastAPI user application
+│        └── app/db/                 # configuration files for connecting to the PostgresSQL Database
+|        └── app/middleware/         # files for api middleware logic such as logging, etc
+|        └── app/models/             # files for defining how db tables should be structured
+|        └── app/routes/             # files for handling api route logic
+|        └── app/schemas/            # files for defining how api requests and responses should be structured
+|   └── main.py                      # entry point
+|        └── tests/integration/      # integration tests for user api
+|        └── tests/unit/             # unit tests for user api
+├── frontend/                        # React application
+│   ├── src/features/Homepage        # Folder containing all the files for the homepage feature
+|       └── pages/                   # various pages used by this feature
+|       └── components/              # UI components used for this feature
+|       └── utils/                   # functions and logic used by this feature
+│   ├── src/features/movie-input     # Folder containing all the files for the movie-input feature
+|       └── pages/                   # various pages used by this feature
+|       └── components/              # UI components used for this feature
+|       └── utils/                   # functions and logic used by this feature
+│   ├── src/features/navbar          # Folder containing all the files for the navbar feature
+|       └── components/              # UI components used for this feature
+|       └── utils/                   # functions and logic used by this feature
+|   ├── src/features/recommendations # Folder containing all the files for the movie recommendation feature
+|       └── pages/                   # various pages used by this feature
+|       └── components/              # UI components used for this feature
+|       └── utils/                   # functions and logic used by this feature
+│   ├── src/features/user            # Folder containing all the files for the user feature
+|       └── pages/                   # various pages used by this feature
+|       └── components/              # UI components used for this feature
+|       └── utils/                   # functions and logic used by this feature
+│   ├── shared/assets/               # assets (svg, png, etc) used by more than one feature
+|   ├── shared/components/           # Reusable components used by more than one feature
+|   ├── shared/styles/               # CSS styling used by more than one feature
+|   ├── shared/utils/                # Reusable functions used by more than one feature
+│   └── main.tsx                     # entry point
+├── Infrastructure/backend           # Terraform files for provisioning backend infra on AWS (Api Gateway, Lambda, VPC, RDS, Sagemaker)
+├── Infrastructure/frontend          # Terraform files for provisioning frontend infra on AWS (S3, Cloudfront, Cloudflare)
+├── .gitignore                       # Ignoring sensitive and unneeded files
+└── 📚 README.md                     # This file
+```
+
 ## Quick Start
 
 ### Local Development
@@ -46,5 +94,6 @@ Skip the previous step if you have UV installed
 ```bash
 cd backend
 uv sync
+uv run fastapi dev
 ```
     
