@@ -10,9 +10,8 @@ interface DisplayProps {
 }
 
 const DisplayAddedMovie = ({movieData, setMovieData, setFilteredMovieData}: DisplayProps) => {
-
     return (
-        <ul className="h-[85%] w-full space-y-[1%]">
+        <ul className="h-[95%] w-full space-y-[1%]">
             {movieData.map((item: DummyItem) => (
                 <li 
                     key={item.id} 

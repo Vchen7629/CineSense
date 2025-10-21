@@ -6,10 +6,18 @@ import { dummyData } from "../misc/dummyData";
 import ClearButton from "../components/clearButton";
 import SaveButton from "../components/saveButton";
 import type { DummyItem } from "../types/data";
+import PaginationComponent from "../components/pagination";
 
 export default function MovieInputPage() {
+    const [currentPage, setCurrentPage] = useState<number>(1)
     const [data, setData] = useState<DummyItem[]>(dummyData)
     const [filteredData, setFilteredData] = useState<DummyItem[]>(dummyData)
+
+    const itemsPerPage = 7
+    const totalPage = Math.ceil(filteredData.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage
+    const endIndex = startIndex + itemsPerPage
+    const paginatedMovies = filteredData.slice(startIndex, endIndex)
 
     return (
         <>
@@ -22,7 +30,14 @@ export default function MovieInputPage() {
                         <SaveButton/>
                     </div>
                 </section>
-                <DisplayAddedMovie movieData={filteredData} setMovieData={setData} setFilteredMovieData={setFilteredData}/>
+                <section className="flex flex-col w-full h-[85%]">
+                    <DisplayAddedMovie movieData={paginatedMovies} setMovieData={setData} setFilteredMovieData={setFilteredData}/>
+                    <PaginationComponent
+                        currentPage={currentPage}
+                        setCurrentPage={setCurrentPage}
+                        totalPage={totalPage}
+                    />
+                </section>
             </main>
         </>
     )
