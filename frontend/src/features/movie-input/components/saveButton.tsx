@@ -1,8 +1,4 @@
-import type { DummyItem } from "../types/data"
 
-interface SaveProps {
-    setData: React.Dispatch<React.SetStateAction<DummyItem[]>>
-}
 
 const SaveButton = (/*{ setFilteredData }: SaveProps*/) => {
 
