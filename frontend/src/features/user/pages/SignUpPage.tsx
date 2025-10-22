@@ -1,5 +1,6 @@
 import Header from "@/features/navbar/components/Header";
 import { PencilIcon } from "lucide-react";
+import { Link } from "react-router";
 
 export default function SignUpPage() {
   return (
@@ -39,13 +40,13 @@ export default function SignUpPage() {
         <p className="text-black text-[25px] ml-[6px] mt-[15px]">Confirm Password</p>
       </div>
 
-      <button
-        onClick={() => alert("Confirm Continue Clicked!")}
-        className="absolute bottom-40 left-320 px-8 py-4 !bg-green-800 text-white text-xl font-medium w-72 border-2 border-black"
+      <Link
+        to = "/userpreferences"
+        className="flex absolute bottom-40 left-320 px-8 py-4 !bg-green-800 items-center justify-center text-white text-xl font-medium w-72 border-2 border-black"
         style={{ outline: '2px solid black', outlineOffset: '0px', borderRadius: '9999px' }}
       >
         Continue
-      </button>
+      </Link>
     </main>
   );
 }
