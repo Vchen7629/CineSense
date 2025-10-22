@@ -6,23 +6,19 @@ export function LikeDislikeSwitch({ className, ...props }: React.ComponentProps<
   return (
     <SwitchPrimitive.Root
       className={cn(
-        "group relative inline-flex h-[1.5rem] w-18 items-center rounded-full justify-between px-2 peer",
-        "!bg-[#2E454D] data-[state=checked]:bg-primary data-[state=unchecked]:bg-input dark:data-[state=unchecked]:bg-input/80",
-        "shadow-xs transition-all outline-2  disabled:cursor-not-allowed disabled:opacity-50",
-        "outline-black",
+        "group relative inline-flex h-6 w-16 items-center rounded-full justify-between px-1 peer",
+        "bg-[#2E454D]",
+        "shadow-xs transition-all outline-2 disabled:cursor-not-allowed disabled:opacity-50",
         className
       )}
       {...props}
     >
       <SwitchPrimitive.Thumb
         className={cn(
-            "absolute left-8.5 h-[1.5rem] w-[1.5rem] rounded-full ml-[-45%]",
-            "bg-[#879B9E]",
-            "pointer-events-none ring-0 transition-transform duration-250", 
-            "data-[state=checked]:translate-x-[calc(185%)] data-[state=unchecked]:translate-x-0"
+          "block h-5 w-5 rounded-full bg-[#879B9E] transition-transform duration-200",
+          "translate-x-0 data-[state=checked]:translate-x-[125%]"
         )}
-      >
-      </SwitchPrimitive.Thumb>
+      />
     </SwitchPrimitive.Root>
   )
 }
