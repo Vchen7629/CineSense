@@ -10,15 +10,6 @@ export default function LoginPage() {
         <p className="mt-15 text-white text-5xl">Log In</p>
       </div>
 
-      {/* <div className="bg-[#D9D9D9] h-[20rem] w-[20rem] rounded-full absolute top-[300px] ml-[1260px]" />
-
-      <div className="flex bg-[#D9D9D9] h-[4rem] w-[4rem] rounded-full absolute top-[450px] ml-[1125px] items-center justify-center " >
-        <PencilIcon size = {40}/>
-      </div> */}
-
-      
-      {/* <p className="absolute top-[650px] ml-[1355px] text-white text-3xl">Username</p> */}
-
       <p className="absolute top-[250px] ml-[30px] text-white text-2xl">Username or Email:</p>
 
       <div className="bg-[#C7DEDB] h-[5rem] w-[64rem] absolute top-72 ml-[30px] border-4 border-[#000000] flex items-center">
