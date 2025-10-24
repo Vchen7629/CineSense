@@ -1,6 +1,5 @@
 
-
-const SaveButton = (/*{ setFilteredData }: SaveProps*/) => {
+const SaveButton = () => {
 
     return (
         <button 

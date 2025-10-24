@@ -33,7 +33,7 @@ const DisplayAddedMovie = ({movieData, setMovieData, setFilteredMovieData}: Disp
                     >
                         {item.genres}
                     </section>
-                    <section className="flex items-center justify-between w-[8%] ">
+                    <section className="flex items-center space-x-2 w-[8%] ">
                         <ThumbsUpIcon/>
                         <LikeDislikeSwitch />
                         <ThumbsDownIcon/>
