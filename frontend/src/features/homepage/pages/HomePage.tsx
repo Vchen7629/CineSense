@@ -6,7 +6,6 @@ export default function HomePage() {
     <main style={{ backgroundColor: "#879B9E", minHeight: "100vh" }}>
       <Header />
 
-      {/* bacground*/}
       <div
         style={{
           background: "#2E454D",
