@@ -6,6 +6,7 @@ export default function HomePage() {
     <main style={{ backgroundColor: "#879B9E", minHeight: "100vh" }}>
       <Header />
 
+      {/* bacground*/}
       <div
         style={{
           background: "#2E454D",
@@ -44,7 +45,7 @@ export default function HomePage() {
       </div>
 
       {/* how it works  and the Cards*/}
-      <div style={{ padding: "60px 24px 100px" }}>
+      <div style={{ padding: "40px 24px 72px" }}>
         <h2
           style={{
             textAlign: "center",
