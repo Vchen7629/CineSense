@@ -45,7 +45,7 @@ export default function HomePage() {
       </div>
 
       {/* how it works  and the Cards*/}
-      <div style={{ padding: "60px 24px 100px" }}>
+      <div style={{ padding: "40px 24px 72px" }}>
         <h2
           style={{
             textAlign: "center",
