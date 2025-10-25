@@ -10,18 +10,33 @@ export default function LoginPage() {
         <p className="mt-15 text-white text-5xl">Log In</p>
       </div>
 
-      <p className="absolute top-[250px] ml-[30px] text-white text-2xl">Username or Email:</p>
+      <label
+        htmlFor="username"
+        className="absolute top-[250px] ml-[30px] text-white text-2xl"
+      >
+        Username or Email:
+      </label>
 
-      <div className="bg-[#C7DEDB] h-[5rem] w-[64rem] absolute top-72 ml-[30px] border-4 border-[#000000] flex items-center">
-        <p className="text-black text-[20px] ml-[10px]">Username/Email Here</p>
-      </div>
+      <input
+        id="username"
+        type="text"
+        placeholder="Enter username/email"
+        className="bg-[#C7DEDB] h-[5rem] w-[64rem] absolute top-72 ml-[30px] border-4 border-[#000000] text-black text-[20px] pl-[15px] rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+      />
 
+      <label
+        htmlFor="password"
+        className="absolute top-[400px] ml-[30px] text-white text-2xl"
+      >
+        Password:
+      </label>
 
-      <p className="absolute top-[400px] ml-[30px] text-white text-2xl">Password:</p>
-
-      <div className="bg-[#C7DEDB] h-[5rem] w-[64rem] absolute top-110 ml-[30px] border-4 border-[#000000] flex items-center">
-        <p className="text-black text-[20px] ml-[10px]">Password Here</p>
-      </div>
+      <input
+        id="password"
+        type="text"
+        placeholder="Enter password"
+        className="bg-[#C7DEDB] h-[5rem] w-[64rem] absolute top-110 ml-[30px] border-4 border-[#000000] text-black text-[20px] pl-[15px] rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+      />
 
       <div className="absolute top-[540px] ml-30[px] flex flex-col space-y-2">
         <Link
