@@ -14,6 +14,7 @@ A Python-based movie recommendation system designed for groups of friends who ca
 - Colin
 - Brandon
 - Peter
+- Jai
 
 ## How it Works
 By analyzing each person’s viewing history, ratings, and preferences, The app can suggests movies that maximize enjoyment for the entire group. The system combines collaborative filtering, content-based recommendations, and personalized weighting to ensure that everyone’s tastes are considered, making movie nights stress-free and fun. It will turns indecision into a shared cinematic experience, blending data analysis, machine learning, and user interactivity into one smart recommendation tool.
