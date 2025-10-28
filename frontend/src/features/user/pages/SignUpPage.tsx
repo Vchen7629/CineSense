@@ -6,47 +6,106 @@ export default function SignUpPage() {
   return (
     <main className="bg-[#2E454D] min-h-screen">
       <Header />
-      
-      <div className="px-10">
-        <p className="mt-20 text-white text-3xl">Sign Up With CineSense</p>
+
+      <div className="mx-auto pr-[0.5vw] sm:pr-[1vw] lg:pr-[2vw] pl-0 pt-[2vh] sm:pt-[3vh] lg:pt-[4vh]">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-[2vh] lg:gap-[3vh]">
+
+          <div className="flex flex-col lg:col-span-2">
+            <h1 className="text-white text-[2vh] sm:text-[2.5vh] lg:text-[3vh] font-bold mt-[0.5vh] lg:mt-[1vh] mb-[3vh] lg:mb-[4vh] ml-[0.5vw] sm:ml-[1vw]">
+              Sign Up With CineSense
+            </h1>
+
+            <div className="space-y-[3vh] sm:space-y-[4vh] ml-[0.5vw] sm:ml-[1vw] mt-[1vh] sm:mt-[1.5vh] max-w-[80vw]">
+              <div>
+                <label className="text-white text-[1.5vh] sm:text-[1.75vh] mb-[1.5vh] block">Username:</label>
+                <div className="bg-[#C7DEDB] h-[6vh] sm:h-[8vh] w-full border-4 border-black rounded-lg flex items-center px-[1vw]">
+                  <span className="text-black text-[1.75vh] sm:text-[2vh]">Username Here</span>
+                </div>
+              </div>
+
+              <div>
+                <label className="text-white text-[1.5vh] sm:text-[1.75vh] mb-[1.5vh] block">Email:</label>
+                <div className="bg-[#C7DEDB] h-[6vh] sm:h-[8vh] w-full border-4 border-black rounded-lg flex items-center px-[1vw]">
+                  <span className="text-black text-[1.75vh] sm:text-[2vh]">Email Here</span>
+                </div>
+              </div>
+
+              <div>
+                <label className="text-white text-[1.5vh] sm:text-[1.75vh] mb-[1.5vh] block">Password:</label>
+                <div className="bg-[#C7DEDB] h-[6vh] sm:h-[8vh] w-full border-4 border-black rounded-lg flex items-center px-[1vw]">
+                  <span className="text-black text-[1.75vh] sm:text-[2vh]">Password Here</span>
+                </div>
+              </div>
+
+              <div>
+                <label className="text-white text-[1.5vh] sm:text-[1.75vh] mb-[1.5vh] block">Confirm Password:</label>
+                <div className="bg-[#C7DEDB] h-[6vh] sm:h-[8vh] w-full border-4 border-black rounded-lg flex items-center px-[1vw]">
+                  <span className="text-black text-[1.75vh] sm:text-[2vh]">Confirm Password</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="relative flex flex-col items-center lg:items-start justify-start pt-[8vh] lg:pt-[12vh]">
+            <div 
+              className="bg-[#D9D9D9] rounded-full relative"
+              style={{
+                height: 'clamp(280px, 35vh, 450px)',
+                width: 'clamp(280px, 35vh, 450px)',
+                marginLeft: 'clamp(0px, 10vw, 200px)',
+                marginTop: 'clamp(24px, 6vh, 96px)'
+              }}
+            >
+              <div 
+                className="absolute flex bg-[#D9D9D9] rounded-full items-center justify-center border-4 border-[#2E454D]"
+                style={{
+                  left: 'clamp(-72px, -9vw, -144px)',
+                  top: 'clamp(140px, 17.5vh, 280px)',
+                  height: 'clamp(56px, 7vh, 112px)',
+                  width: 'clamp(56px, 7vh, 112px)'
+                }}
+              >
+                <PencilIcon 
+                  style={{
+                    height: 'clamp(28px, 3.5vh, 56px)',
+                    width: 'clamp(28px, 3.5vh, 56px)'
+                  }}
+                />
+              </div>
+            </div>
+
+            <p 
+              className="text-white"
+              style={{
+                fontSize: 'clamp(1.5rem, 3vh, 2.5rem)',
+                marginTop: 'clamp(32px, 4vh, 64px)',
+                marginLeft: 'clamp(0px, 17vw, 272px)'
+              }}
+            >
+              Username
+            </p>
+
+            <Link
+              to="/userpreferences"
+              className="!bg-green-800 text-white font-medium border-2 border-black rounded-full hover:!bg-green-700 flex items-center justify-center"
+              style={{
+                marginTop: 'clamp(56px, 7vh, 112px)',
+                paddingLeft: 'clamp(28px, 3.5vw, 56px)',
+                paddingRight: 'clamp(28px, 3.5vw, 56px)',
+                paddingTop: 'clamp(14px, 1.75vh, 28px)',
+                paddingBottom: 'clamp(14px, 1.75vh, 28px)',
+                fontSize: 'clamp(1.125rem, 2vh, 1.75rem)',
+                width: 'clamp(160px, 20vw, 320px)',
+                marginLeft: 'clamp(0px, 10.5vw, 192px)',
+                outline: '2px solid black',
+                outlineOffset: '0px'
+              }}
+            >
+              Continue
+            </Link>
+          </div>
+        </div>
       </div>
-
-      <div className="bg-[#D9D9D9] h-[20rem] w-[20rem] rounded-full absolute top-[300px] ml-[1260px]" />
-
-      <div className="flex bg-[#D9D9D9] h-[4rem] w-[4rem] rounded-full absolute top-[450px] ml-[1125px] items-center justify-center " >
-        <PencilIcon size = {40}/>
-      </div>
-
-      
-      <p className="absolute top-[650px] ml-[1355px] text-white text-3xl">Username</p>
-
-      <p className="absolute top-[290px] ml-[30px] text-white text-lg">Username:</p>
-      <div className="bg-[#C7DEDB] h-[5rem] w-[64rem] absolute top-80 ml-[30px] border-4 border-[#000000]">
-        <p className="text-black text-[25px] ml-[6px] mt-[15px]">Username Here</p>
-      </div>
-
-      <p className="absolute top-[430px] ml-[30px] text-white text-lg">Email:</p>
-      <div className="bg-[#C7DEDB] h-[5rem] w-[64rem] absolute top-115 ml-[30px] border-4 border-[#000000]">
-        <p className="text-black text-[25px] ml-[6px] mt-[15px]">Email Here</p>
-      </div>
-      
-      <p className="absolute top-[570px] ml-[30px] text-white text-lg">Password:</p>
-      <div className="bg-[#C7DEDB] h-[5rem] w-[64rem] absolute top-150 ml-[30px] border-4 border-[#000000]">
-        <p className="text-black text-[25px] ml-[6px] mt-[15px]">Password Here</p>
-      </div>
-
-      <p className="absolute top-[710px] ml-[30px] text-white text-lg">Confirm Password:</p>
-      <div className="bg-[#C7DEDB] h-[5rem] w-[64rem] absolute top-185 ml-[30px] border-4 border-[#000000]">
-        <p className="text-black text-[25px] ml-[6px] mt-[15px]">Confirm Password</p>
-      </div>
-
-      <Link
-        to = "/userpreferences"
-        className="flex absolute bottom-40 left-320 px-8 py-4 !bg-green-800 items-center justify-center text-white text-xl font-medium w-72 border-2 border-black"
-        style={{ outline: '2px solid black', outlineOffset: '0px', borderRadius: '9999px' }}
-      >
-        Continue
-      </Link>
     </main>
   );
 }
