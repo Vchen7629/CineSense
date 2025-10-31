@@ -1,5 +1,9 @@
+resource "random_id" "suffix" {
+  byte_length = 4
+}
+
 resource "aws_s3_bucket" "frontend" {
-    bucket = var.s3-bucket-name
+    bucket ="movie-recommendation-frontend-${random_id.suffix.hex}"
 
     tags = {
         ManagedBy = "Terraform"
