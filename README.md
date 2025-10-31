@@ -86,6 +86,19 @@ npm install
 npm run dev
 ```
 
+#### Database Setup
+Note: You need docker desktop installed for this to work. You can install it 
+via this link: https://docs.docker.com/desktop/setup/install/windows-install/
+
+Use the provided docker-compose file to create a local postgres database for testing
+```bash
+# from root
+cd backend\user-api
+
+docker compose up --build -d
+
+```
+
 #### Backend Setup
 
 This project uses the [UV package manager](https://docs.astral.sh/uv/getting-started/installation/#standalone-installer) to manage dependencies.
