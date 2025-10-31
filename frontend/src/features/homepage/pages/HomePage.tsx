@@ -26,7 +26,7 @@ export default function HomePage() {
         >
           Smarter Movie
           <br />
-          Recommendations
+          Recommendations!
         </h1>
 
         {/*subtitle*/}
