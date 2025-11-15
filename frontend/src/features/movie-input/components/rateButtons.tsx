@@ -1,13 +1,13 @@
 import { Star } from "lucide-react"
 import { useEffect, useState } from "react";
 
-const RateMovieButtons = () => {
-    const [rating, setRating] = useState<number>(0);       // saved rating
+const RateMovieButtons = ({rating, setRating}: any) => {
     const [hovered, setHovered] = useState<number>(0);
-
+    
     useEffect(() => {
         console.log("RATING CHANGED:", rating)
     }, [rating]);
+
     return (
         <div className="flex">
             {Array.from({ length: 5 }).map((_, index) => {
@@ -24,7 +24,7 @@ const RateMovieButtons = () => {
                 >
                     <Star
                     className={`
-                        w-6 h-6 cursor-pointer transition-colors duration-250
+                        w-6 h-6 transition-colors duration-250
                         ${isFilled 
                         ? "fill-teal-400 stroke-teal-400" 
                         : "stroke-teal-600"

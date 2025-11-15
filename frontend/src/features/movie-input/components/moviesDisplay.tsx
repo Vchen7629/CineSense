@@ -1,7 +1,8 @@
 import type { DummyItem } from "../types/data"
-import { ThumbsUpIcon, PlusIcon, TrashIcon } from "lucide-react"
+import { ThumbsUpIcon, PlusIcon, TrashIcon, Heart } from "lucide-react"
 import RateMovieButtons from "./rateButtons"
-import { useWatched } from "@/global_state/user"
+import { useState } from "react"
+import { useRateMovie } from "../hooks/useRateMovie"
 
 interface DisplayProps {
     movieData: DummyItem[],
@@ -10,69 +11,115 @@ interface DisplayProps {
 }
 
 const DisplayMovies = ({movieData, listView, gridView}: DisplayProps) => {
-    const watched = useWatched((state: any) => state.watched)
-    const setWatched = useWatched((state: any) => state.addWatchlist)
-    const removeWatched = useWatched((state: any) => state.removeWatchlist)
+    const [openWatched, setOpenWatched] = useState<{ [key: string]: boolean }>({});
+    const [rating, setRating] = useState<number>(0);
+    const rateMovie = useRateMovie();
+
+    const handleAdd = (id: string | number) => {
+        setOpenWatched(prev => ({ ...prev, [id]: true }));
+    };
+
+    const handleRemove = (id: string | number) => {
+        setOpenWatched(prev => ({ ...prev, [id]: false }));
+    };
 
     return (
         <ul className={`h-[95%] w-full space-y-[2%] ${gridView && "grid grid-cols-2 gap-4"}`}>
-            {movieData.map((item: DummyItem) => (
-                <li 
-                    key={item.id} 
-                    className={
-                        `flex w-full text-xl font-semibold items-center px-2 shadow-md shadow-black bg-[#394B51] rounded-xl border-2 border-[#3A5A7A]
-                        ${listView && "h-[20%]"} ${gridView && "h-[85%]"}`
-                    } 
-                    role="listitem"
-                >   
-                    <img className={`bg-white ${listView && "w-[10%]"} ${gridView && "w-[20%]"} h-[85%]`}/>
-                    <section 
-                        className={`flex flex-col w-[70%] h-[80%] px-[2%] ${item.like ? 'text-yellow-300' : 'text-white'}`}
-                    >
-                        <span className="text-lg font-bold">{item.name}</span>
-                        <span className="text-sm text-gray-400 h-3/4">{item.desc}</span>
-                        <div className="flex items-center space-x-3 mt-4">
-                            <button 
-                                onClick={setWatched}
-                                className="flex items-center space-x-1 px-3 py-1 bg-teal-600 hover:bg-teal-400 rounded-xl transition-colors duration-250"
-                            >
-                                <PlusIcon size={18}/>
-                                <span className="text-sm">Add</span>
-                            </button>
-                            {watched && (
-                                <>
-                                    <button 
-                                        onClick={removeWatched}
-                                        className="flex items-center space-x-1 px-3 py-1 bg-gray-500 hover:bg-red-500 rounded-xl transition-colors duration-250"
-                                    >
-                                        <TrashIcon size={18}/>
-                                        <span className="text-sm">Remove</span>
-                                    </button>
-                                    <RateMovieButtons/>
-                                    <button className="flex items-center space-x-1 px-3 py-1 bg-green-600 hover:bg-green-400 rounded-xl transition-colors duration-250">
-                                        <ThumbsUpIcon size={18}/>
-                                        <span className="text-sm">Rate!</span>
-                                    </button>
-                                </>
-                            )}
-                        </div>
-                    </section>
-                    <section 
-                        className={`flex flex-col items-center h-[80%] ${listView && "w-[20%]"} ${gridView && "w-[30%]"}`}
+            {movieData.map((item: DummyItem) => {
+                const isOpen = !!openWatched[item.id];
+                return (
+                    <li 
+                        key={item.id} 
+                        className={
+                            `flex w-full text-xl font-semibold items-center px-2 shadow-md shadow-black bg-[#394B51] rounded-xl border-2 border-[#3A5A7A]
+                            ${listView && "h-[20%]"} ${gridView && "h-[85%]"}`
+                        } 
+                        role="listitem"
                     >   
-                        <div className="flex space-x-2 ">
-                        {item.genres.map((g, idx) => (
-                            <div 
-                                key={idx} 
-                                className="px-1 py-1 text-xs bg-[#879B9E] rounded-md"
-                            >
-                                {g}
+                        <img className={`bg-white ${listView && "w-[10%]"} ${gridView && "w-[20%]"} h-[85%]`}/>
+                        <section 
+                            className={`flex flex-col ${listView && "w-[70%]"} ${gridView && "w-[50%]"} h-[80%] px-[2%]`}
+                        >
+                            <span className="text-lg font-bold">{item.name}</span>
+                            <span className="text-sm text-gray-400 h-3/4">{item.desc}</span>
+                            <div className="flex items-center space-x-3 mt-4 w-[100%]">
+                                {!isOpen ? (
+                                    <button
+                                        onClick={() => handleAdd(item.id)}
+                                        className="flex items-center space-x-1 px-3 py-1.5 bg-teal-600 hover:bg-teal-400 rounded-xl transition-colors duration-250"
+                                    >
+                                        <PlusIcon size={18} />
+                                        <span className="text-sm">Add</span>
+                                    </button>
+                                ) : (
+                                    <button
+                                        onClick={() => handleAdd(item.id)}
+                                        className="flex items-center space-x-1 px-3 py-1.5 bg-teal-600 hover:bg-teal-400 rounded-xl transition-colors duration-250"
+                                    >
+                                        <Heart size={18} />
+                                        <span className="text-sm">Added!</span>
+                                    </button>
+                                )}
+                                {isOpen && (
+                                    <div className="w-[80%] flex">
+                                        <button 
+                                            onClick={() => handleRemove(item.id)}
+                                            className="flex items-center space-x-1 px-3 py-1 bg-gray-500 hover:bg-red-500 rounded-xl transition-colors duration-250"
+                                        >
+                                            <TrashIcon size={18}/>
+                                            <span className="text-sm">Remove</span>
+                                        </button>
+                                        <RateMovieButtons rating={rating} setRating={setRating}/>
+                                        <button 
+                                            onClick={() => rateMovie(item, rating)}
+                                            className="flex items-center space-x-1 px-3 py-1 bg-green-600 hover:bg-green-400 rounded-xl transition-colors duration-250"
+                                        >
+                                            <ThumbsUpIcon size={18}/>
+                                            <span className="text-sm">Rate!</span>
+                                        </button>
+                                    </div>
+                                )}
                             </div>
-                        ))}
-                        </div>
-                    </section>
-                </li>
-            ))}
+                        </section>
+                        <section 
+                            className={`flex flex-col items-center h-[80%] ${listView && "w-[20%] space-y-2"} ${gridView && "w-[30%] space-y-4"}`}
+                        >   
+                            <div className="flex space-x-2 ">
+                            {item.genres.map((g, idx) => (
+                                <div 
+                                    key={idx} 
+                                    className="px-1 py-1 text-xs bg-[#879B9E] rounded-md"
+                                >
+                                    {g}
+                                </div>
+                            ))}
+                            </div>
+                            <div className="flex space-x-2 text-white items-center">
+                                <span className="text-sm">Cast: </span>
+                                {item.actors.map((name, idx) => (
+                                    <div 
+                                        key={idx} 
+                                        className="text-sm text-gray-400"
+                                    >
+                                        {name}
+                                    </div>
+                                ))}
+                            </div>
+                            <div className="flex space-x-2 text-white items-center">
+                                <span className="text-sm">Director: </span>
+                                {item.director.map((name, idx) => (
+                                    <div 
+                                        key={idx} 
+                                        className="text-sm text-gray-400"
+                                    >
+                                        {name}
+                                    </div>
+                                ))}
+                            </div>
+                        </section>
+                    </li>
+                )
+            })}
         </ul>
     )
 }

@@ -1,8 +1,11 @@
 export interface DummyItem {
-  id: number;
+  id: string;
   name: string;
   desc: string;
   genres: string[];
-  like: boolean;
-  dislike: boolean;
+  release_date: number;
+  actors: string[];
+  director: string[];
+  rating: number,
+  poster_path: string
 }
