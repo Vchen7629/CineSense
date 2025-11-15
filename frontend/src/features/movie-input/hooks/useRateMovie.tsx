@@ -1,5 +1,5 @@
 import type { DummyItem } from "../types/data";
-import { RateMovie } from "@/api/utils/movie";
+import { RateMovie } from "@/app/utils/movie";
 
 // function for sending the movie metadata to the backend api
 export function useRateMovie() {
