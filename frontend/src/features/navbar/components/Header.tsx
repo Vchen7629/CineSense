@@ -1,6 +1,6 @@
 import { Switch } from "@/features/navbar/components/darkLightModeSwitch"
 import { Link } from "react-router"
-import { useAuthState } from "@/app/user-store"
+import { useAuthState } from "@/api/user-store"
 
 const Header = () => {
     const { loggedIn } = useAuthState()
