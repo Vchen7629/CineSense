@@ -1,6 +1,7 @@
 // Wrapper Functions for axios calls to handle success/error with React Query
 import { useMutation } from '@tanstack/react-query';
 import { MovieService } from '../services/movie';
+import { AxiosError } from 'axios';
 
 export const RateMovie = () => {
     return useMutation({
@@ -11,8 +12,14 @@ export const RateMovie = () => {
             console.log('Movie rated successfully:', data);
         },
 
-        onError: (error: any) => {
-            console.error('Error rating movie:', error.response?.data || error.message);
+        onError: (error: unknown) => {
+            if (error instanceof AxiosError) {
+                console.error('Error rating movie:', error.response?.data || error.message);
+            } else if (error instanceof Error) {
+                console.error('Error rating movie:', error.message);
+            } else {
+                console.error('Error rating movie:', error);
+            }
         }
     })
 }

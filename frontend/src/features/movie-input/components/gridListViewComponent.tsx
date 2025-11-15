@@ -1,6 +1,13 @@
 
+interface gridListViewProps {
+    gridView: boolean
+    setGridView: (gridView: boolean) => void
+    listView: boolean
+    setListView: (listView: boolean) => void
+}
+
 // Component to switch between grid and list view
-const GridListViewComponent = ({ gridView, setGridView, listView, setListView }: any) => {
+const GridListViewComponent = ({ gridView, setGridView, listView, setListView }: gridListViewProps) => {
 
     return (
         <div className="flex w-[12.5%] h-[65%] p-1 space-x-2 bg-black rounded-lg bg-transparent border border-[#879B9E]">

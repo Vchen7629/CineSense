@@ -9,7 +9,7 @@ import DisplayMovies from "../components/moviesDisplay";
 
 export default function MovieInputPage() {
     const [currentPage, setCurrentPage] = useState<number>(1)
-    const [data, setData] = useState<DummyItem[]>(dummyData)
+    const [data] = useState<DummyItem[]>(dummyData)
     const [filteredData, setFilteredData] = useState<DummyItem[]>(dummyData)
     const [gridView, setGridView] = useState<boolean>(false)
     const [listView, setListView] = useState<boolean>(true)

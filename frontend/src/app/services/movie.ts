@@ -1,6 +1,7 @@
 // Code for http requests involving movies
 import type { RateMovieApi } from '../types/movie';
 import { api } from '../lib/basePath';
+import { AxiosError } from 'axios';
 
 export const MovieService = {
     // rate a move
@@ -19,9 +20,17 @@ export const MovieService = {
             })
             console.log(response)
             return response.data;
-        } catch (error: any) {
-            console.error(error.response?.data || error.message);
-            throw error;
+        } catch (error: unknown) {
+            if (error instanceof AxiosError) {
+                console.error(error.response?.data || error.message);
+                throw error;
+            } else if (error instanceof Error) {
+                console.error(error.message);
+                throw error;
+            } else {
+                console.error(error);
+                throw error;
+            }
         }
     }
 }
