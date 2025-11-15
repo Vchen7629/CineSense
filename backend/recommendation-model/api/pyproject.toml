@@ -1,13 +1,18 @@
 [project]
-name = "recommendation-model"
+name = "recommendation-api"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12, <3.13"
 dependencies = [
+    "asyncpg>=0.30.0",
+    "fastapi[standard]>=0.119.0",
     "numpy>=2.3.4",
-    "pandas>=2.3.3",
+    "pydantic>=2.12.3",
+    "sentence-transformers>=5.1.2",
+    "sqlalchemy>=2.0.44",
     "torch==2.8.0+cu128",
+    "uvicorn>=0.38.0",
 ]
 
 [tool.uv.sources]
