@@ -38,7 +38,7 @@ async def new_rated_movie(
     director = body.director
     poster_path = body.poster_path
     rating = body.rating
-
+    
     if not user_id:
         raise HTTPException(status_code=404, detail="No user_id provided")
     

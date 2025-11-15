@@ -157,7 +157,7 @@ async def get_candidate_movies_from_similar_users(
     similar_user_ids: List[str],
     exclude_movie_ids: List[str],
     limit: int = 300
-) -> List[str, int]:
+):
     # Convert lists to PostgreSQL array format for the query
     query = text("""
         SELECT movie_id, COUNT(*) as frequency

@@ -1,7 +1,9 @@
 from sqlalchemy import text
 from typing import List
 import numpy as np
-import sqlalchemy.dialects.postgresql as pg
+from sqlalchemy.exc import IntegrityError
+from asyncpg.exceptions import ForeignKeyViolationError
+from fastapi import HTTPException
 
 # sql function that inserts movie metadata and does nothing if it already exists
 async def add_movie_metadata(
@@ -76,19 +78,34 @@ async def add_new_movie_rating(session, user_id: str, movie_id: str, rating: int
         RETURNING added_at = updated_at AS is_new   
     """)    
 
-    result = await session.execute(
-        query,
-        {
-            "user_id": user_id,
-            "movie_id": movie_id,
-            "user_rating": rating
-        }
-    )
+    try:
+        result = await session.execute(
+            query,
+            {
+                "user_id": user_id,
+                "movie_id": movie_id,
+                "user_rating": rating
+            }
+        )
 
-    row = result.first()
-    is_new_rating = row.is_new if row else None
+        # trigger db flush to catch errors early
+        await session.flush()
+        row = result.first()
+        is_new_rating = row.is_new if row else None 
+        return is_new_rating
+    except IntegrityError as e:
+        error_message = str(e)
+        # Check if it's a foreign key violation
+        if "foreign key constraint" in error_message:
+            if "user_ratings_user_id_fkey" in error_message or "user_login" in error_message:
+                raise HTTPException(status_code=404, detail="User does not exist")
+            elif "user_ratings_movie_id_fkey" in error_message or "movie_metadata" in error_message:
+                raise HTTPException(status_code=404, detail="Movie does not exist")
+            else:
+                raise HTTPException(status_code=400, detail="Foreign key violation")
+        else:
+            raise HTTPException(status_code=400, detail="Database integrity error")
 
-    return is_new_rating
 
 # fetches the movie_embeddings for the user
 async def get_movie_embeddings(session, user_id: str):
