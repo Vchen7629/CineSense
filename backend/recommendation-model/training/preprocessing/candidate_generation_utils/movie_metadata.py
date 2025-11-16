@@ -69,7 +69,6 @@ def create_movies_metadata(large_dataset: bool = False):
 
     # Join on IMDB ID (unique and correct) instead of TMDB ID (has duplicates)
     # This ensures we get the correct movie metadata
-    # Both sides now have format "tt0114709"
     joined_on_imdb = movie_df.join(
         metadata_df,
         left_on="imdbId",
