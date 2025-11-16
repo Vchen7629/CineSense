@@ -40,7 +40,7 @@ export function SearchFilter({list, placeholder_text}: searchFilterProps) {
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-[200px] justify-between bg-teal-600 hover:bg-teal-800 border-none transition-colors duration-250"
+          className="w-[200px] justify-between bg-teal-500/20 border-teal-400 text-teal-200 shadow-inner hover:bg-teal-800 border-none transition-colors duration-250"
         >
           {value
             ? list.find((item: filterItem) => item.value === value)?.label

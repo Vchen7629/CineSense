@@ -32,7 +32,7 @@ const YearFilterComponent = () => {
       value={year}
       onChange={handleChange}
       placeholder="YYYY"
-      className="pl-2 rounded-lg h-8 w-14 border bg-teal-600" 
+      className="pl-2 rounded-lg h-8 w-14 border bg-teal-500/20 text-teal-200 shadow-inner hover:bg-teal-800" 
     />
   )
 }

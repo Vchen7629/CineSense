@@ -7,6 +7,7 @@ export default function HomePage() {
       <Header />
 
       <div
+        className="border-t-2 border-black"
         style={{
           background: "#2E454D",
           color: "#FFFFFF",
