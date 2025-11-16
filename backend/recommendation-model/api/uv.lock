@@ -669,7 +669,7 @@ wheels = [
 ]
 
 [[package]]
-name = "recommendation-model"
+name = "recommendation-api"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
