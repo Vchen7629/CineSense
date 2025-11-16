@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 
 interface rateButtonProps {
     rating: number
-    setRating: React.Dispatch<React.SetStateAction<number[]>>;
+    setRating: React.Dispatch<React.SetStateAction<number>>;
 }
 
 const RateMovieButtons = ({rating, setRating}: rateButtonProps) => {
