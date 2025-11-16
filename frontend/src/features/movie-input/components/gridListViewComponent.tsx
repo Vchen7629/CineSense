@@ -10,7 +10,7 @@ interface gridListViewProps {
 const GridListViewComponent = ({ gridView, setGridView, listView, setListView }: gridListViewProps) => {
 
     return (
-        <div className="flex w-[12.5%] h-[65%] p-1 space-x-2 bg-black rounded-lg bg-transparent border border-[#879B9E]">
+        <div className="flex w-[12.5vw] h-[65%] p-1 space-x-2 bg-black rounded-lg bg-transparent border border-[#879B9E]">
             <button 
                 onClick={() => {setListView(true); setGridView(false)}}
                 className={

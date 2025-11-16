@@ -82,7 +82,7 @@ const DisplayMovies = ({movieData, listView, gridView}: DisplayProps) => {
                             </div>
                         </section>
                         <section 
-                            className={`flex flex-col items-center h-[80%] ${listView && "w-[20%] space-y-2"} ${gridView && "w-[30%] space-y-4"}`}
+                            className={`flex flex-col items-center h-[80%] ${listView && "w-[25%] space-y-2"} ${gridView && "w-[35%] space-y-4"}`}
                         >   
                             <div className="flex space-x-2 ">
                             {item.genres.map((g, idx) => (

@@ -37,30 +37,32 @@ export default function MovieInputPage() {
                 {listView ? (
                     <section className="flex w-full h-full space-x-[5%]">
                         <div className="h-[60%] w-[30%] bg-[#394B51] shadow-md shadow-black rounded-xl px-[1%] py-[1.5%]">
-                            <section className="w-full h-[13%] mb-[7.5%]">
-                                <SearchBar data={data} setData={setFilteredData} listView={listView} gridView={gridView}/>
-                            </section>
-                            <section className="flex items-center justify-between px-4 mb-[5%]">
-                                <div className="flex flex-col">
-                                    <span className="text-md text-white font-semibold">Filter By Genres:</span>
-                                    <span className="text-xs text-gray-300">choose a genre to filter results</span>
-                                </div>
-                                <SearchFilter list={genres} placeholder_text="genres"/>
-                            </section>
-                            <section className="flex items-center justify-between px-4 mb-[5%]">
-                                <div className="flex flex-col">
-                                    <span className="text-md text-white font-semibold">Filter By Languages:</span>
-                                    <span className="text-xs text-gray-300">choose a language to filter results</span>
-                                </div>
-                                <SearchFilter list={languages} placeholder_text="language"/>
-                            </section>
-                            <section className="flex items-center justify-between px-4 mb-[17.5%]">
-                                <div className="flex flex-col">
-                                    <span className="text-md text-white font-semibold">Filter By Year:</span>
-                                    <span className="text-sm text-gray-300">between 1888 - current</span>
-                                </div>
-                                <YearFilterComponent/>
-                            </section>
+                            <div className="h-[95%]">
+                                <section className="w-full h-[13%] mb-[7.5%]">
+                                    <SearchBar data={data} setData={setFilteredData} listView={listView} gridView={gridView}/>
+                                </section>
+                                <section className="flex items-center justify-between px-4 mb-[5%]">
+                                    <div className="flex flex-col">
+                                        <span className="text-md text-white font-semibold">Filter By Genres:</span>
+                                        <span className="text-xs text-gray-300">choose a genre to filter results</span>
+                                    </div>
+                                    <SearchFilter list={genres} placeholder_text="genres"/>
+                                </section>
+                                <section className="flex items-center justify-between px-4 mb-[5%]">
+                                    <div className="flex flex-col">
+                                        <span className="text-md text-white font-semibold">Filter By Languages:</span>
+                                        <span className="text-xs text-gray-300">choose a language to filter results</span>
+                                    </div>
+                                    <SearchFilter list={languages} placeholder_text="language"/>
+                                </section>
+                                <section className="flex items-center justify-between px-4">
+                                    <div className="flex flex-col">
+                                        <span className="text-md text-white font-semibold">Filter By Year:</span>
+                                        <span className="text-sm text-gray-300">between 1888 - current</span>
+                                    </div>
+                                    <YearFilterComponent/>
+                                </section>
+                            </div>
                             <PaginationComponent
                                 currentPage={currentPage}
                                 setCurrentPage={setCurrentPage}
