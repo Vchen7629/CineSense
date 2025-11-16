@@ -1,0 +1,29 @@
+[project]
+name = "recommendation-model"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12, <3.13"
+dependencies = [
+    "aiohttp>=3.13.2",
+    "info-nce-pytorch>=0.1.4",
+    "matplotlib>=3.10.7",
+    "numba>=0.62.1",
+    "numpy>=2.3.4",
+    "pandas>=2.3.3",
+    "polars>=1.35.1",
+    "psycopg2-binary>=2.9.11",
+    "requests>=2.32.5",
+    "scikit-learn>=1.7.2",
+    "sentence-transformers>=5.1.2",
+    "torch==2.8.0+cu128",
+]
+
+[tool.uv.sources]
+torch = { index = "pytorch-cu128" }
+
+[[tool.uv.index]]
+name = "pytorch-cu128"
+url = "https://download.pytorch.org/whl/cu128"
+explicit = true
+

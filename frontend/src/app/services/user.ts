@@ -1,11 +1,7 @@
 // Code for http requests involving users
 import { AxiosError } from 'axios';
 import { api } from '../lib/basePath';
-
-interface createGenreEmbProps {
-    user_id: string
-    genres: string[]
-}
+import type { createGenreEmbProps } from '../types/user';
 
 export const UserService = {
     // create embeddings for selected genres during signup

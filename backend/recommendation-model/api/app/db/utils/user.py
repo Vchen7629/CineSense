@@ -8,7 +8,7 @@ import numpy as np
 async def get_user_genres(session, user_id: str):
     query = text("""
         SELECT user_id, top_3_genres, genre_embedding
-        FROM user_top3_genres
+        FROM user_genre_embeddings
         WHERE user_id = :user_id
     """)
 
@@ -28,28 +28,36 @@ async def get_user_genres(session, user_id: str):
     return top_3_genres, genre_embedding
 
 # create a new user embedding using the 3 genres selected during signup
-async def new_user_genre_embedding(session, user_id: str, genre_embedding):
+async def new_user_genre_embedding(session, user_id: str, genre_embedding: np.ndarray, top3_genres: List[str]):
     query = text("""
-        INSERT INTO user_genre_embeddings (user_id, genre_embedding, last_updated)
-        VALUES (:user_id, :genre_embedding, NOW())
+        INSERT INTO user_genre_embeddings (user_id, genre_embedding, last_updated, top_3_genres)
+        VALUES (:user_id, :genre_embedding, NOW(), :user_genres)
     """)
-
-    await session.execute(
-        query,
-        {
-            "user_id": str(user_id),
-            "genre_embedding": genre_embedding
-        }
-    )
-
-    await session.commit()
-
-    result = await session.execute(text("SELECT * FROM user_top3_genres"))
-
-    rows = result.fetchall()
-    rows_as_dicts = [dict(row._mapping) for row in rows]
-
-    return rows_as_dicts
+    
+    try:
+        await session.execute(
+            query,
+            {
+                "user_id": str(user_id),
+                "genre_embedding": genre_embedding,
+                "user_genres": top3_genres
+            }
+        )
+        await session.commit()
+    except IntegrityError as e:
+        await session.rollback()
+        error_message = str(e).lower()
+        # Check if it's a foreign key violation
+        if "foreign key constraint" in error_message:
+            if "user_genre_embeddings_user_id_fkey" in error_message or "user_login" in error_message:
+                raise HTTPException(status_code=404, detail="User does not exist")
+            else:
+                raise HTTPException(status_code=400, detail="Foreign key violation")
+        # Check if it's a duplicate key violation
+        elif "unique constraint" in error_message or "duplicate key" in error_message:
+            raise HTTPException(status_code=409, detail="Genre embedding already exists for this user")
+        else:
+            raise HTTPException(status_code=400, detail="Database integrity error")
 
 # regenerates the user embedding containing their rated movies by averaging
 # the movie embeddings
@@ -104,7 +112,7 @@ async def test(session, user_id: str):
 async def get_user_with_ratings_count(session):
     query = text("""
         SELECT COUNT(DISTINCT user_id)
-        FROM user_ratings;
+        FROM user_watchlist;
     """)
 
     result = await session.execute(query)

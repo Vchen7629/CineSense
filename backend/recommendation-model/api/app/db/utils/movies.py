@@ -185,7 +185,7 @@ async def get_cold_start_recommendations(session, user_embedding, top3_genre):
                 m.summary, 
                 m.actors, 
                 m.director, 
-                m.poster_path
+                m.poster_path,
                 (e.embedding <=> CAST(:user_embedding AS vector)) as distance
             FROM movie_metadata m
             JOIN movie_embedding_coldstart e ON m.movie_id = e.movie_id
@@ -202,17 +202,17 @@ async def get_cold_start_recommendations(session, user_embedding, top3_genre):
                 m.summary, 
                 m.actors, 
                 m.director, 
-                m.poster_path
+                m.poster_path,
                 999 as distance
             FROM movie_metadata m
             WHERE NOT (m.genres && CAST(:user_genres AS text[]))
             ORDER BY RANDOM()
             LIMIT 2
         )
-        SELECT movie_id, movie_name, genres, distance
+        SELECT movie_id, movie_name, genres, release_date, summary, actors, director, poster_path, distance
         FROM genre_matched
         UNION ALL
-        SELECT movie_id, movie_name, genres, distance
+        SELECT movie_id, movie_name, genres, release_date, summary, actors, director, poster_path, distance
         FROM random_other
         ORDER BY distance;
     """)
