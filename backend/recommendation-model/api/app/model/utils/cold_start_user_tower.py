@@ -4,6 +4,7 @@ import torch
 import joblib
 import os
 from typing import List
+import numpy as np
 
 # User tower for cold start users - users who just signed up and only have selected 3 genres -
 # uses a mlb to encode the genres and create an embedding for the user to find recommendations
@@ -32,7 +33,7 @@ class ColdStartUserTower:
         self.projector.load_state_dict({'weight': state_dict['projector.weight'], 'bias': state_dict['projector.bias']})
         self.projector.eval()
 
-    def embedding(self, genres: List[str]) -> torch.Tensor:
+    def embedding(self, genres: List[str]) -> List[np.ndarray]:
         genre_onehot = self.genre_mlb.transform([genres])
         genre_tensor = torch.tensor(genre_onehot, dtype=torch.float32, device=self.device)        
         
