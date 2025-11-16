@@ -31,6 +31,7 @@ const UserPreferencesGenresGrid = ({ selectedGenres, setSelectedGenres, setCanSi
     // if selected all 3, set state so signup button can be clicked
     useEffect(() => {
         setCanSignup(selectedGenres.length === 3);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedGenres]);
 
     return (

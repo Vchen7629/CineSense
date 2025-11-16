@@ -1,21 +1,36 @@
 import Header from "@/features/navbar/components/Header";
+import UserPreferencesHeader from "../components/UserPreferencesHeader";
+import { useState } from "react";
+import UserPreferencesGenresGrid from "../components/UserPreferencesGenres";
+import { SignUpConfirmButton } from "../components/SignUpConfirmButton";
 
 export default function UserPreferences() {
+  const [selectedGenres, setSelectedGenres] = useState<string[]>([])
+  const [canSignup, setCanSignup] = useState<boolean>(false)
+
   return (
     <main className="bg-[#2E454D] min-h-screen">
       <Header />
       
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-20"> 
-        <div className="text-center mb-12">
-          <h1 className="text-white font-bold text-4xl sm:text-5xl lg:text-6xl">
+      <div className="flex flex-col space-y-[2.5vh] items-center mx-auto py-[5vh] h-full"> 
+        <section className="flex flex-col space-y-2 text-center mb-12">
+          <span className="text-white font-bold text-4xl sm:text-5xl lg:text-4xl">
             Pick Your Favorite Genres
-          </h1>
-          <p className="text-white text-xl sm:text-2xl mt-4 lg:mt-6">
-            Select At Least 3 To Personalize Your Recommendations
-          </p>
-        </div>
+          </span>
+          <span className="text-gray-300 text-lg font-light">
+            Step 2 of 2: Select At Least 3 To Personalize Your Recommendations
+          </span>
+        </section>
+        <section className="flex flex-col w-[65%] h-[67.5vh] p-[2%] space-y-[2%] rounded-2xl bg-[#394B51] shadow-md shadow-black">
+          <UserPreferencesHeader selectedGenres={selectedGenres} setSelectedGenres={setSelectedGenres}/>
+          <UserPreferencesGenresGrid selectedGenres={selectedGenres} setSelectedGenres={setSelectedGenres} setCanSignup={setCanSignup}/>
+          <div className="flex items-center justify-between w-full h-1/4">
+            <span className="text-gray-300">The Selected genres will be used to create your initial recommendations</span>
+            <SignUpConfirmButton selectedGenres={selectedGenres} canSignup={canSignup}/>
+          </div>
+        </section>
 
-        <div className="max-w-2xl mx-auto">
+        {/*<div className="max-w-2xl mx-auto">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 lg:gap-6">
             <div className="space-y-4 sm:space-y-5 lg:space-y-6">
               <button
@@ -111,7 +126,7 @@ export default function UserPreferences() {
           >
             Complete Sign Up
           </button>
-        </div>
+        </div>*/}
       </div>
     </main>
   );

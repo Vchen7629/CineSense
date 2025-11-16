@@ -14,7 +14,7 @@ const UserPreferencesHeader = ({ selectedGenres, setSelectedGenres }: UserPrefer
         setSelectedGenres(prev => prev.filter(g => g !== genre));
     }
 
-    function clearSelected(setSelectedGenres: any) {
+    function clearSelected(setSelectedGenres: (selectedGenres: string[]) => void) {
         setSelectedGenres([])
     }
 

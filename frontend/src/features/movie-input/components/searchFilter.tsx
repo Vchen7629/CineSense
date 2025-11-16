@@ -4,7 +4,7 @@ import * as React from "react"
 import { Check, ChevronsUpDown } from "lucide-react"
 
 import { cn } from "@/lib/utils"
-import { Button } from "@/shared/components/ui/button"
+import { Button } from "@/shared/components/shadcn/button"
 import {
   Command,
   CommandEmpty,
@@ -12,16 +12,21 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from "@/shared/components/ui/command"
+} from "@/shared/components/shadcn/command"
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/shared/components/ui/popover"
+} from "@/shared/components/shadcn/popover"
 
 interface searchFilterProps {
-  list: any[]
+  list: filterItem[]
   placeholder_text: string
+}
+
+interface filterItem {
+  value: string
+  label: string
 }
 
 export function SearchFilter({list, placeholder_text}: searchFilterProps) {
@@ -38,7 +43,7 @@ export function SearchFilter({list, placeholder_text}: searchFilterProps) {
           className="w-[200px] justify-between bg-teal-600 hover:bg-teal-800 border-none transition-colors duration-250"
         >
           {value
-            ? list.find((item: any) => item.value === value)?.label
+            ? list.find((item: filterItem) => item.value === value)?.label
             : `Select ${placeholder_text}...`}
           <ChevronsUpDown className="opacity-50" />
         </Button>
@@ -49,7 +54,7 @@ export function SearchFilter({list, placeholder_text}: searchFilterProps) {
           <CommandList>
             <CommandEmpty>No {placeholder_text} found.</CommandEmpty>
             <CommandGroup>
-              {list.map((item: any) => (
+              {list.map((item: filterItem) => (
                 <CommandItem
                   key={item.value}
                   value={item.value}

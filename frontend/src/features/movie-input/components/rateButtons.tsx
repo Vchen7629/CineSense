@@ -1,7 +1,12 @@
 import { Star } from "lucide-react"
 import { useEffect, useState } from "react";
 
-const RateMovieButtons = ({rating, setRating}: any) => {
+interface rateButtonProps {
+    rating: number
+    setRating: React.Dispatch<React.SetStateAction<number[]>>;
+}
+
+const RateMovieButtons = ({rating, setRating}: rateButtonProps) => {
     const [hovered, setHovered] = useState<number>(0);
     
     useEffect(() => {
