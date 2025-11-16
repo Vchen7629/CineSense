@@ -9,9 +9,8 @@ export function Switch({ className, ...props }: React.ComponentProps<typeof Swit
     <SwitchPrimitive.Root
       className={cn(
         "group relative inline-flex h-[2rem] w-26 items-center rounded-full justify-between px-2 peer",
-        "!bg-gray-400 data-[state=checked]:bg-primary data-[state=unchecked]:bg-input dark:data-[state=unchecked]:bg-input/80",
-        "shadow-xs transition-all outline-2  disabled:cursor-not-allowed disabled:opacity-50",
-        "outline-black",
+        "bg-teal-500/20 border-teal-400 text-teal-200 shadow-inner hover:bg-teal-800 data-[state=unchecked]:!bg-gray-400 data-[state=unchecked]:bg-input dark:data-[state=unchecked]:bg-input/80",
+        "shadow-xs transition-all outline-2 outline-teal-700 disabled:cursor-not-allowed disabled:opacity-50",
         className
       )}
       {...props}
@@ -38,7 +37,7 @@ export function Switch({ className, ...props }: React.ComponentProps<typeof Swit
         <img
             src={darkmode}
             alt="Dark"
-            className="h-[1.6rem] w-[1.6rem] rounded-full object-cover hidden group-data-[state=checked]:block"
+            className="h-[1.6rem] w-[1.6rem] bg-teal-600/40 text-teal rounded-full object-cover hidden group-data-[state=checked]:block"
         />
       </SwitchPrimitive.Thumb>
     </SwitchPrimitive.Root>

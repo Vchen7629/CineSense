@@ -64,7 +64,7 @@ const DisplayMovies = ({movieData, listView, gridView}: DisplayProps) => {
                                     <div className="w-[80%] flex">
                                         <button 
                                             onClick={() => handleRemove(item.id)}
-                                            className="flex items-center space-x-1 px-3 py-1 bg-slate-500/40 hover:bg-red-700/40 rounded-xl transition-colors duration-250"
+                                            className="flex items-center space-x-1 px-3 py-1 bg-slate-500/40 hover:bg-red-600 rounded-xl transition-colors duration-250"
                                         >
                                             <TrashIcon size={18}/>
                                             <span className="text-sm">Remove</span>
