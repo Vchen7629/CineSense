@@ -29,11 +29,11 @@ const SignUpPage = () => {
             </div>
           </div>
           <SignUpForm />
-          <Link
-            to="/userpreferences"
-            className="bg-teal-600 w-full h-[10%] text-white font-medium border-2 border-black rounded-lg mt-8 flex items-center justify-center"
-          >
-            Continue
+            <Link
+              to="/userpreferences"
+              className="bg-teal-600 w-full h-[10%] text-white font-medium border-2 border-black rounded-lg mt-8 flex items-center justify-center"
+            >
+              Continue
           </Link>
         </section>
       </section>
