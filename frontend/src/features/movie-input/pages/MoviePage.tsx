@@ -6,6 +6,9 @@ import type { DummyItem } from "../types/data";
 import PaginationComponent from "../components/pagination";
 import GridListViewComponent from "../components/gridListViewComponent";
 import DisplayMovies from "../components/moviesDisplay";
+import { SearchFilter } from "../components/searchFilter";
+import { genres, languages } from "../misc/filterItems";
+import YearFilterComponent from "../components/yearFilter";
 
 export default function MovieInputPage() {
     const [currentPage, setCurrentPage] = useState<number>(1)
@@ -33,16 +36,31 @@ export default function MovieInputPage() {
                 </section>
                 {listView ? (
                     <section className="flex w-full h-full space-x-[5%]">
-                        <div className="h-[60%] w-[30%] shadow-lg shadow-gray-900 rounded-xl p-[1%] border border-[#879B9E]">
-                            <section className="w-full h-[13%] mb-[5%]">
+                        <div className="h-[60%] w-[30%] bg-[#394B51] shadow-md shadow-black rounded-xl px-[1%] py-[1.5%]">
+                            <section className="w-full h-[13%] mb-[7.5%]">
                                 <SearchBar data={data} setData={setFilteredData} listView={listView} gridView={gridView}/>
                             </section>
-                            <section className="flex flex px-2">
-                                <span className="text-lg text-gray-300">Genre Filter</span>
+                            <section className="flex items-center justify-between px-4 mb-[5%]">
+                                <div className="flex flex-col">
+                                    <span className="text-md text-white font-semibold">Filter By Genres:</span>
+                                    <span className="text-xs text-gray-300">choose a genre to filter results</span>
+                                </div>
+                                <SearchFilter list={genres} placeholder_text="genres"/>
                             </section>
-                        </div>
-                        <div className="w-[65%] flex flex-col">
-                            <DisplayMovies movieData={paginatedMovies} listView={listView} gridView={gridView}/>
+                            <section className="flex items-center justify-between px-4 mb-[5%]">
+                                <div className="flex flex-col">
+                                    <span className="text-md text-white font-semibold">Filter By Languages:</span>
+                                    <span className="text-xs text-gray-300">choose a language to filter results</span>
+                                </div>
+                                <SearchFilter list={languages} placeholder_text="language"/>
+                            </section>
+                            <section className="flex items-center justify-between px-4 mb-[17.5%]">
+                                <div className="flex flex-col">
+                                    <span className="text-md text-white font-semibold">Filter By Year:</span>
+                                    <span className="text-sm text-gray-300">between 1888 - current</span>
+                                </div>
+                                <YearFilterComponent/>
+                            </section>
                             <PaginationComponent
                                 currentPage={currentPage}
                                 setCurrentPage={setCurrentPage}
@@ -51,11 +69,23 @@ export default function MovieInputPage() {
                                 gridView={gridView}
                             />
                         </div>
+                        <div className="w-[65%] flex flex-col">
+                            <DisplayMovies movieData={paginatedMovies} listView={listView} gridView={gridView}/>
+                        </div>
                     </section>
                 ) : gridView && (
-                    <>
-                        <section className="w-full h-[10%] mb-[1%]">
+                    <section className="flex flex-col h-full space-y-[1%]">
+                        <section className="flex items-center w-full h-[10%] ">
                             <SearchBar data={data} setData={setFilteredData} listView={listView} gridView={gridView}/>
+                        </section>
+                        <section className="flex items-center px-2 space-x-[1%]">
+                            <span className="text-xl mr-[2%] text-white font-light">Filters:</span>
+                            <SearchFilter list={genres} placeholder_text="genres"/>
+                            <SearchFilter list={languages} placeholder_text="language"/>
+                            <section className="flex items-center space-x-2">
+                                <span className="text-md text-white font-light">Year:</span>
+                                <YearFilterComponent/>
+                            </section>
                         </section>
                         <section className="flex flex-col w-full h-[85%]">
                             <div className="flex items-center justify-between mb-5 pl-2">
@@ -70,7 +100,7 @@ export default function MovieInputPage() {
                             </div>
                             <DisplayMovies movieData={paginatedMovies} listView={listView} gridView={gridView}/>
                         </section>
-                    </>
+                    </section>
                 )}
             </main>
         </>

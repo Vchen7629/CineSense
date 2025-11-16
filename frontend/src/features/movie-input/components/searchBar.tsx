@@ -14,8 +14,8 @@ const SearchBar = ({ data, setData, listView, gridView}: SearchProps) => {
         <input 
             onChange={(e) => HandleSearch(e.target.value, data, setData)}
             className={
-                `h-[100%] w-full bg-[#879B9E] border-2 text-xl text-white border-[#3A5A7A] focus:outline-none px-[1%] rounded-2xl
-                ${listView && "px-[5%]"} ${gridView && "px-[1%]"}
+                `bg-[#879B9E] border-2 text-xl text-white border-[#3A5A7A] focus:outline-none px-[1%] rounded-2xl
+                ${listView && "px-[5%] h-[100%] w-full"} ${gridView && "px-[1%] h-[90%] w-full"}
             `}
             placeholder="enter a movie name... "
         />

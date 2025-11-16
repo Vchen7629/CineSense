@@ -31,7 +31,7 @@ const DisplayMovies = ({movieData, listView, gridView}: DisplayProps) => {
                     <li 
                         key={item.id} 
                         className={
-                            `flex w-full text-xl font-semibold items-center px-2 shadow-md shadow-black bg-[#394B51] rounded-xl border-2 border-[#3A5A7A]
+                            `flex w-full text-xl font-semibold items-center px-2 shadow-md shadow-black bg-[#394B51] rounded-xl 
                             ${listView && "h-[20%]"} ${gridView && "h-[85%]"}`
                         } 
                         role="listitem"
@@ -40,7 +40,7 @@ const DisplayMovies = ({movieData, listView, gridView}: DisplayProps) => {
                         <section 
                             className={`flex flex-col ${listView && "w-[70%]"} ${gridView && "w-[50%]"} h-[80%] px-[2%]`}
                         >
-                            <span className="text-lg font-bold">{item.name}</span>
+                            <span className="text-lg font-bold text-white">{item.name}</span>
                             <span className="text-sm text-gray-400 h-3/4">{item.desc}</span>
                             <div className="flex items-center space-x-3 mt-4 w-[100%]">
                                 {!isOpen ? (
