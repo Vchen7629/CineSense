@@ -8,7 +8,7 @@ import numpy as np
 async def get_user_genres(session, user_id: str):
     query = text("""
         SELECT user_id, top_3_genres, genre_embedding
-        FROM user_top3_genres
+        FROM user_genre_embeddings
         WHERE user_id = :user_id
     """)
 
@@ -28,10 +28,10 @@ async def get_user_genres(session, user_id: str):
     return top_3_genres, genre_embedding
 
 # create a new user embedding using the 3 genres selected during signup
-async def new_user_genre_embedding(session, user_id: str, genre_embedding):
+async def new_user_genre_embedding(session, user_id: str, genre_embedding: np.ndarray, top3_genres: List[str]):
     query = text("""
-        INSERT INTO user_genre_embeddings (user_id, genre_embedding, last_updated)
-        VALUES (:user_id, :genre_embedding, NOW())
+        INSERT INTO user_genre_embeddings (user_id, genre_embedding, last_updated, top_3_genres)
+        VALUES (:user_id, :genre_embedding, NOW(), :user_genres)
     """)
     
     try:
@@ -39,7 +39,8 @@ async def new_user_genre_embedding(session, user_id: str, genre_embedding):
             query,
             {
                 "user_id": str(user_id),
-                "genre_embedding": genre_embedding
+                "genre_embedding": genre_embedding,
+                "user_genres": top3_genres
             }
         )
         await session.commit()
@@ -111,7 +112,7 @@ async def test(session, user_id: str):
 async def get_user_with_ratings_count(session):
     query = text("""
         SELECT COUNT(DISTINCT user_id)
-        FROM user_ratings;
+        FROM user_watchlist;
     """)
 
     result = await session.execute(query)

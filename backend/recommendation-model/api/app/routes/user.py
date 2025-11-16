@@ -24,7 +24,7 @@ async def new_user(
     genres = body.genres
     user_embedding = user_tower.embedding(genres)
 
-    await new_user_genre_embedding(session, userId, user_embedding)
+    await new_user_genre_embedding(session, userId, user_embedding, genres)
 
     return {"message": f"successfully added genre embeddings for user: {userId}"}
 
