@@ -21,13 +21,12 @@ async def new_user(
     session: AsyncSession = Depends(get_session),
     user_tower: ColdStartUserTower = Depends(get_cold_start_user_tower)
 ):
-    #test_top3_genre = ["Science Fiction", "Adventure", "Comedy"]
     genres = body.genres
     user_embedding = user_tower.embedding(genres)
 
-    result = await new_user_genre_embedding(session, userId, user_embedding)
+    await new_user_genre_embedding(session, userId, user_embedding)
 
-    return result
+    return {"message": f"successfully added genre embeddings for user: {userId}"}
 
 # we need to create an embedding using the user tower for the
 # selected top 3 genres for cold start recommendations
