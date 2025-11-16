@@ -1,24 +1,21 @@
-import { useState } from "react";
+interface SignUpConfirmButtonProps {
+    selectedGenres: string[]
+    canSignup: boolean
+}
 
-export const SignUpConfirmButton = () => {
-    const [email, setEmail] = useState(""); 
+export const SignUpConfirmButton = ({ selectedGenres, canSignup }: SignUpConfirmButtonProps) => {
 
     function handleClick() {
-        console.log("Sign Up Confirm Button Clicked");
-
-        setEmail("newemail@example.com");
+        console.log(selectedGenres);
     }
 
     return (
-        <main className="w-full h-full bg-red-500 mt-16">
-            <button onClick={handleClick}> Confirm</button>
-            <input  
-                type="text"
-                placeholder="Enter your email"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-            />
-            <p>{email}</p>  
-        </main>
+        <button
+            disabled={canSignup}
+            className={`${canSignup ? "bg-teal-600 hover:bg-teal-700" : "bg-gray-700"} w-28 px-4 py-2 rounded-md transition-colors duration-250`}
+            onClick={handleClick}
+        >
+            Sign-up
+        </button>
     )
 }

@@ -3,7 +3,7 @@ import { PencilIcon } from "lucide-react";
 import { Link } from "react-router";
 import SignUpForm from "../components/SignupForm";
 
-export default function SignUpPage() {
+const SignUpPage = () => {
   return (
     <main className="bg-[#2E454D] min-h-screen">
       <Header />
@@ -40,3 +40,5 @@ export default function SignUpPage() {
     </main>
   );
 }
+
+export default SignUpPage
