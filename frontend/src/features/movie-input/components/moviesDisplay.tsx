@@ -46,7 +46,7 @@ const DisplayMovies = ({movieData, listView, gridView}: DisplayProps) => {
                                 {!isOpen ? (
                                     <button
                                         onClick={() => handleAdd(item.id)}
-                                        className="flex items-center space-x-1 px-3 py-1.5 bg-teal-600 hover:bg-teal-700 rounded-xl transition-colors duration-250"
+                                        className="flex items-center space-x-1 px-3 py-1.5 bg-teal-500/20 border-teal-400 text-teal-200 shadow-inner hover:bg-teal-800 rounded-xl transition-colors duration-250"
                                     >
                                         <PlusIcon size={18} />
                                         <span className="text-sm">Add</span>
@@ -54,7 +54,7 @@ const DisplayMovies = ({movieData, listView, gridView}: DisplayProps) => {
                                 ) : (
                                     <button
                                         onClick={() => handleAdd(item.id)}
-                                        className="flex items-center space-x-1 px-3 py-1.5 bg-teal-600 hover:bg-teal-700 rounded-xl transition-colors duration-250"
+                                        className="flex items-center space-x-1 px-3 py-1.5 bg-teal-500/20 border-teal-400 text-teal-200 shadow-inner hover:bg-teal-800 rounded-xl transition-colors duration-250"
                                     >
                                         <Heart size={18} />
                                         <span className="text-sm">Added!</span>
@@ -64,7 +64,7 @@ const DisplayMovies = ({movieData, listView, gridView}: DisplayProps) => {
                                     <div className="w-[80%] flex">
                                         <button 
                                             onClick={() => handleRemove(item.id)}
-                                            className="flex items-center space-x-1 px-3 py-1 bg-gray-500 hover:bg-red-700 rounded-xl transition-colors duration-250"
+                                            className="flex items-center space-x-1 px-3 py-1 bg-slate-500/40 hover:bg-red-700/40 rounded-xl transition-colors duration-250"
                                         >
                                             <TrashIcon size={18}/>
                                             <span className="text-sm">Remove</span>
@@ -72,7 +72,7 @@ const DisplayMovies = ({movieData, listView, gridView}: DisplayProps) => {
                                         <RateMovieButtons rating={rating} setRating={setRating}/>
                                         <button 
                                             onClick={() => rateMovie(item, rating)}
-                                            className="flex items-center space-x-1 px-3 py-1 bg-green-600 hover:bg-green-800 rounded-xl transition-colors duration-250"
+                                            className="flex items-center space-x-1 px-3 py-1 bg-green-400/20 shadow-inner hover:bg-green-800 rounded-xl transition-colors duration-250"
                                         >
                                             <ThumbsUpIcon size={18}/>
                                             <span className="text-sm">Rate!</span>
@@ -88,7 +88,7 @@ const DisplayMovies = ({movieData, listView, gridView}: DisplayProps) => {
                             {item.genres.map((g, idx) => (
                                 <div 
                                     key={idx} 
-                                    className="px-1 py-1 text-xs bg-[#879B9E] rounded-md"
+                                    className="px-1 py-1 text-xs bg-teal-500/20 border border-teal-400 text-teal-200 shadow-inner rounded-md"
                                 >
                                     {g}
                                 </div>
@@ -99,7 +99,7 @@ const DisplayMovies = ({movieData, listView, gridView}: DisplayProps) => {
                                 {item.actors.map((name, idx) => (
                                     <div 
                                         key={idx} 
-                                        className="text-sm text-gray-400"
+                                        className="text-sm text-teal-500"
                                     >
                                         {name}
                                     </div>
@@ -110,7 +110,7 @@ const DisplayMovies = ({movieData, listView, gridView}: DisplayProps) => {
                                 {item.director.map((name, idx) => (
                                     <div 
                                         key={idx} 
-                                        className="text-sm text-gray-400"
+                                        className="text-sm text-teal-500"
                                     >
                                         {name}
                                     </div>
