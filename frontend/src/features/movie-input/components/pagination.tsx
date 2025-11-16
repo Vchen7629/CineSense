@@ -26,7 +26,7 @@ const PaginationComponent = ({
   return (
     <main className={`flex ${listView && "w-full justify-center items-center h-[5%]"} ${gridView && "h-full"} space-x-2`}>
       <button
-        className="flex items-center justify-center h-7 w-7 hover:text-cyan-200 bg-[#879B9E] rounded-md shadow-sm shadow-black "
+        className="flex items-center justify-center h-7 w-7 hover:bg-teal-800 bg-teal-600 rounded-md shadow-sm shadow-black transition-colors duration-250"
         onClick={() =>
           ChangePaginationPage(
             setCurrentPage,
@@ -38,11 +38,11 @@ const PaginationComponent = ({
       >
         {'<'}
       </button>
-      <div className='text-white text-lg font-semibold'>
+      <div className='text-white text-lg font-light'>
         Showing {currentPage} of {totalPage}
       </div>
       <button
-        className="flex items-center justify-center h-7 w-7 hover:text-cyan-200 bg-[#879B9E] rounded-md shadow-sm shadow-black"
+        className="flex items-center justify-center h-7 w-7 hover:bg-teal-800 bg-teal-600 rounded-md shadow-sm shadow-black transition-colors duration-250"
         onClick={() =>
           ChangePaginationPage(
             setCurrentPage,
