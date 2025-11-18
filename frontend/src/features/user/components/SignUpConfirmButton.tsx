@@ -1,4 +1,3 @@
-import { CreateGenreEmbeddings } from "@/app/utils/user";
 import { useCreateGenreEmbeddings } from "../hooks/useCreateGenreEmbedding";
 
 interface SignUpConfirmButtonProps {
