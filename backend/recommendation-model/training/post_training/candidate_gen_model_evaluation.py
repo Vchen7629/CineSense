@@ -5,25 +5,27 @@ import torch
 import torch.nn.functional as f
 from typing import List
 from collections import Counter
+from tqdm import tqdm
 
 # class with helper functions for testing accuracy of the candidate generation two tower
 # model which fetches candidates (movies) based on similar users using cosine similarity
 class CandidateGenerationModelEval:
-    def __init__(self, movie_tower, large_dataset: bool = False):
+    def __init__(self, large_dataset: bool = False):
         
         current_dir = os.path.dirname(__file__)
 
         if large_dataset:
             movie_embeddings_path = os.path.join(current_dir, "..", "datasets", "output", "movie_embeddings.npy")
-            user_ratings_path = os.path.join(current_dir, "..", "datasets", "output", "user-output.csv")
-            user_emb_path = os.path.join(current_dir, "..", "datasets", "eval-files", "user-embeddings.npy")
+            user_ratings_path = os.path.join(current_dir, "..", "datasets", "output", "user-positive-ratings.csv")
+            user_emb_path = os.path.join(current_dir, "..", "datasets", "output", "user-embeddings.npy")
         else:
             movie_embeddings_path = os.path.join(current_dir, "..", "datasets", "output-small", "movie_embeddings.npy")
-            user_ratings_path = os.path.join(current_dir, "..", "datasets", "output-small", "user-output.csv")
-            user_emb_path = os.path.join(current_dir, "..", "datasets", "eval-files", "user-embeddings-small.npy")
+            user_ratings_path = os.path.join(current_dir, "..", "datasets", "output-small", "user-positive-ratings.csv")
+            user_emb_path = os.path.join(current_dir, "..", "datasets", "output-small", "user-embeddings.npy")
 
-        # Load precomputed movie embeddings
-        self.movie_embeddings = np.load(movie_embeddings_path)
+        # Load precomputed movie embeddings and convert to torch tensor
+        movie_embeddings_np = np.load(movie_embeddings_path)
+        self.movie_embeddings = torch.tensor(movie_embeddings_np, dtype=torch.float32, device="cuda")
 
         # Read user ratings CSV
         user_df = pl.read_csv(user_ratings_path)
@@ -40,16 +42,14 @@ class CandidateGenerationModelEval:
         # load user embeddings to test user-user collaborative accuracy
         self.user_embeddings = np.load(user_emb_path)
 
-        self.movie_tower = movie_tower
-        self.movie_tower.eval()
-
         print(f"Found {len(self.user_to_movies)} users with ratings")
+        print(f"Loaded {self.movie_embeddings.shape[0]} pre-computed movie embeddings")
 
-    # Evaluae collaborative filtering by using leave-one-out to test hitrate for 
+    # Evaluae collaborative filtering by using leave-one-out to test hitrate for
     # user-user similarity (collaborative filtering)
     # k: Top-K for hitrate
     # num_similar_users: number of similar users to find
-    # candidate_pool_size: size of candidate pool from similar users 
+    # candidate_pool_size: size of candidate pool from similar users
     def leave_one_out_evaluation_with_user_similarity(
         self,
         k: int = 10,
@@ -59,7 +59,16 @@ class CandidateGenerationModelEval:
         hits = 0
         total = 0  # Track only evaluated users
 
-        for user_id, movies in self.user_to_movies.items():
+        # Pre-convert all user movie lists to sets for fast lookup
+        user_to_movies_set = {
+            user_id: set(movies)
+            for user_id, movies in self.user_to_movies.items()
+        }
+
+        # Progress bar
+        pbar = tqdm(self.user_to_movies.items(), desc=f"Evaluating (K={k}, SimUsers={num_similar_users}, Pool={candidate_pool_size})")
+
+        for user_id, movies in pbar:
             if len(movies) < 2:
                 continue
 
@@ -67,9 +76,10 @@ class CandidateGenerationModelEval:
             train_movies = movies[:-1]
             test_movie = movies[-1]
 
-            # Create target user embedding
-            train_movie_tensor = torch.tensor(train_movies, device="cuda", dtype=torch.long)
-            train_movie_embs = self.movie_tower(train_movie_tensor)
+            train_movies_set = set(train_movies)
+
+            # Create target user embedding using pre-computed embeddings
+            train_movie_embs = self.movie_embeddings[train_movies]
             target_user_emb = train_movie_embs.mean(dim=0)  # [512]
 
             # === USER-USER STAGE ===
@@ -87,28 +97,30 @@ class CandidateGenerationModelEval:
             # Collect movies from similar users with frequency counts
             candidate_movie_counts = Counter()
             for similar_user_id in similar_user_indices:
-                similar_user_movies = self.user_to_movies[similar_user_id]
-                for movie in similar_user_movies:
-                    if movie not in train_movies:  # Exclude already rated
-                        candidate_movie_counts[movie] += 1
+                # Use pre-computed set for faster set operations
+                similar_user_movies_set = user_to_movies_set[similar_user_id]
+                # Set difference: movies in similar user's set but not in train set
+                new_candidates = similar_user_movies_set - train_movies_set
+                # Update counts
+                candidate_movie_counts.update(new_candidates)
 
             if len(candidate_movie_counts) == 0:
                 continue
 
             # Sort by frequency (most popular among similar users first)
-            candidate_movies = [movie for movie, count in candidate_movie_counts.most_common(candidate_pool_size)]
+            candidate_movies = [movie for movie, _ in candidate_movie_counts.most_common(candidate_pool_size)]
 
             # === RANKING STAGE ===
-            # Rank candidates using movie embeddings
-            candidate_tensor = torch.tensor(candidate_movies, device="cuda", dtype=torch.long)
-            candidate_embs = self.movie_tower(candidate_tensor)
+            # Rank candidates using pre-computed embeddings
+            with torch.no_grad():  # Disable gradient computation for eval
+                candidate_embs = self.movie_embeddings[candidate_movies]  # Direct lookup!
 
-            # Normalize
-            target_user_emb_norm_expanded = f.normalize(target_user_emb.unsqueeze(0), dim=1)
-            candidate_embs_norm = f.normalize(candidate_embs, dim=1)
+                # Normalize
+                target_user_emb_norm_expanded = f.normalize(target_user_emb.unsqueeze(0), dim=1)
+                candidate_embs_norm = f.normalize(candidate_embs, dim=1)
 
-            # Compute similarities
-            scores = (target_user_emb_norm_expanded @ candidate_embs_norm.T).squeeze(0)  # [num_candidates]
+                # Compute similarities
+                scores = (target_user_emb_norm_expanded @ candidate_embs_norm.T).squeeze(0)  # [num_candidates]
 
             # Get top-k
             top_k_indices = torch.topk(scores, min(k, len(candidate_movies))).indices
@@ -119,6 +131,10 @@ class CandidateGenerationModelEval:
                 hits += 1
 
             total += 1  # Count this user as evaluated
+
+            # Update progress bar with current hitrate
+            if total > 0:
+                pbar.set_postfix({'hitrate': f'{hits/total:.4f}'})
 
         hitrate = hits / total if total > 0 else 0.0
         print(f"User-User CF HitRate@{k}: {hitrate:.4f} ({hitrate*100:.2f}%)")
