@@ -191,7 +191,7 @@ class Reranker:
             'objective': 'lambdarank',
             'metric': 'ndcg',
             'ndcg_eval_at': [10],  # Evaluate at multiple k, optimize for these
-            'label_gain': [1, 2, 4, 7, 11], # label gain to emphasize higher ratings (4, 5) more
+            'label_gain': [0, 1, 2, 3, 5, 7, 10, 13, 17, 22, 28],  # label gain to emphasize higher ratings (4, 5) more
             'boosting_type': 'gbdt',
             'random_state': 42,
             'verbosity': 1,
