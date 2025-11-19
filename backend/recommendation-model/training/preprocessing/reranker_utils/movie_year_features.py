@@ -3,13 +3,13 @@ import os
 
 # helper function to create movie year related features such as release year, movie age in years, and recency score
 def movie_year_features(reranker_features_path: str, movie_metadata_path: str) -> None:
-    movie_ids_df = pl.read_csv(reranker_features_path).select(["tmdbId"])
+    movie_ids_df = pl.read_csv(reranker_features_path).select(["movie_idx"])
     reranker_features_df = pl.read_csv(reranker_features_path)
-    movie_metadata_df = pl.read_csv(movie_metadata_path).select(["tmdbId","year"])
+    movie_metadata_df = pl.read_csv(movie_metadata_path).select(["movie_idx", "year"])
 
     year_df = movie_ids_df.join(
         movie_metadata_df,
-        on="tmdbId",
+        on="movie_idx",
         how="left"
     )
 
@@ -17,7 +17,7 @@ def movie_year_features(reranker_features_path: str, movie_metadata_path: str) -
     reranker_features_df = year_df.join(
         reranker_features_df,
         how="left",
-        on="tmdbId"
+        on="movie_idx"
     )
 
     # calculate movie age by subtracting current year (2025) by movie age
@@ -31,7 +31,7 @@ def movie_year_features(reranker_features_path: str, movie_metadata_path: str) -
     reranker_features_df = age_df.join(
         reranker_features_df,
         how="left",
-        on="tmdbId"
+        on="movie_idx"
     )
 
     # calculate recency with formula: 1 - min((2025 - year) / 50, 1.0) to normalize it between 0 and 1
@@ -51,7 +51,7 @@ def movie_year_features(reranker_features_path: str, movie_metadata_path: str) -
     reranker_features_df = recency_score_df.join(
         reranker_features_df,
         how="left",
-        on="tmdbId"
+        on="movie_idx"
     )
 
     reranker_features_df.write_csv(reranker_features_path)

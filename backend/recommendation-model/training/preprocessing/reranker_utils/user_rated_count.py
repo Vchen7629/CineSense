@@ -15,6 +15,15 @@ def user_rated_movie_count(reranker_user_features_path: str, pos_ratings_path: s
     )
     print(ratings_df)
 
-    reranker_df = ratings_df.select(["userId", "user_rating_count"])
+    # create log value of rating count to smooth out the rating count
+    # so that larger ratings are weighted less
+    rating_count_log_df = ratings_df.with_columns(
+        pl.col("user_rating_count")
+        .log1p()
+        .round(3)
+        .alias("user_rating_log")
+    )
+
+    reranker_df = rating_count_log_df.select(["userId", "user_rating_count", "user_rating_log"])
 
     reranker_df.write_csv(reranker_user_features_path)

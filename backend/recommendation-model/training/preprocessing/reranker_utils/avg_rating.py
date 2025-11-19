@@ -36,6 +36,7 @@ def avg_rating(
         reranker_df
             .with_columns(
                 (pl.col("total_rating") / pl.col(column_name))
+                .round(3)
                 .alias(new_col_name)
             )
             .drop("total_rating")

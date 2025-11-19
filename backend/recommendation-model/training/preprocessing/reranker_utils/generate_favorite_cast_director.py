@@ -15,14 +15,14 @@ def generate_favorite_cast_director(
     else:
         favorite_actor_dir_path = os.path.join(current_dir, "..", "..", "datasets", "output-small", "favorite-actor-directors.csv")
 
-    metadata_df = pl.read_csv(movie_metadata_path).select(["tmdbId", "cast_normalized", "director"])
-    pos_rating_df = pl.read_csv(user_pos_rating_path).select(["userId", "tmdbId"])
+    metadata_df = pl.read_csv(movie_metadata_path).select(["movie_idx", "cast_normalized", "director"])
+    pos_rating_df = pl.read_csv(user_pos_rating_path).select(["userId", "movie_idx"])
     favorite_actor_director_df = pl.read_csv(user_pos_rating_path).select("userId")
 
     actors_director_df = pos_rating_df.join(
         metadata_df,
         how="left",
-        on="tmdbId"
+        on="movie_idx"
     )  
 
     print(actors_director_df)
@@ -66,6 +66,7 @@ def generate_favorite_cast_director(
         how="left",
         on="userId"
     )
+
 
     top_actors_director_df = top_actors_df.join(
         top_directors_df,
