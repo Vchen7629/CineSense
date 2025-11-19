@@ -1,6 +1,6 @@
 import os
 from reranker_utils.user_rated_count import user_rated_movie_count
-from reranker_utils.movie_rated_count import movie_rating_count
+from reranker_utils.movie_rating_count import movie_rating_count
 from reranker_utils.avg_rating import avg_rating
 from reranker_utils.movie_year_features import movie_year_features
 from reranker_utils.movie_language_feature import movie_language_feature
@@ -27,45 +27,45 @@ def preprocess_reranking_model_files(large_dataset: bool = False):
         neg_ratings_path = os.path.join(current_dir, "..", "datasets", "output-small", "user-negative-ratings.csv")
         movie_metadata_path = os.path.join(current_dir, "..", "datasets", "output-small", "movie-metadata.csv")
 
-    #user_rated_movie_count(reranker_user_features_path, pos_ratings_path, neg_ratings_path)
+    user_rated_movie_count(reranker_user_features_path, pos_ratings_path, neg_ratings_path)
     # calculate the average rating the user gives to their rated movies
-    #avg_rating(
-    #    feature_id="userId",
-    #    column_name="user_rating_count",
-    #    new_col_name="user_avg_rating",
-    #    reranker_features_path=reranker_user_features_path, 
-    #    pos_ratings_path=pos_ratings_path, 
-    #    neg_ratings_path=neg_ratings_path
-    #)
+    avg_rating(
+        feature_id="userId",
+        column_name="user_rating_count",
+        new_col_name="user_avg_rating",
+        reranker_features_path=reranker_user_features_path, 
+        pos_ratings_path=pos_ratings_path, 
+        neg_ratings_path=neg_ratings_path
+    )
 
-    #movie_rating_count(reranker_movie_features_path, pos_ratings_path, neg_ratings_path)
+    movie_rating_count(reranker_movie_features_path, pos_ratings_path, neg_ratings_path)
 
     # calculate the average rating given to the movie from every user who rated it
-    #avg_rating(
-    #    feature_id="tmdbId",
-    #    column_name="movie_rating_count",
-    #    new_col_name="movie_avg_rating",
-    #    reranker_features_path=reranker_movie_features_path, 
-    #    pos_ratings_path=pos_ratings_path, 
-    #    neg_ratings_path=neg_ratings_path
-    #)
+    avg_rating(
+        feature_id="movie_idx",
+        column_name="movie_rating_count",
+        new_col_name="movie_avg_rating",
+        reranker_features_path=reranker_movie_features_path, 
+        pos_ratings_path=pos_ratings_path, 
+        neg_ratings_path=neg_ratings_path
+    )
     
     # create movie year related features such as year, age, and recency score
-    #movie_year_features(reranker_movie_features_path, movie_metadata_path)
+    movie_year_features(reranker_movie_features_path, movie_metadata_path)
 
-    #movie_language_feature(reranker_movie_features_path, movie_metadata_path)
+    movie_language_feature(reranker_movie_features_path, movie_metadata_path)
 
     # add tmdb features for each movie
-    #movie_tmdb_features(reranker_movie_features_path, movie_metadata_path)
+    movie_tmdb_features(reranker_movie_features_path, movie_metadata_path)
 
     # add movie genre related features
-    #movie_genre_features(reranker_movie_features_path, movie_metadata_path)
+    movie_genre_features(reranker_movie_features_path, movie_metadata_path)
 
     # add movie cast related features
-    #movie_cast_features(reranker_movie_features_path, movie_metadata_path)
+    movie_cast_director_count(reranker_movie_features_path, movie_metadata_path)
 
     # generate a string containing top 50 actors and top 10 director for each user using their positive rated movies
-    #generate_favorite_cast_director(movie_metadata_path, pos_ratings_path, large_dataset)
+    generate_favorite_cast_director(movie_metadata_path, pos_ratings_path, large_dataset)
 
     # add a count for how much directors and cast members in each movie
     movie_cast_director_count(reranker_movie_features_path, movie_metadata_path)

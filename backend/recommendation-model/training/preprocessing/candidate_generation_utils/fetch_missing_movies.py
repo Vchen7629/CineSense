@@ -1,16 +1,18 @@
-import requests
+from dotenv import load_dotenv
 import polars as pl
 import aiohttp
 import asyncio
 import os
-from typing import Optional, List, Union
+from typing import Optional, List, 
 import re
 from dataclasses import dataclass, asdict
 
-API_KEY = 'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIwM2Q2YWFlZDhhZWQ0MWVjMGY4ZmVhM2MyZWYwNGU1ZCIsIm5iZiI6MTc1ODc3MzE3MC4yNDcsInN1YiI6IjY4ZDRiZmIyOTYxNzQwMTEyM2EyYmMyNCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.aDdNgN5KfMoSVfsPxuQrbsWPMXeVQDjU1GymrTmVNNc'
-OMDB_API_KEY = 'e3c669f6'
-OMDB_API_KEY2 = '62ba9d55'
-headers = {'Authorization': f'Bearer {API_KEY}'}
+current_dir = os.path.dirname(__file__)
+
+# Load environment variables
+load_dotenv()
+TMDB_API_KEY = os.getenv("TMDB_API_KEY")
+headers = {'Authorization': f'Bearer {TMDB_API_KEY}'}
 current_dir = os.path.dirname(__file__)
 
 # structure for a complete movie row in the csv

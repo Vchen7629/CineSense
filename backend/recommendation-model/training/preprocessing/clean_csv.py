@@ -2,6 +2,7 @@ from csv_cleaning_utils.invalid_chars import clean_csv
 from csv_cleaning_utils.check_tmdb_id import check_tmdb_ids
 from csv_cleaning_utils.remove_invalid_movies import remove_invalid_movies
 from csv_cleaning_utils.find_duplicate_tmdb_ids import find_duplicate_tmdb_ids
+from csv_cleaning_utils.normalize_ratings import normalize_ratings
 import os
 
 def run_clean_csv_functions(init: bool = True, large_dataset: bool = False):
@@ -25,9 +26,9 @@ def run_clean_csv_functions(init: bool = True, large_dataset: bool = False):
     # check duplicates and filter out tvshows to write to a csv to be used later
     #find_duplicate_tmdb_ids(links_path, movies_path, duplicate_ids_path)
 
-    remove_invalid_movies(movies_path, links_path, duplicate_ids_path, large_dataset)
+    #remove_invalid_movies(movies_path, links_path, duplicate_ids_path, large_dataset)
 
-
+    normalize_ratings(large_dataset=large_dataset)
     # check the links.py tmdbid using the api to see if theyre valid movies that match what the 
     # api returns (uses title and year), 
     #check_tmdb_ids(movies_path, links_path, tmdb_mismatched_path)
