@@ -7,8 +7,8 @@ current_dir = os.path.dirname(__file__)
 
 # removes invisible unicode marks like U+200E and makes multi line quotes into one line
 def clean_csv():
-    input_movies_metadata = os.path.join(current_dir, "..", "datasets", "metadata", "TMDB_all_movies.csv")
-    output_clean = os.path.join(current_dir, "..", "datasets", "metadata", "TMDB_all_movies_cleaned.csv")
+    input_movies_metadata = os.path.join(current_dir, "..", "..", "datasets", "metadata", "TMDB_all_movies.csv")
+    output_clean = os.path.join(current_dir, "..", "..", "datasets", "metadata", "TMDB_all_movies_cleaned.csv")
     hidden_chars = re.compile(r'[\u2028\u2029\u200E\u200F\u202A-\u202E\uFEFF]')
 
     with open(input_movies_metadata, "r", encoding="utf-8", errors="replace") as infile, \
