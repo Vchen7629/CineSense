@@ -161,40 +161,11 @@ async def find_by_id(session, imdbId: str):
         api_title = movie_details['title']
         original_title = movie_details['original_title']
         release_date = movie_details['release_date']
-        is_movie = True
-        is_tvshow = False
-    # then check tv show results if no matches found for movies
-    elif json_res.get('tv_results'):
-        tv_details = json_res['tv_results'][0]
-        # early return if genres arent found for tvshow
-        if not tv_details.get("genre_ids"):
-            print(f"Imdb id found but no genre found for: {imdbId}")
-            return None
-        tmdb_id = tv_details['id']
-        api_title = tv_details['name']
-        original_title = tv_details['original_name']
-        release_date = tv_details['first_air_date']
-        is_movie = False
-        is_tvshow = True
-    # then check tv episode results if no matches found for movies and tv show
-    elif json_res.get('tv_episode_results'):
-        tv_episode_details = json_res['tv_episode_results'][0]
-        # early return if genres arent found for tvshow episode
-        if not tv_episode_details.get("genre_ids"):
-            print(f"Imdb id found but no genre found for: {imdbId}")
-            return None
-        
-        tmdb_id = tv_episode_details['show_id']
-        api_title = tv_episode_details['name']
-        original_title = tv_episode_details['name']
-        release_date = tv_episode_details['air_date']
-        is_movie = False
-        is_tvshow = True
     else:
         print(f"imdbId not found using tmdb api for: {imdbId}")
         return None
     
-    return tmdb_id, api_title, original_title, release_date, is_movie, is_tvshow
+    return tmdb_id, api_title, original_title, release_date
 
 # normalize a field that can be a list or str in the api res
 def normalize_details_fields(json_data, possible_keys: List[str], list_key_name: str, fallback: str):
@@ -245,52 +216,20 @@ def normalize_cast_fields(json_data, possible_keys: List, list_key_name: str, fa
 # function for extracting movie/tvshow details
 def extract_details(json_data, imdb_id) -> dict:
     return {
-        "id": json_data.get("id")
-        or json_data.get("show_id")
-        or 0,
+        "id": json_data.get("id") or 0,
         "title": json_data.get("title") 
-              or json_data.get("name")
-              or json_data.get("Title")
               or "(no_title_provided)",
-        "vote_average": json_data.get("vote_average") 
-                     or (
-                         float(json_data.get("imdbRating")) 
-                         if json_data.get("imdbRating") and json_data.get("imdbRating") != "N/A"
-                         else 0.0
-                        )
-                     or 0.0,
-        "vote_count": json_data.get("vote_count") 
-                   or (
-                       int(json_data.get("imdbVotes", "0").replace(",", ""))
-                       if json_data.get("imdbVotes") and json_data.get("imdbVotes") != "N/A"
-                       else 0
-                    )
-                   or 0,
-        "release_date": json_data.get("release_date")
-                     or json_data.get("first_air_date") 
-                     or json_data.get("air_date")
-                     or json_data.get("Year")
-                     or "(no_release_date)",
+        "vote_average": json_data.get("vote_average") or 0.0,
+        "vote_count": json_data.get("vote_count") or 0,
+        "release_date": json_data.get("release_date") or "(no_release_date)",
         "status": json_data.get("status") or "(no_status)",
         "revenue": json_data.get("revenue") or 0,
-        "runtime": json_data.get("runtime") 
-                or (
-                    int(json_data.get("Runtime", "0").replace(" min", "").strip())
-                    if json_data.get("Runtime") and json_data.get("Runtime") != "N/A"
-                    else 0
-                )
-                or 0,
+        "runtime": json_data.get("runtime") or 0,
         "budget": json_data.get("budget", 0),
         "imdb_id": f"tt{imdb_id}",
-        "original_language": json_data.get("original_language") 
-                          or json_data.get("Language")
-                          or "(no_language)",
-        "original_title": json_data.get("original_title") 
-                       or json_data.get("original_name")
-                       or "(no_original_title)",
-        "overview": json_data.get("overview")
-                 or json_data.get("Plot")
-                 or "(no_overview_found)",
+        "original_language": json_data.get("original_language") or "(no_language)",
+        "original_title": json_data.get("original_title") or "(no_original_title)",
+        "overview": json_data.get("overview") or "(no_overview_found)",
         "popularity": json_data.get("popularity") or 0.0,
         "tagline": json_data.get("tagline") or "(no_tagline)",
         "genres": normalize_details_fields(
@@ -366,47 +305,21 @@ def extract_credits(json_data) -> dict:
 
 # async function for fetching the json object containing all the movie/tvshow details
 # using the tmdb api
-async def fetch_tmdb_details_json(session, tmdb_id: str, is_movie: bool, is_tvshow: bool) -> dict:
+async def fetch_tmdb_details_json(session, tmdb_id: str) -> dict:
     fetch_movie_metadata_url = f'https://api.themoviedb.org/3/movie/{tmdb_id}?language=en-US'
-    fetch_tvshow_metadata_url = f'https://api.themoviedb.org/3/tv/{tmdb_id}?language=en-US'
-
-    if is_movie:
-        result = await try_fetch_url(session, fetch_movie_metadata_url, headers)
-    elif is_tvshow:
-        result = await try_fetch_url(session, fetch_tvshow_metadata_url, headers)    
-    else:
-        return None
+    
+    result = await try_fetch_url(session, fetch_movie_metadata_url, headers)
 
     return result
 
 # async function for fetching the json object containing all the movie/tvshow details
 # using the tmdb api
-async def fetch_tmdb_credits_json(session, tmdb_id: str, is_movie: bool, is_tvshow: bool) -> dict:
+async def fetch_tmdb_credits_json(session, tmdb_id: str) -> dict:
     fetch_movie_credits_url = f'https://api.themoviedb.org/3/movie/{tmdb_id}/credits?language=en-US'
-    fetch_tvshow_credits_url = f'https://api.themoviedb.org/3/tv/{tmdb_id}/aggregate_credits?language=en-US'
 
-    if is_movie:
-        result = await try_fetch_url(session, fetch_movie_credits_url, headers)
-    elif is_tvshow:
-        result = await try_fetch_url(session, fetch_tvshow_credits_url, headers)    
-    else:
-        return None
+    result = await try_fetch_url(session, fetch_movie_credits_url, headers)
 
     return result
-
-# async function for fetching movie/tvshow details (including credits) using the omdb
-# api, this is a fallback function if tmdb doesnt return movie/tvshow details using the imdb id
-async def fetch_omdb_json(session, imdb_id: str):
-    fetch_url = f'http://www.omdbapi.com/?i=tt{imdb_id}&apikey={OMDB_API_KEY}'
-
-    response = await try_fetch_url(session, fetch_url, headers)
-    if not response:
-        return None
-    
-    title = response.get("Title")
-    release_date = response.get("Year")
-
-    return response, title, release_date
 
 
 async def fetch_complete_movie_metadata(session, movieId: str, imdb_id: str, title: str, year: str) -> Optional[MovieMetaData]:
@@ -414,52 +327,34 @@ async def fetch_complete_movie_metadata(session, movieId: str, imdb_id: str, tit
         # find the movie/tvshow with tmdb api with imdbId
         result = await find_by_id(session, imdb_id)
         if not result:
-            
-            # fallback: can't find the tmdb_id with tmdb api so we check omdb api
-            res = await fetch_omdb_json(session, imdb_id)
-            
-            # if both omdb and tmdb api don't return valid data we send it to a csv
-            if not res:
-                handle_not_found(movieId, imdb_id)
-                print(f"TMDB ID not found for movie: {movieId} with imdb_id: {imdb_id}")
-                return None
-            
-            api_json, api_title, release_date = res
-            matches = validate_match(movieId, title, year, api_title, api_title, release_date)
-            if not matches:
-                print(f"movie: {movieId} with imdb_id: {imdb_id} doesnt match")
-                handle_not_found(movieId, imdb_id)
-                return None
-            
-            details_data = extract_details(api_json, imdb_id)
-            credits_data = extract_credits(api_json)
+            handle_not_found(movieId, imdb_id)
+            print(f"TMDB ID not found for movie: {movieId} with imdb_id: {imdb_id}")
 
-        else:
-            # tmdb api does return value
-            tmdb_id, api_title, original_title, release_date, is_movie, is_tvshow = result
+        # tmdb api does return value
+        tmdb_id, api_title, original_title, release_date = result
 
-            # validate that the movie/tvshow returned by api matches the one we are updating for
-            matches = validate_match(movieId, title, year, api_title, original_title, release_date)
-            if not matches:
-                print(f"movie: {movieId} with imdb_id: {imdb_id} doesnt match")
-                handle_not_found(movieId, imdb_id)
-                return None
+        # validate that the movie/tvshow returned by api matches the one we are updating for
+        matches = validate_match(movieId, title, year, api_title, original_title, release_date)
+        if not matches:
+            print(f"movie: {movieId} with imdb_id: {imdb_id} doesnt match")
+            handle_not_found(movieId, imdb_id)
+            return None
 
-            # fetch the json containing all of the details for tvshows/movies
-            details_json = await fetch_tmdb_details_json(session, tmdb_id, is_movie, is_tvshow)
-            if not details_json:
-                print(f"details not found for movie/tvshow: {movieId} tmdbId: {tmdb_id}")
-                return None
+        # fetch the json containing all of the details for tvshows/movies
+        details_json = await fetch_tmdb_details_json(session, tmdb_id)
+        if not details_json:
+            print(f"details not found for movie: {movieId} tmdbId: {tmdb_id}")
+            return None
 
-            # fetch the json containing all of the credits for tvshows/movies
-            credits_json = await fetch_tmdb_credits_json(session, tmdb_id, is_movie, is_tvshow)
-            if not credits_json:
-                print(f"credits not found for movie/tvshow: {movieId} tmdbId: {tmdb_id}")
-                return None
+        # fetch the json containing all of the credits for tvshows/movies
+        credits_json = await fetch_tmdb_credits_json(session, tmdb_id)
+        if not credits_json:
+            print(f"credits not found for movie: {movieId} tmdbId: {tmdb_id}")
+            return None
 
-            # extract relevant fields from the json
-            details_data = extract_details(details_json, imdb_id)
-            credits_data = extract_credits(credits_json)
+        # extract relevant fields from the json
+        details_data = extract_details(details_json, imdb_id)
+        credits_data = extract_credits(credits_json)
 
         # merge and create structured object
         return MovieMetaData(**{**details_data, **credits_data})
