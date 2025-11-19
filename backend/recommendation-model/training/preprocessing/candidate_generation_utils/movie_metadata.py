@@ -101,4 +101,4 @@ def create_movies_metadata(large_dataset: bool = False):
 
     joined_on_imdb.write_csv(movie_metadata_path)
 
-    #missing_metadata.write_csv(missing_metadata_output_path)
+    missing_metadata.write_csv(missing_metadata_output_path)

@@ -28,7 +28,7 @@ def create_movie_embeddings(large_dataset: bool = False) -> None:
         api_genre_mlb_path = os.path.join(current_dir, "..", "..", "..", "api", "app", "model", "files_small", "genre_mlb.joblib")
         training_genre_mlb_path = os.path.join(current_dir, "..", "..", "datasets", "output-small", "genre_mlb.joblib")
     
-    model = SentenceTransformer('all-MiniLM-L6-v2')
+    model = SentenceTransformer('intfloat/multilingual-e5-small')
     mlb = MultiLabelBinarizer()
     metadata_df = pl.read_csv(movie_metadata_path)
 
