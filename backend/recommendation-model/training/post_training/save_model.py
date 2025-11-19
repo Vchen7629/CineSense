@@ -75,7 +75,7 @@ class SaveModel:
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
                 ON CONFLICT (movie_id) DO NOTHING
             """, (
-                str(row['imdbId']),
+                str(row['tmdbId']),
                 row['title'],
                 row['genres_normalized'].split("|"),
                 row['year'],
@@ -92,7 +92,7 @@ class SaveModel:
                     INSERT INTO movie_embedding_personalized (movie_id, embedding)
                     VALUES (%s, %s::vector)
                 """, (
-                    str(row['imdbId']),
+                    str(row['tmdbId']),
                     row['embedding']
                 ))
             else:
@@ -100,7 +100,7 @@ class SaveModel:
                     INSERT INTO movie_embedding_coldstart (movie_id, embedding)
                     VALUES (%s, %s::vector)
                 """, (
-                    str(row['imdbId']),
+                    str(row['tmdbId']),
                     row['embedding']
                 ))
 

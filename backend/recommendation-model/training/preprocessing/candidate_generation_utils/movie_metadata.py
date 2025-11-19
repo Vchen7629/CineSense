@@ -24,12 +24,15 @@ def create_movies_metadata(large_dataset: bool = False):
     # create a dataframe with imdbid so we can filter with imdbId later
     movie_df = movie_df.join(links_df, on="movieId", how="left")
 
+    # Normalize IMDB IDs: MovieLens has "114709", but APIs need "tt0114709"
+    # Add "tt" prefix and pad with leading zeros to 7 digits
+    movie_df = movie_df.with_columns([
+        ("tt" + pl.col("imdbId").str.zfill(7)).alias("imdbId")
+    ])
+
     print("hi",movie_df.columns)
 
     metadata_df = metadata_df.with_columns([
-        pl.col("imdb_id") 
-            .str.replace_all(r"tt", "")
-            .alias("imdb_new_id"),
         pl.col("genres")
             .str.replace_all(r"Sci-Fi & Fantasy", "Science Fiction|Fantasy")
             .str.replace_all(r"Action & Adventure", "Action|Adventure")
@@ -49,7 +52,6 @@ def create_movies_metadata(large_dataset: bool = False):
         "budget",
         "genres",
         "cast",
-        "imdb_id",
         "original_title",
         "tagline",
         "production_companies",
@@ -67,10 +69,11 @@ def create_movies_metadata(large_dataset: bool = False):
 
     # Join on IMDB ID (unique and correct) instead of TMDB ID (has duplicates)
     # This ensures we get the correct movie metadata
+    # Both sides now have format "tt0114709"
     joined_on_imdb = movie_df.join(
         metadata_df,
         left_on="imdbId",
-        right_on="imdb_new_id",  # Use the stripped version
+        right_on="imdb_id",
         how="left"
     )
 
@@ -78,8 +81,8 @@ def create_movies_metadata(large_dataset: bool = False):
     cols_to_drop = []
     if "title_right" in joined_on_imdb.columns:
         cols_to_drop.append("title_right")
-    if "imdb_new_id" in joined_on_imdb.columns:
-        cols_to_drop.append("imdb_new_id")
+    if "imdb_id" in joined_on_imdb.columns:
+        cols_to_drop.append("imdb_id")
     if "genres" in joined_on_imdb.columns:
         cols_to_drop.append("genres")
 
