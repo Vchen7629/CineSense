@@ -6,6 +6,5 @@ export interface DummyItem {
   release_date: number;
   actors: string[];
   director: string[];
-  rating: number,
   poster_path: string
 }

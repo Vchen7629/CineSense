@@ -6,7 +6,7 @@ interface SignUpConfirmButtonProps {
 }
 
 export const SignUpConfirmButton = ({ selectedGenres, canSignup }: SignUpConfirmButtonProps) => {
-    const test_user_id = "11"
+    const test_user_id = "4"
     const createGenreEmbeddings = useCreateGenreEmbeddings();
     
     const handleClick = () => {
