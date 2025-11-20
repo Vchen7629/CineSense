@@ -46,8 +46,8 @@ class ColdStartEval:
             movies.update(map(int, neg.tolist()))
         return np.array(list(movies), dtype=np.int64)
 
+    # build user -> pos_movies mapping from dataset
     def _build_user_to_movies(self, dataset):
-        """Build user -> [positive_movies] mapping from dataset."""
         user_to_movies = defaultdict(list)
         for user, pos, _ in dataset:
             user_to_movies[int(user)].append(int(pos))

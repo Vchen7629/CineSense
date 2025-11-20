@@ -31,24 +31,24 @@ class TrainPersonalizedModel():
 
         if large_dataset:
             # config
-            #self.num_movies = 64546
+            self.num_movies = 64543
             self.batch_size = 4096
 
-            self.ratings_csv_path = os.path.join(current_dir, "datasets", "output", "user-output.csv")
-            negative_csv_path = os.path.join(current_dir, "datasets", "output", "user-collaborative-negatives.csv")
+            self.pos_ratings_path = os.path.join(current_dir, "datasets", "output", "user-positive-ratings.csv")
+            neg_ratings_path = os.path.join(current_dir, "datasets", "output", "user-collaborative-negatives.csv")
 
-            self.neg_df = pl.read_csv(negative_csv_path)
+            self.neg_df = pl.read_csv(neg_ratings_path)
         else:
             # config
-            #self.num_movies = 7361
+            self.num_movies = 9642
             self.batch_size = 256
 
-            self.ratings_csv_path = os.path.join(current_dir, "datasets", "output-small", "user-output.csv")
-            negative_csv_path = os.path.join(current_dir, "datasets", "output-small", "user-collaborative-negatives.csv")
+            self.pos_ratings_path = os.path.join(current_dir, "datasets", "output-small", "user-positive-ratings.csv")
+            neg_ratings_path = os.path.join(current_dir, "datasets", "output-small", "user-collaborative-negatives.csv")
 
-            self.neg_df = pl.read_csv(negative_csv_path)
+            self.neg_df = pl.read_csv(neg_ratings_path)
 
-        self.traintest = TrainTest(self.ratings_csv_path, mode='collaborative')
+        self.traintest = TrainTest(self.pos_ratings_path, mode='collaborative')
 
         self.movie_tower = MovieTower(
             embedding_dim=self.embedding_dim,
@@ -240,12 +240,14 @@ if __name__ == "__main__":
     user_embeddings = GenerateUserEmbeddings(movie_tower=train.movie_tower)
     user_embeddings.generate_all_user_embeddings()
 
-    # Run evaluations
-    evaluator = CandidateGenerationModelEval(large_dataset=False, movie_tower=train.movie_tower)
+    # Run evaluations (movie_tower no longer needed, uses pre-computed embeddings)
+    evaluator = CandidateGenerationModelEval(large_dataset=False)
 
     testing_configs = [
         {'num_similar_users': 30, 'candidate_pool': 300},
         {'num_similar_users': 50, 'candidate_pool': 200},
+        {'num_similar_users': 50, 'candidate_pool': 300},
+        {'num_similar_users': 50, 'candidate_pool': 400},
         {'num_similar_users': 100, 'candidate_pool': 300},
         {'num_similar_users': 200, 'candidate_pool': 500},
     ]

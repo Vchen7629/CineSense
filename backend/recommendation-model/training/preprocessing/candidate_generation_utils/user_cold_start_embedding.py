@@ -11,13 +11,13 @@ current_dir = os.path.dirname(__file__)
 def create_user_preferred_genres_embedding(large_dataset: bool = False) -> None:
     if large_dataset:
         genre_output = os.path.join(current_dir, "..", "..", "datasets", "output", "preferred-genres.npy")
-        user_csv_path = os.path.join(current_dir, "..", "..", "datasets", "output", "user-output.csv")
+        user_csv_path = os.path.join(current_dir, "..", "..", "datasets", "output", "user-positive-ratings.csv")
         movie_metadata_path = os.path.join(current_dir, "..", "..", "datasets", "output", "movie-metadata.csv")
         user_genre_path = os.path.join(current_dir, "..", "..", "datasets", "output", "user-top3-genres.csv")
         genre_mlb_path = os.path.join(current_dir, "..", "..", "datasets", "output", "genre_mlb.joblib")
     else:
         genre_output = os.path.join(current_dir, "..", "..", "datasets", "output-small", "preferred-genres.npy")
-        user_csv_path = os.path.join(current_dir, "..", "..", "datasets", "output-small", "user-output.csv")
+        user_csv_path = os.path.join(current_dir, "..", "..", "datasets", "output-small", "user-positive-ratings.csv")
         movie_metadata_path = os.path.join(current_dir, "..", "..", "datasets", "output-small", "movie-metadata.csv")
         user_genre_path = os.path.join(current_dir, "..", "..", "datasets", "output-small", "user-top3-genres.csv")
         genre_mlb_path = os.path.join(current_dir, "..", "..", "datasets", "output-small", "genre_mlb.joblib")

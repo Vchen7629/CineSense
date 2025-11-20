@@ -8,7 +8,7 @@ export function useRateMovie() {
     const rateMovie = (item: DummyItem, rating: number) => {
         rateMovieMutation.mutate({
             movie_id: item.id,          
-            user_id: "1",              
+            user_id: "2",              
             name: item.name,
             genres: item.genres,
             release_date: item.release_date,

@@ -12,7 +12,7 @@ interface DisplayProps {
 
 const DisplayMovies = ({movieData, listView, gridView}: DisplayProps) => {
     const [openWatched, setOpenWatched] = useState<{ [key: string]: boolean }>({});
-    const [rating, setRating] = useState<number>(0);
+    const [ratings, setRatings] = useState<{ [key: string]: number }>({});
     const rateMovie = useRateMovie();
 
     const handleAdd = (id: string | number) => {
@@ -23,10 +23,16 @@ const DisplayMovies = ({movieData, listView, gridView}: DisplayProps) => {
         setOpenWatched(prev => ({ ...prev, [id]: false }));
     };
 
+    const handleSetRating = (id: string | number, value: number) => {
+        setRatings(prev => ({ ...prev, [id]: value }));
+    };
+
     return (
         <ul className={`h-[95%] w-full space-y-[2%] ${gridView && "grid grid-cols-2 gap-4"}`}>
             {movieData.map((item: DummyItem) => {
                 const isOpen = !!openWatched[item.id];
+                const itemRating = ratings[item.id] || 0;
+
                 return (
                     <li 
                         key={item.id} 
@@ -69,9 +75,12 @@ const DisplayMovies = ({movieData, listView, gridView}: DisplayProps) => {
                                             <TrashIcon size={18}/>
                                             <span className="text-sm">Remove</span>
                                         </button>
-                                        <RateMovieButtons rating={rating} setRating={setRating}/>
+                                        <RateMovieButtons 
+                                            rating={itemRating} 
+                                            setRating={(value) => handleSetRating(item.id, value)}
+                                        />
                                         <button 
-                                            onClick={() => rateMovie(item, rating)}
+                                            onClick={() => rateMovie(item, itemRating)}
                                             className="flex items-center space-x-1 px-3 py-1 bg-green-400/20 shadow-inner hover:bg-green-800 rounded-xl transition-colors duration-250"
                                         >
                                             <ThumbsUpIcon size={18}/>

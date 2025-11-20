@@ -11,12 +11,12 @@ class GenerateUserEmbeddings:
         current_dir = os.path.dirname(__file__)
 
         if large_dataset:
-            self.ratings_path = os.path.join(current_dir, "..", "datasets", "output", "user-output.csv")
-            self.user_emb_path = os.path.join(current_dir, "..", "datasets", "eval-files", "user-embeddings.npy")
+            self.ratings_path = os.path.join(current_dir, "..", "datasets", "output", "user-positive-ratings.csv")
+            self.user_emb_path = os.path.join(current_dir, "..", "datasets", "output", "user-embeddings.npy")
             self.num_movies = 64548
         else:
-            self.ratings_path = os.path.join(current_dir, "..", "datasets", "output-small", "user-output.csv")
-            self.user_emb_path = os.path.join(current_dir, "..", "datasets", "eval-files", "user-embeddings-small.npy")
+            self.ratings_path = os.path.join(current_dir, "..", "datasets", "output-small", "user-positive-ratings.csv")
+            self.user_emb_path = os.path.join(current_dir, "..", "datasets", "output-small", "user-embeddings.npy")
             self.num_movies = 7363
 
         # Load trained movie tower
