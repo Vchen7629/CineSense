@@ -56,7 +56,7 @@ class SaveModel:
     
     # save the embeddings into the postgres
     def _save_to_postgres(self, embeddings, db_config: dict[str, str]):
-        metadata_df = pl.read_csv(self.movie_metadata_path, dtypes={"imdbId": pl.Utf8})
+        metadata_df = pl.read_csv(self.movie_metadata_path, dtypes={"tmdbId": pl.Utf8})
         conn = psycopg2.connect(**db_config)
         cursor = conn.cursor()
 

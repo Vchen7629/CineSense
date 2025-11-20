@@ -27,30 +27,31 @@ class TrainColdStartModel():
 
         if large_dataset:
             # config
-            #self.num_movies = 64546
+            self.num_movies = 64543
             self.batch_size = 4096
 
-            self.ratings_csv_path = os.path.join(current_dir, "datasets", "output", "user-output.csv")
-            negative_csv_path = os.path.join(current_dir, "datasets", "output", "user-cold-start-negatives.csv")
+            pos_ratings_path = os.path.join(current_dir, "datasets", "output", "user-positive-ratings.csv")
+            neg_ratings_path = os.path.join(current_dir, "datasets", "output", "user-cold-start-negatives.csv")
             self.user_genres_path = os.path.join(current_dir, "datasets", "output", "user-top3-genres.csv")
             self.movie_metadata_path = os.path.join(current_dir, "datasets", "output", "movie-metadata.csv")
 
-            self.neg_df = pl.read_csv(negative_csv_path)
+            self.neg_df = pl.read_csv(neg_ratings_path)
         else:
             # config
-            #self.num_movies = 7361
+            self.num_movies = 9642
             self.batch_size = 256
 
-            self.ratings_csv_path = os.path.join(current_dir, "datasets", "output-small", "user-output.csv")
-            negative_csv_path = os.path.join(current_dir, "datasets", "output-small", "user-cold-start-negatives.csv")
+            pos_ratings_path = os.path.join(current_dir, "datasets", "output-small", "user-positive-ratings.csv")
+            neg_ratings_path = os.path.join(current_dir, "datasets", "output-small", "user-cold-start-negatives.csv")
             self.user_genres_path = os.path.join(current_dir, "datasets", "output-small", "user-top3-genres.csv")
             self.movie_metadata_path = os.path.join(current_dir, "datasets", "output-small", "movie-metadata.csv")
 
-            self.neg_df = pl.read_csv(negative_csv_path)
+            self.neg_df = pl.read_csv(neg_ratings_path)
 
-        self.traintest = TrainTest(self.ratings_csv_path, mode='coldstart')
+        self.traintest = TrainTest(pos_ratings_path, mode='coldstart')
 
         self.user_tower = ColdStartUserTower(
+            user_csv_path=pos_ratings_path,
             embedding_dim=embedding_dim, 
             device="cuda",
             large_dataset=large_dataset
@@ -115,7 +116,7 @@ class TrainColdStartModel():
             num_batches = 0
 
             #print(f"got dataloader for for epoch {epoch}...")
-            for user_tensor, pos_movie_tensor, neg_movie_tensor in dataloader:
+            for batch_idx, (user_tensor, pos_movie_tensor, neg_movie_tensor) in enumerate(dataloader):
                 # reset gradients from previous batch
                 self.optimizer.zero_grad(set_to_none=True)
 
@@ -146,6 +147,23 @@ class TrainColdStartModel():
                     neg_emb = movie_emb[:, 1:, :]
 
                     loss = self.loss_fn(u_emb, pos_emb, neg_emb)
+
+                    # Debug: Check for NaN/Inf
+                    if torch.isnan(loss) or torch.isinf(loss):
+                        print(f"\nNaN/Inf detected in batch {num_batches}!")
+                        print(f"u_emb - min: {u_emb.min().item():.4f}, max: {u_emb.max().item():.4f}, has_nan: {torch.isnan(u_emb).any()}, has_inf: {torch.isinf(u_emb).any()}")
+                        print(f"pos_emb - min: {pos_emb.min().item():.4f}, max: {pos_emb.max().item():.4f}, has_nan: {torch.isnan(pos_emb).any()}, has_inf: {torch.isinf(pos_emb).any()}")
+                        print(f"neg_emb - min: {neg_emb.min().item():.4f}, max: {neg_emb.max().item():.4f}, has_nan: {torch.isnan(neg_emb).any()}, has_inf: {torch.isinf(neg_emb).any()}")
+                        print(f"loss: {loss.item()}")
+
+                        # Check norms
+                        u_norms = torch.linalg.norm(u_emb, dim=1)
+                        pos_norms = torch.linalg.norm(pos_emb, dim=1)
+                        neg_norms = torch.linalg.norm(neg_emb, dim=2)
+                        print(f"u_emb norms - min: {u_norms.min().item():.4f}, max: {u_norms.max().item():.4f}")
+                        print(f"pos_emb norms - min: {pos_norms.min().item():.4f}, max: {pos_norms.max().item():.4f}")
+                        print(f"neg_emb norms - min: {neg_norms.min().item():.4f}, max: {neg_norms.max().item():.4f}")
+                        raise RuntimeError("NaN/Inf in loss!")
 
                 scaler.scale(loss).backward()
                 scaler.step(self.optimizer)

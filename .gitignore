@@ -19,6 +19,7 @@ __pycache__
 .pytest_cache
 .ruff_cache
 datasets/
+.env
 
 
 # Editor directories and files
