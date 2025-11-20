@@ -3,6 +3,8 @@ import lightgbm as lgb
 import polars as pl
 import numpy as np
 from utils.cross_validation import tune_hyperparamaters_cv
+from utils.extract_features import extract_reranker_features_batch
+from post_training.reranker_model_evaluation import RerankerModelEval
 
 class Reranker:
     def __init__(self, large_dataset: bool = False) -> None:
@@ -49,9 +51,9 @@ class Reranker:
         self.user_favorite_actor_director_df = pl.read_csv(self.user_favorite_actor_dir_path)
 
         # training data
-        pos_ratings_df = pl.read_csv(self.pos_ratings_path)
-        neg_ratings_df = pl.read_csv(self.neg_ratings_path)
-        self.ratings_df = pl.concat([pos_ratings_df, neg_ratings_df], how="vertical")
+        self.pos_ratings_df = pl.read_csv(self.pos_ratings_path)
+        self.neg_ratings_df = pl.read_csv(self.neg_ratings_path)
+        self.ratings_df = pl.concat([self.pos_ratings_df, self.neg_ratings_df], how="vertical")
 
         print(f"loaded {len(self.ratings_df)} ratings")
 
@@ -72,7 +74,7 @@ class Reranker:
 
         print("Extracting features...")
 
-        self.X = self._extract_features(ratings_with_features_df)
+        self.X = extract_reranker_features_batch(self.user_embeddings, self.movie_embeddings, ratings_with_features_df)
 
         # extract ratings
         self.y = ratings_with_features_df['rating'].to_numpy().astype(np.int32)
@@ -81,77 +83,6 @@ class Reranker:
         print("Computing groups...")
         groups_df = ratings_with_features_df.group_by('userId').agg(pl.len().alias('count')).sort('userId')
         self.groups = groups_df['count'].to_numpy().astype(np.int32)
-
-    # extract all features in the rows for a (user, movie pair)
-    def _extract_features(self, ratings_with_features: pl.DataFrame) -> np.ndarray:
-        # collaborative filtering score (cosine similarity)
-        user_ids = ratings_with_features['userId'].to_numpy()
-        movie_indicies = ratings_with_features['movie_idx'].to_numpy()
-
-        user_embs = self.user_embeddings[user_ids]
-        movie_embs = self.movie_embeddings[movie_indicies]
-
-        collab_score = np.sum(user_embs * movie_embs, axis=1) / (
-            np.linalg.norm(user_embs, axis=1) * np.linalg.norm(movie_embs, axis=1) + 1e-8
-        )
-
-        # movie popularity features
-        movie_rating_log = ratings_with_features['movie_rating_log'].fill_null(0.0).to_numpy()
-        movie_avg_rating = ratings_with_features['movie_avg_rating'].fill_null(0.0).to_numpy()
-
-        # TMDB features
-        tmdb_vote_avg = ratings_with_features['tmdb_vote_average'].fill_null(0.0).to_numpy()
-        tmdb_vote_log = ratings_with_features['tmdb_vote_count_log'].fill_null(0.0).to_numpy()
-        tmdb_popularity = ratings_with_features['tmdb_popularity'].fill_null(0.0).to_numpy()
-
-        # recency score
-        recency_score = ratings_with_features['recency_score'].fill_null(0.0).to_numpy()
-
-        # user activity features
-        user_rating_log = ratings_with_features['user_rating_log'].fill_null(0.0).to_numpy()
-        user_avg_rating = ratings_with_features['user_avg_rating'].fill_null(0.0).to_numpy()
-
-        # Language feature
-
-        # interaction features
-        genre_overlaps = self._compute_set_overlap(
-            ratings_with_features['genres'].fill_null('').to_list(),
-            ratings_with_features['genres_normalized'].fill_null('').to_list()
-        )
-
-        actor_overlaps = self._compute_set_overlap(
-            ratings_with_features['top_50_actors'].fill_null('').to_list(),
-            ratings_with_features['cast_normalized'].fill_null('').to_list()
-        )
-
-        director_overlaps = self._compute_set_overlap(
-            ratings_with_features['top_10_directors'].fill_null('').to_list(),
-            ratings_with_features['director'].fill_null('').to_list()
-        )
-
-        # stack all features
-        return np.column_stack([
-            collab_score,
-            movie_rating_log,
-            movie_avg_rating,
-            tmdb_vote_avg,
-            tmdb_vote_log,
-            tmdb_popularity,
-            recency_score,
-            user_rating_log,
-            user_avg_rating,
-            genre_overlaps,
-            actor_overlaps,
-            director_overlaps
-        ])
-    
-    def _compute_set_overlap(self, list1: list, list2: list) -> np.ndarray:
-        overlaps = []
-        for s1, s2 in zip(list1, list2):
-            set1 = set(s1.split('|')) if s1 else set()
-            set2 = set(s2.split('|')) if s2 else set()
-            overlaps.append(len(set1 & set2))
-        return np.array(overlaps, dtype=np.float32)
 
     def train(self, params=None):
         num_users = len(self.groups)
@@ -211,8 +142,6 @@ class Reranker:
             ]
         )
 
-        print("training complete!")
-
         return self.model
 
 
@@ -229,5 +158,23 @@ if __name__ == "__main__":
     best_params = tune_hyperparamaters_cv(groups=reranker.groups, X=reranker.X, y=reranker.y, n_splits=5)
 
     model = reranker.train(params=best_params)
+    print("training complete!")
+
+    # evaluation stage
+    eval = RerankerModelEval(
+        model, 
+        reranker.movie_embeddings, 
+        reranker.user_embeddings, 
+        reranker.movie_features_df,
+        reranker.user_features_df,
+        reranker.user_favorite_genres_df,
+        reranker.user_favorite_actor_director_df,
+        reranker.pos_ratings_df,
+        reranker.neg_ratings_df
+    )
+
+    print("evaluating hitrate")
+    # evaluate hit rate with leave one out
+    eval.hitrate(k=10, num_negatives=99)
 
     print("done")
