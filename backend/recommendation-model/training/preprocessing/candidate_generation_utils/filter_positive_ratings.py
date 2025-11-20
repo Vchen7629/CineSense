@@ -19,9 +19,9 @@ def filter_positive_ratings(large_dataset: bool = False) -> None:
     ratings_df = pl.read_csv(all_ratings_path)
     links_df = pl.read_csv(movie_links_path)
 
-    # split into positive (>=4) and negative (<=3) ratings
-    positive_df = ratings_df.filter(pl.col("rating") >= 4).drop("timestamp")
-    negative_df = ratings_df.filter(pl.col("rating") <= 3).drop("timestamp")
+    # split into positive (>=4.0) and negative (<=3.5) ratings
+    positive_df = ratings_df.filter(pl.col("rating") >= 4.0).drop("timestamp")
+    negative_df = ratings_df.filter(pl.col("rating") <= 3.5).drop("timestamp")
 
     # remove gaps from filtered users - only users who have both positive and negative ratings
     users_with_positives = set(positive_df['userId'].unique().to_list())

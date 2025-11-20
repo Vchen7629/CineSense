@@ -3,7 +3,7 @@ import polars as pl
 import aiohttp
 import asyncio
 import os
-from typing import Optional, List, 
+from typing import Optional, List
 import re
 from dataclasses import dataclass, asdict
 
