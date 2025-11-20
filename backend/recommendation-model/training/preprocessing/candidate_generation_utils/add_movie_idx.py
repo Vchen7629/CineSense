@@ -1,0 +1,55 @@
+import os
+import polars as pl
+
+current_dir = os.path.dirname(__file__)
+
+# prunes movie.csv to only unique movies and creates a idx mapping for user to movie dataset
+def add_movie_user_idx_mapping(large_dataset: bool = False):
+    if large_dataset:
+        positive_ratings_path = os.path.join(current_dir, "..", "..", "datasets", "output", "user-positive-ratings.csv")
+        negative_ratings_path = os.path.join(current_dir, "..", "..", "datasets", "output", "user-negative-ratings.csv")
+        input_movie_path = os.path.join(current_dir, "..", "..", "datasets", "ml-latest", "movies.csv")
+        pruned_movies_path = os.path.join(current_dir, "..", "..", "datasets", "output", "movie-output.csv")
+    else:
+        positive_ratings_path = os.path.join(current_dir, "..", "..", "datasets", "output-small", "user-positive-ratings.csv")
+        negative_ratings_path = os.path.join(current_dir, "..", "..", "datasets", "output-small", "user-negative-ratings.csv")
+        input_movie_path = os.path.join(current_dir, "..", "..", "datasets", "ml-latest-small", "movies.csv")
+        pruned_movies_path = os.path.join(current_dir, "..", "..", "datasets", "output-small", "movie-output.csv")
+
+    pos_ratings_df = pl.read_csv(positive_ratings_path)
+    neg_ratings_df = pl.read_csv(negative_ratings_path)
+    movies_df = pl.read_csv(input_movie_path)
+
+    # get all unique movie ids in the user dataset and prune movie dataset to only include those
+    unique_movies_pos = pos_ratings_df.select("movieId").unique()
+    unique_movies_neg = neg_ratings_df.select("movieId").unique()
+    unique_movies = pl.concat([unique_movies_pos, unique_movies_neg]).unique().to_series()
+
+    pruned_movie_df = movies_df.filter(pl.col("movieId").is_in(unique_movies))
+
+    # add continuous movie_idx starting from 0
+    pruned_movie_df = pruned_movie_df.with_row_index(name="movie_idx")
+
+    print(f"Pruned movie columns: {pruned_movie_df.columns}")
+    print(f"Sample rows:\n{pruned_movie_df.head()}")
+    print(f"total unique movies: {len(pruned_movie_df)}")
+
+    # join ratings files with pruned_movie_df to add movie_idx column to each file
+    pos_ratings_df = pos_ratings_df.join(
+        pruned_movie_df.select(['movieId', 'movie_idx']),
+        on="movieId",
+        how="left"
+    )
+
+    neg_ratings_df = neg_ratings_df.join(
+        pruned_movie_df.select(['movieId', 'movie_idx']),
+        on="movieId",
+        how="left"
+    )
+
+    # create new csv containing only the movies that the users rated
+    pruned_movie_df.write_csv(pruned_movies_path)
+
+    # update both user ratings files to contain the movie_idx mappings
+    pos_ratings_df.write_csv(positive_ratings_path)
+    neg_ratings_df.write_csv(negative_ratings_path)

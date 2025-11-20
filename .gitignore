@@ -18,7 +18,9 @@ dist-ssr
 __pycache__
 .pytest_cache
 .ruff_cache
-pytorch
+datasets/
+.env
+
 
 # Editor directories and files
 .vscode/*

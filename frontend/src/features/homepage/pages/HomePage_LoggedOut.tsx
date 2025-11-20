@@ -9,6 +9,7 @@ export default function HomePage() {
       {/* bacground*/}
       <div
         style={{
+          borderTop: "#000000ff",
           background: "#2E454D",
           color: "#FFFFFF",
           textAlign: "center",
