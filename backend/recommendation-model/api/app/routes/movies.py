@@ -45,7 +45,8 @@ async def new_rated_movie(
     if not rating:
         raise HTTPException(status_code=404, detail="No rating provided")
     
-    movie_embedding = movie_tower.generate_new_movie_embedding(title, genres)
+    # release date needs to be just year YYYY
+    movie_embedding = movie_tower.generate_new_movie_embedding(title, genres, release, actors, director, summary)
 
     await add_movie_metadata(session, imdb_id, title, genres, release, summary, actors, director, poster_path)
 

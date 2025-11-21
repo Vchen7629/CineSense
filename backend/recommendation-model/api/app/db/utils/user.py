@@ -128,72 +128,43 @@ async def get_user_with_ratings_count(session):
 
     return num_users
 
-# fetch the embeddings for specified user
-async def get_user_embeddings(session, user_id: str):
+
+# find k-most similar users to current user embedding using pgvector hnsw index
+# and also their user embedding
+async def get_user_embedding_and_similar_users(session, user_id: str, similar_user_count: int = 50):
     query = text("""
-        SELECT embedding 
-        FROM user_embeddings
-        WHERE user_id = :user_id
-    """)
-
-    result = await session.execute(query, {"user_id": user_id})
-    row = result.first()
-
-    if not row:
-        raise HTTPException(status_code=404, detail="embedding for user_id not found")
-    
-    return row.embedding
-
-# find k-most similar users to provided embedding using pgvector hnsw index
-async def find_similar_users(session, user_id: str, embedding: np.ndarray, similar_user_count: int = 50):
-    query = text("""
-        SELECT user_id, 1 - (embedding <=> :embedding) AS similarity
-        FROM user_embeddings
-        WHERE user_id != :user_id
-        ORDER BY embedding <=> :embedding
+        WITH current_user AS (
+            SELECT user_id, embedding
+            FROM user_embeddings
+            WHERE user_id = :user_id
+        )
+        SELECT 
+            ue.user_id, 
+            1 - (ue.embedding <=> :cu.embedding) AS similarity,
+            cu.embedding as user_embedding
+        FROM user_embeddings ue
+        CROSS JOIN current_user cu
+        WHERE ue user_id != :user_id
+        ORDER BY ue.embedding <=> :cu.embedding
         LIMIT :limit
     """)
 
     result = await session.execute(
         query,
         {   
-            "embedding": embedding,
             "user_id": user_id,
             "limit": similar_user_count
         }
     )
 
-    return result.fetchall()
+    rows = result.fetchall()
 
-# get candidate movies from similar users ranked by frequency counts
-# returns list of movie_id, frequency_count
-async def get_candidate_movies_from_similar_users(
-    session,
-    similar_user_ids: List[str],
-    exclude_movie_ids: List[str],
-    limit: int = 300
-):
-    # Convert lists to PostgreSQL array format for the query
-    query = text("""
-        SELECT movie_id, COUNT(*) as frequency
-        FROM user_watch
-        WHERE user_id = ANY(:similar_user_ids)
-        AND movie_id != ALL(:exclude_movie_ids)
-        GROUP BY movie_id
-        ORDER BY frequency DESC
-        LIMIT :limit
-    """)
+    if not rows:
+        raise HTTPException(status_code=404, detail="User embedding not found")
+    
+    user_embedding = rows[0].user_embedding
 
-    result = await session.execute(
-        query,
-        {
-            "similar_user_ids": similar_user_ids,
-            "exclude_movie_ids": exclude_movie_ids if exclude_movie_ids else [''],
-            "limit": limit
-        }
-    )
-
-    return result.fetchall()
+    return user_embedding, rows
 
 async def get_user_rated_movie_ids(session, user_id: str):
     query = text("""

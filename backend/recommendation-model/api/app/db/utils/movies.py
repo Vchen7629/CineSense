@@ -138,19 +138,41 @@ async def get_movie_embeddings_by_movie_ids(
 
     return rows
 
+# get movie metadata for all similar user ids found by most similar cosine sim
+# and wasnt watched/rated by the current user
 async def get_movies_metadata_by_movie_ids(
-    session, movie_ids: List[str]
+    session, 
+    similar_user_ids: List[str],
+    exclude_movie_ids: List[str],
+    limit: int = 300
 ):
     query = text("""
-        SELECT movie_metadata (
-            movie_id, movie_name, genres, release_date, summary, actors, director, poster_path
+        WITH candidate_movies AS (
+            SELECT movie_id, COUNT(*) as frequency
+            FROM user_watchlist
+            WHERE user_id = ANY(:similar_user_ids)
+            AND movie_id != ALL(:exclude_movie_ids)
+            GROUP BY movie_id
+            ORDER BY frequency DESC
+            LIMIT :limit
         )
-        FROM movie_metadata
-        WHERE movie_id = ANY(:movie_ids)
-        ORDER BY array_position(:movie_ids::text[], movie_id)
+        SELECT 
+            m.*,
+            c.frequency
+        FROM candidate_movies c
+        JOIN movie_metadata m ON c.movie_id = m.movie_id
+        ORDER BY c.frequency DESC
     """)
 
-    result = await session.execute(query, {"movie_ids": movie_ids})
+    result = await session.execute(
+        query, 
+        {
+            "similar_user_ids": similar_user_ids,
+            "exclude_movie_ids": exclude_movie_ids if exclude_movie_ids else [''],
+            "limit": limit
+        }
+    )
+
     rows = result.fetchall()
     recommendations = [
         {
