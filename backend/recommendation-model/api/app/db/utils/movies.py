@@ -69,7 +69,7 @@ async def add_new_movie_embedding(session, movie_id: str, movie_embedding: List[
 
 async def add_new_movie_rating(session, user_id: str, movie_id: str, rating: int):
     query = text("""
-        INSERT INTO user_ratings (user_id, movie_id, user_rating, added_at, updated_at)
+        INSERT INTO user_watchlist (user_id, movie_id, user_rating, added_at, updated_at)
         VALUES (:user_id, :movie_id, :user_rating, NOW(), NOW())
         ON CONFLICT (user_id, movie_id)
         DO UPDATE SET
@@ -111,7 +111,7 @@ async def add_new_movie_rating(session, user_id: str, movie_id: str, rating: int
 async def get_movie_embeddings(session, user_id: str):
     query = text("""
         SELECT e.embedding
-        FROM user_ratings r
+        FROM user_watchlist r
         JOIN movie_embedding_personalized e ON r.movie_id = e.movie_id
         WHERE r.user_id = :user_id
         ORDER BY r.updated_at DESC

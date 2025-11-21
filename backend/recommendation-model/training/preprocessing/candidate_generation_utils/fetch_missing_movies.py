@@ -143,7 +143,7 @@ async def try_fetch_url(session, url: str, headers: dict) -> Optional[dict]:
 
 # async function for fetching tmdb id along with other movie info using TMDB api
 async def find_by_id(session, imdbId: str):
-    fetch_tmdb_id_url = f'https://api.themoviedb.org/3/find/tt{imdbId}?external_source=imdb_id'
+    fetch_tmdb_id_url = f'https://api.themoviedb.org/3/find/{imdbId}?external_source=imdb_id'
 
     json_res = await try_fetch_url(session, fetch_tmdb_id_url, headers)
 
@@ -228,7 +228,7 @@ def extract_details(json_data, imdb_id) -> dict:
         "revenue": json_data.get("revenue") or 0,
         "runtime": json_data.get("runtime") or 0,
         "budget": json_data.get("budget", 0),
-        "imdb_id": f"tt{imdb_id}",
+        "imdb_id": imdb_id,
         "original_language": json_data.get("original_language") or "(no_language)",
         "original_title": json_data.get("original_title") or "(no_original_title)",
         "overview": json_data.get("overview") or "(no_overview_found)",
@@ -331,6 +331,7 @@ async def fetch_complete_movie_metadata(session, movieId: str, imdb_id: str, tit
         if not result:
             handle_not_found(movieId, imdb_id)
             print(f"TMDB ID not found for movie: {movieId} with imdb_id: {imdb_id}")
+            return None
 
         # tmdb api does return value
         tmdb_id, api_title, original_title, release_date = result
