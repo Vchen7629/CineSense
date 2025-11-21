@@ -9,7 +9,7 @@ import os
 
 # Dynamically generate new embeddings for unseen movies
 class MovieTower:
-    def __init__(self, embedding_dim: int = 512, device="cuda", large_dataset: bool = False) -> None:
+    def __init__(self, embedding_dim: int = 512, device="cpu", large_dataset: bool = False) -> None:
         self.embedding_dim = embedding_dim
         self.device = device
         current_dir = os.path.dirname(__file__)
@@ -54,7 +54,7 @@ class MovieTower:
         self.relu = nn.ReLU()
 
         # Load preprocessing tools
-        self.title_encoder = SentenceTransformer("all-MiniLM-L6-v2")
+        self.title_encoder = SentenceTransformer("intfloat/multilingual-e5-small")
 
         # Load the same MultiLabelBinarizer used for training
         genre_mlb_path = os.path.join(model_dir, "genre_mlb.joblib")

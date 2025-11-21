@@ -9,7 +9,7 @@ import numpy as np
 # User tower for cold start users - users who just signed up and only have selected 3 genres -
 # uses a mlb to encode the genres and create an embedding for the user to find recommendations
 class ColdStartUserTower:
-    def __init__(self, embedding_dim: int, device: str ="cuda", large_dataset: bool = False) -> None:
+    def __init__(self, embedding_dim: int, device: str ="cpu", large_dataset: bool = False) -> None:
         current_dir = os.path.dirname(__file__)
         self.device = device
         self.embedding_dim = embedding_dim
