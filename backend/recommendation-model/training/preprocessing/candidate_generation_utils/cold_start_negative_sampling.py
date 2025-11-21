@@ -107,12 +107,23 @@ def cold_start_negative_sampling(
 
                 if len(random_candidates) >= num_random_adjust:
                     random_sample = np.random.choice(random_candidates, num_random_adjust, replace=False)
+                elif len(random_candidates) > 0:
+                    # Not enough unique candidates, use replacement sampling
+                    random_sample = np.random.choice(random_candidates, num_random_adjust, replace=True)
                 else:
-                    random_sample = random_candidates[:num_random_adjust]
+                    # No random candidates available, sample from unrated movies with replacement
+                    random_sample = np.random.choice(unrated_movies, num_random_adjust, replace=True)
 
                 # Combine and shuffle
                 set_negatives = np.concatenate([genre_sample, random_sample])
                 np.random.shuffle(set_negatives)
+
+                # Safety check: ensure exactly num_negatives items
+                if len(set_negatives) < num_negatives:
+                    # This shouldn't happen with the logic above, but just in case
+                    padding = np.random.choice(unrated_movies, num_negatives - len(set_negatives), replace=True)
+                    set_negatives = np.concatenate([set_negatives, padding])
+
                 all_sampled.extend(set_negatives.tolist())
 
             # build row: userId + all negatives

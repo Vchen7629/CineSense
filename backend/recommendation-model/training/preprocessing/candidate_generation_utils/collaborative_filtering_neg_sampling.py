@@ -94,6 +94,13 @@ def collaborative_filtering_negative_sampling(
                 # combine and shuffle
                 set_negatives = np.concatenate([hard_sample, random_sample])
                 np.random.shuffle(set_negatives)
+
+                # Safety check: ensure exactly num_negatives items
+                if len(set_negatives) < num_negatives:
+                    padding = np.random.choice(unrated_movies if len(unrated_movies) > 0 else list(neg_movies),
+                                              num_negatives - len(set_negatives), replace=True)
+                    set_negatives = np.concatenate([set_negatives, padding])
+
                 all_sampled.extend(set_negatives.tolist())
 
             # build row: userId + all negatives
