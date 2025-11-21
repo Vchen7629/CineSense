@@ -4,16 +4,21 @@ from db.utils.movies import get_movies_metadata_by_movie_ids, get_cold_start_rec
 from db.utils.user import (
     get_user_genres, 
     get_user_with_ratings_count, 
-    get_user_embedding_and_similar_users,
+    get_similar_users_and_user_metadata,
     get_user_rated_movie_ids,
 )
+from model.utils.reranker_model import Reranker
 from sqlalchemy.ext.asyncio import AsyncSession
-import numpy as np
+from utils.dependencies import get_reranking_model
 
 router = APIRouter(prefix="/recommendations")
 
 @router.get("/get/{user_id}")
-async def get_recommendations(user_id: str, session: AsyncSession = Depends(get_session)):
+async def get_recommendations(
+    user_id: str, 
+    session: AsyncSession = Depends(get_session), 
+    rerank_model: Reranker = Depends(get_reranking_model)
+):
     num_users = await get_user_with_ratings_count(session)
 
     # fallback to cold start recommendations if not enough users
@@ -32,15 +37,18 @@ async def get_recommendations(user_id: str, session: AsyncSession = Depends(get_
         print("less than 50 users: cold start recos")
         return recommendations
 
-    # get user embeddings of similar users
-    user_embeddings, similar_users = await get_user_embedding_and_similar_users(session, user_id, similar_user_count=50)
+    # get user metadata for current user and similar users userIds
+    user_metadata, similar_users = await get_similar_users_and_user_metadata(session, user_id, similar_user_count=50)
 
     # get movie_ids of similar users 
     excluded_movies_ids = [row[0] for row in rated_movie_ids]
 
     # fetch our candidate movies from collaborative filtering, default 300 movies
-    relevant_movies = await get_movies_metadata_by_movie_ids(session, similar_users, excluded_movies_ids)
+    candidate_movies = await get_movies_metadata_by_movie_ids(session, similar_users, excluded_movies_ids)
 
     await session.commit()
 
-    return relevant_movies
+    # use lightgbm reranking model to reduce 300 candidate movies down to 10 best movies for the specific user
+    collaborative_recommendations = rerank_model.rerank_movies(user_metadata, candidate_movies)
+
+    return collaborative_recommendations
