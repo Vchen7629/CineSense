@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS movie_metadata (
     summary TEXT NOT NULL,
     actors TEXT[] NOT NULL,
     director TEXT[] NOT NULL,
-    poster_path TEXT
+    poster_path TEXT DEFAULT ''
 );
 
 -- User watchlist table
@@ -38,6 +38,34 @@ CREATE TABLE IF NOT EXISTS user_watchlist (
         REFERENCES movie_metadata(movie_id)
         ON DELETE CASCADE
 );
+
+-- Rating aggregates table for reranker model features (updated whenever user rates a movie)
+CREATE TABLE movie_rating_stats (
+    movie_id TEXT PRIMARY KEY,
+    avg_rating REAL DEFAULT 0.0,
+    rating_count INTEGER DEFAULT 0, 
+    rating_count_log REAL DEFAULT 0.0,
+    tmdb_avg_rating REAL DEFAULT 0.0,
+    tmdb_vote_log REAL DEFAULT 0.0,
+    tmdb_popularity REAL DEFAULT 0.0,
+    last_updated TIMESTAMP DEFAULT NOW(),
+
+    FOREIGN KEY (movie_id) REFERENCES movie_metadata(movie_id) ON DELETE CASCADE
+);
+
+CREATE TABLE user_rating_stats (
+    user_id TEXT PRIMARY KEY,
+    avg_rating REAL DEFAULT 0.0,
+    rating_count INTEGER DEFAULT 0,
+    rating_count_log REAL DEFAULT 0.0,
+    top_3_genres TEXT[] DEFAULT '{}',
+    top_50_actors TEXT[] DEFAULT '{}',
+    top_10_directors TEXT[] DEFAULT '{}',
+    last_updated TIMESTAMP DEFAULT NOW(),
+
+    FOREIGN KEY (user_id) REFERENCES user_login(user_id) ON DELETE CASCADE
+);
+
 
 -- Movie embedding tables
 CREATE TABLE IF NOT EXISTS movie_embedding_coldstart (
@@ -72,7 +100,6 @@ CREATE TABLE IF NOT EXISTS user_embeddings (
 CREATE TABLE IF NOT EXISTS user_genre_embeddings (
     user_id TEXT PRIMARY KEY,
     genre_embedding VECTOR(512) NOT NULL,
-    top_3_genres TEXT[] NOT NULL,
     last_updated TIMESTAMP DEFAULT NOW(),
 
     FOREIGN KEY (user_id)

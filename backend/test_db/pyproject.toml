@@ -1,0 +1,12 @@
+[project]
+name = "test-db"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "alembic>=1.17.2",
+    "pgvector>=0.4.1",
+    "psycopg2-binary>=2.9.11",
+    "sqlalchemy>=2.0.44",
+]
