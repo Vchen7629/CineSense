@@ -1,5 +1,6 @@
 import os
 import polars as pl
+from ..shared.extract_year import extract_title_without_year, extract_year_from_title
 
 current_dir = os.path.dirname(__file__)
 
@@ -30,6 +31,12 @@ def add_movie_user_idx_mapping(large_dataset: bool = False):
     # add continuous movie_idx starting from 0
     pruned_movie_df = pruned_movie_df.with_row_index(name="movie_idx")
 
+    # Extract year from title and clean title
+    pruned_movie_df = pruned_movie_df.with_columns([
+        pl.col("title").map_elements(extract_year_from_title, return_dtype=pl.Int64).alias("year"),
+        pl.col("title").map_elements(extract_title_without_year, return_dtype=pl.Utf8).alias("title")
+    ])
+
     print(f"Pruned movie columns: {pruned_movie_df.columns}")
     print(f"Sample rows:\n{pruned_movie_df.head()}")
     print(f"total unique movies: {len(pruned_movie_df)}")
@@ -46,6 +53,10 @@ def add_movie_user_idx_mapping(large_dataset: bool = False):
         on="movieId",
         how="left"
     )
+
+    # Filter out rows where movie_idx is null (movies that don't exist in pruned_movie_df)
+    pos_ratings_df = pos_ratings_df.filter(pl.col('movie_idx').is_not_null())
+    neg_ratings_df = neg_ratings_df.filter(pl.col('movie_idx').is_not_null())
 
     # create new csv containing only the movies that the users rated
     pruned_movie_df.write_csv(pruned_movies_path)

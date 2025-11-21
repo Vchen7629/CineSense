@@ -38,7 +38,7 @@ def preprocess_candidate_generation_model_files(cold_start: bool = True, large_d
         print("No missing metadata found. Skipping API fetch.")
 
     # create embedding files for movie title and genre and exports the genre mlb for use later
-    create_movie_embeddings(large_dataset=large_dataset)
+    #create_movie_embeddings(large_dataset=large_dataset)
 
     if cold_start:
         # create the embedding file containing user's top 3 genres as preferred-genres.npy to be used for training
@@ -48,4 +48,4 @@ def preprocess_candidate_generation_model_files(cold_start: bool = True, large_d
         collaborative_filtering_negative_sampling(large_dataset=large_dataset)
 
 if __name__ == "__main__":
-    preprocess_candidate_generation_model_files(cold_start=False)
+    preprocess_candidate_generation_model_files(cold_start=True)
