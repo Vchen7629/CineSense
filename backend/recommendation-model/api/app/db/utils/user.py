@@ -7,9 +7,10 @@ import numpy as np
 
 async def get_user_genres(session, user_id: str):
     query = text("""
-        SELECT user_id, top_3_genres, genre_embedding
-        FROM user_genre_embeddings
-        WHERE user_id = :user_id
+        SELECT e.user_id, r.top_3_genres, e.genre_embedding
+        FROM user_genre_embeddings e
+        JOIN user_rating_stats r ON e.user_id = r.user_id
+        WHERE e.user_id = :user_id
     """)
 
     result = await session.execute(
@@ -30,8 +31,14 @@ async def get_user_genres(session, user_id: str):
 # create a new user embedding using the 3 genres selected during signup
 async def new_user_genre_embedding(session, user_id: str, genre_embedding: np.ndarray, top3_genres: List[str]):
     query = text("""
-        INSERT INTO user_genre_embeddings (user_id, genre_embedding, last_updated, top_3_genres)
-        VALUES (:user_id, :genre_embedding, NOW(), :user_genres)
+        WITH insert1 AS (
+            INSERT INTO user_genre_embeddings (user_id, genre_embedding, last_updated)
+            VALUES (:user_id, :genre_embedding, NOW())
+            RETURNING user_id
+        )
+        INSERT INTO user_rating_stats (user_id, top_3_genres)
+        SELECT user_id, :top_3_genres
+        FROM insert1
     """)
     
     try:
@@ -40,7 +47,7 @@ async def new_user_genre_embedding(session, user_id: str, genre_embedding: np.nd
             {
                 "user_id": str(user_id),
                 "genre_embedding": genre_embedding,
-                "user_genres": top3_genres
+                "top_3_genres": top3_genres,
             }
         )
         await session.commit()
@@ -169,7 +176,7 @@ async def get_candidate_movies_from_similar_users(
     # Convert lists to PostgreSQL array format for the query
     query = text("""
         SELECT movie_id, COUNT(*) as frequency
-        FROM user_ratings
+        FROM user_watch
         WHERE user_id = ANY(:similar_user_ids)
         AND movie_id != ALL(:exclude_movie_ids)
         GROUP BY movie_id
@@ -191,7 +198,7 @@ async def get_candidate_movies_from_similar_users(
 async def get_user_rated_movie_ids(session, user_id: str):
     query = text("""
         SELECT movie_id
-        FROM user_ratings
+        FROM user_watchlist
         WHERE user_id = :user_id
     """)
 
