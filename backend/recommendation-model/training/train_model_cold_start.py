@@ -38,7 +38,7 @@ class TrainColdStartModel():
             self.neg_df = pl.read_csv(neg_ratings_path)
         else:
             # config
-            self.num_movies = 9642
+            self.num_movies = 9632
             self.batch_size = 256
 
             pos_ratings_path = os.path.join(current_dir, "datasets", "output-small", "user-positive-ratings.csv")
