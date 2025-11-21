@@ -44,7 +44,9 @@ def create_movies_metadata(large_dataset: bool = False):
             .alias("cast_normalized"),
         pl.col("director")
             .str.replace_all(r", ", "|")
-            .alias("director")
+            .alias("director"),
+        # Extract year from release_date (YYYY-MM-DD format)
+        pl.col("release_date").str.slice(0, 4).cast(pl.Int64, strict=False).alias("year")
     ]).drop([
         "id",
         "status",
