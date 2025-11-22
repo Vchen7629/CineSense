@@ -86,35 +86,7 @@ async def regenerate_user_movie_embedding(session, user_id: str, user_emb: np.nd
             "embedding": str(user_emb.tolist())
         }
     )
-
-async def test(session, user_id: str):
-    query = text("""
-        INSERT INTO user_login (user_id, username, email, password, created_at)
-        VALUES (:user_id, :username, :email, :password, :created_at)
-    """)
-    try:
-        await session.execute(
-            query,
-            {
-                "user_id": str(user_id),
-                "username": f"test_{user_id}",
-                "email": f"test{user_id}@example.com",
-                "password": "test123",
-                "created_at": datetime(2025, 11, 12, 14, 30, 45)
-            }
-        )
-        await session.commit()
-    except IntegrityError as e:
-        await session.rollback()
-        raise HTTPException(status_code=400, detail="User already exists") from e
-
-    result = await session.execute(text("SELECT * FROM user_login"))
     
-    rows = result.fetchall()
-    rows_as_dicts = [dict(row._mapping) for row in rows]
-
-    return rows_as_dicts
-
 # fetch the amount of users that have rated at least one movie in the database
 async def get_user_with_ratings_count(session):
     query = text("""
@@ -285,22 +257,5 @@ async def update_user_ratings_stats(session, user_id: str):
 
     result = await session.execute(query, {"user_id": user_id})
 
-    test_query = await session.execute(text("""
-        SELECT * FROM user_rating_stats WHERE user_id = :user_id
-    """), {"user_id": user_id})
-
-    test_statement = test_query.first()
-
     if not result:
         raise HTTPException(status_code=500, detail="error updating user rating stats")
-    
-    if not test_statement:
-        raise HTTPException(status_code=404, detail="User stats not found")
-    
-    return {
-      "avg_rating": test_statement.avg_rating,
-      "rating_count": test_statement.rating_count,
-      "top_3_genres": test_statement.top_3_genres,
-      "top_50_actors": test_statement.top_50_actors,
-      "top_10_directors": test_statement.top_10_directors
-    }

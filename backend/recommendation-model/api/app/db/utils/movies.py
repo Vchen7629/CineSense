@@ -157,27 +157,9 @@ async def update_movie_rating_stats(session, movie_id: str, tmdb_avg_rating: flo
         }    
     )
 
-    test_query = await session.execute(text("""
-        SELECT * FROM movie_rating_stats WHERE movie_id = :movie_id
-    """), {"movie_id": movie_id})
-
     if not result:
         raise HTTPException(status_code=500, detail="failed to update movie rating to latest stats")
 
-    test_query = test_query.first()
-
-    if not test_query:
-          raise HTTPException(status_code=404, detail="Movie stats not found")
-
-    return {
-        "avg_rating": test_query.avg_rating,
-        "rating_count": test_query.rating_count,
-        "rating_count_log": test_query.rating_count_log,
-        "tmdb_avg_rating": test_query.tmdb_avg_rating,
-        "tmdb_vote_log": test_query.tmdb_vote_log,
-        "tmdb_popularity": test_query.tmdb_popularity
-    }
-   
 # fetches the movie_embeddings for the user
 async def get_movie_embeddings(session, user_id: str):
     query = text("""
