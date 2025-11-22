@@ -1,8 +1,17 @@
 from fastapi import APIRouter, HTTPException, status, Request, Depends
 from typing import List
 from model.utils.movie_tower import MovieTower
-from db.utils.user import regenerate_user_movie_embedding
-from db.utils.movies import add_new_movie_embedding, add_new_movie_rating, add_movie_metadata, get_movie_embeddings
+from db.utils.user import (
+    regenerate_user_movie_embedding,
+    update_user_ratings_stats
+)
+from db.utils.movies import (
+    add_new_movie_embedding, 
+    add_new_movie_rating, 
+    add_movie_metadata, 
+    get_movie_embeddings,
+    update_movie_rating_stats
+)
 from db.config.conn import get_session
 from sqlalchemy.ext.asyncio import AsyncSession
 from pydantic import BaseModel
@@ -20,7 +29,10 @@ class RateMovieRequest(BaseModel):
     actors: List[str]
     director: List[str]
     poster_path: str
-    rating: int
+    rating: float
+    tmdb_vote_avg: float
+    tmdb_vote_count: float
+    tmdb_popularity: float
 
 @router.post("/rate/{imdb_id}")
 async def new_rated_movie(
@@ -38,6 +50,11 @@ async def new_rated_movie(
     director = body.director
     poster_path = body.poster_path
     rating = body.rating
+    tmdb_vote_avg = body.tmdb_vote_avg
+    tmdb_vote_count = body.tmdb_vote_count
+    tmdb_popularity = body.tmdb_popularity
+
+    tmdb_vote_log = np.log1p(tmdb_vote_count)
     
     if not user_id:
         raise HTTPException(status_code=404, detail="No user_id provided")
@@ -53,6 +70,9 @@ async def new_rated_movie(
     await add_new_movie_embedding(session, imdb_id, movie_embedding)
 
     is_new_rating = await add_new_movie_rating(session, user_id, imdb_id, rating)
+    
+    # flush so new movie rating is visible to subsequent queries in this transaction
+    await session.flush()
 
     movie_embeddings_rows = await get_movie_embeddings(session, user_id)
 
@@ -71,13 +91,18 @@ async def new_rated_movie(
 
     await regenerate_user_movie_embedding(session, user_id, user_emb)
 
+    movie = await update_movie_rating_stats(session, imdb_id, tmdb_vote_avg, tmdb_vote_log, tmdb_popularity)
+    user = await update_user_ratings_stats(session, user_id)
+
     await session.commit()
     
     return {
         "message": "Rating added" if is_new_rating else "Rating updated",
         "user_id": user_id,
         "movie_id": imdb_id,
-        "rating": rating
+        "rating": rating,
+        "movie_test": movie,
+        "user_test": user
     }
 
 
