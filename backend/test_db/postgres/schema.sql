@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS movie_metadata (
 CREATE TABLE IF NOT EXISTS user_watchlist (
     user_id TEXT NOT NULL,
     movie_id TEXT NOT NULL,
-    user_rating INT,
+    user_rating REAL DEFAULT 0.0,
     added_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP DEFAULT NOW(),
 
@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS user_watchlist (
 CREATE TABLE movie_rating_stats (
     movie_id TEXT PRIMARY KEY,
     avg_rating REAL DEFAULT 0.0,
-    rating_count INTEGER DEFAULT 0, 
+    rating_count INTEGER DEFAULT 0, ---num of users who rated this movie
     rating_count_log REAL DEFAULT 0.0,
     tmdb_avg_rating REAL DEFAULT 0.0,
     tmdb_vote_log REAL DEFAULT 0.0,

@@ -36,7 +36,7 @@ class UserWatchlist(Base):
     
     user_id = Column(Text, ForeignKey('user_login.user_id', ondelete='CASCADE'), primary_key=True)
     movie_id = Column(Text, ForeignKey('movie_metadata.movie_id', ondelete='CASCADE'), primary_key=True)
-    user_rating = Column(Integer)
+    user_rating = Column(REAL, server_default='0.0')
     added_at = Column(TIMESTAMP, server_default='NOW()')
     updated_at = Column(TIMESTAMP, server_default='NOW()')
 
