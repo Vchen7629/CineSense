@@ -130,22 +130,35 @@ async def get_user_with_ratings_count(session):
 
 
 # find k-most similar users to current user embedding using pgvector hnsw index
-# and also their user embedding
-async def get_user_embedding_and_similar_users(session, user_id: str, similar_user_count: int = 50):
+# and also their user embedding and rating metadata needed for the lightgbm reranker
+async def get_similar_users_and_user_metadata(session, user_id: str, similar_user_count: int = 50):
     query = text("""
-        WITH current_user AS (
-            SELECT user_id, embedding
-            FROM user_embeddings
-            WHERE user_id = :user_id
+        WITH target_user AS (
+            SELECT
+                ue.user_id,
+                ue.embedding,
+                urs.avg_rating,
+                urs.rating_count_log,
+                urs.top_3_genres,
+                urs.top_50_actors,
+                urs.top_10_directors
+            FROM user_embeddings ue
+            JOIN user_rating_stats urs ON ue.user_id = urs.user_id
+            WHERE ue.user_id = :user_id
         )
-        SELECT 
-            ue.user_id, 
-            1 - (ue.embedding <=> :cu.embedding) AS similarity,
-            cu.embedding as user_embedding
+        SELECT
+            ue.user_id,
+            1 - (ue.embedding <=> tu.embedding) AS similarity,
+            tu.embedding as user_embedding,
+            tu.avg_rating as user_avg_rating,
+            tu.rating_count_log as user_rating_log,
+            tu.top_3_genres,
+            tu.top_50_actors,
+            tu.top_10_directors
         FROM user_embeddings ue
-        CROSS JOIN current_user cu
-        WHERE ue user_id != :user_id
-        ORDER BY ue.embedding <=> :cu.embedding
+        CROSS JOIN target_user tu
+        WHERE ue.user_id != :user_id
+        ORDER BY ue.embedding <=> tu.embedding
         LIMIT :limit
     """)
 
@@ -162,9 +175,22 @@ async def get_user_embedding_and_similar_users(session, user_id: str, similar_us
     if not rows:
         raise HTTPException(status_code=404, detail="User embedding not found")
     
+    # extract all user metadata from first row
     user_embedding = rows[0].user_embedding
+    user_avg_rating = rows[0].user_avg_rating
+    user_rating_log = rows[0].user_rating_log
+    top_3_genres = rows[0].top_3_genres
+    top_50_actors = rows[0].top_50_actors
+    top_10_directors = rows[0].top_10_directors
 
-    return user_embedding, rows
+    return {
+        'embedding': user_embedding,
+        'avg_rating': user_avg_rating,
+        'rating_log': user_rating_log,
+        'top_3_genres': top_3_genres,
+        'top_50_actors': top_50_actors,
+        'top_10_directors': top_10_directors
+    }, rows
 
 async def get_user_rated_movie_ids(session, user_id: str):
     query = text("""
@@ -177,3 +203,104 @@ async def get_user_rated_movie_ids(session, user_id: str):
     rows = result.fetchall()
 
     return rows
+
+async def update_user_ratings_stats(session, user_id: str):
+    query = text("""
+        WITH user_movies AS (
+            SELECT 
+                m.genres,
+                m.actors,
+                m.director
+            FROM user_watchlist uw
+            JOIN movie_metadata m on uw.movie_id = m.movie_id
+            WHERE uw.user_id = :user_id
+        ),
+        user_stats AS (
+            SELECT
+                COUNT(*) as count,
+                CAST(AVG(user_rating) AS REAL) as avg
+            FROM user_watchlist
+            WHERE user_id = :user_id
+        ),
+        top_genres AS (
+            SELECT genre
+            FROM (
+                SELECT UNNEST(genres) as genre
+                FROM user_movies
+            ) g
+            GROUP BY genre
+            ORDER BY COUNT(*) DESC
+            LIMIT 3
+        ),
+        top_actors AS (
+            SELECT actor
+            FROM (
+                SELECT UNNEST(actors) as actor
+                FROM user_movies
+            ) a
+            GROUP BY actor
+            ORDER BY COUNT(*) DESC
+            LIMIT 50
+        ),
+        top_directors AS (
+            SELECT director
+            FROM (
+                SELECT UNNEST(director) as director
+                FROM user_movies
+            ) d
+            GROUP BY director
+            ORDER BY COUNT(*) DESC
+            LIMIT 10
+        )
+        INSERT INTO user_rating_stats (
+            user_id,
+            avg_rating,
+            rating_count,
+            rating_count_log,
+            top_3_genres,
+            top_50_actors,
+            top_10_directors,
+            last_updated
+        )
+        SELECT
+            :user_id,
+            COALESCE((SELECT avg FROM user_stats), 0.0),
+            COALESCE((SELECT count FROM user_stats), 0),
+            LN(COALESCE((SELECT count FROM user_stats), 0) + 1),
+            COALESCE((SELECT ARRAY_AGG(genre) FROM top_genres), ARRAY[]::TEXT[]),
+            COALESCE((SELECT ARRAY_AGG(actor) FROM top_actors), ARRAY[]::TEXT[]),
+            COALESCE((SELECT ARRAY_AGG(director) FROM top_directors), ARRAY[]::TEXT[]),
+            NOW()
+        ON CONFLICT (user_id)
+        DO UPDATE SET
+            avg_rating = EXCLUDED.avg_rating,
+            rating_count = EXCLUDED.rating_count,
+            rating_count_log = EXCLUDED.rating_count_log,
+            top_3_genres = EXCLUDED.top_3_genres,
+            top_50_actors = EXCLUDED.top_50_actors,
+            top_10_directors = EXCLUDED.top_10_directors,
+            last_updated = EXCLUDED.last_updated
+        RETURNING *
+    """)
+
+    result = await session.execute(query, {"user_id": user_id})
+
+    test_query = await session.execute(text("""
+        SELECT * FROM user_rating_stats WHERE user_id = :user_id
+    """), {"user_id": user_id})
+
+    test_statement = test_query.first()
+
+    if not result:
+        raise HTTPException(status_code=500, detail="error updating user rating stats")
+    
+    if not test_statement:
+        raise HTTPException(status_code=404, detail="User stats not found")
+    
+    return {
+      "avg_rating": test_statement.avg_rating,
+      "rating_count": test_statement.rating_count,
+      "top_3_genres": test_statement.top_3_genres,
+      "top_50_actors": test_statement.top_50_actors,
+      "top_10_directors": test_statement.top_10_directors
+    }
