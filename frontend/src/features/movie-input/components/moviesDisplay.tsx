@@ -1,11 +1,11 @@
-import type { DummyItem } from "../types/data"
 import { ThumbsUpIcon, PlusIcon, TrashIcon, Heart } from "lucide-react"
 import RateMovieButtons from "./rateButtons"
 import { useState } from "react"
 import { useRateMovie } from "../hooks/useRateMovie"
+import type { RateMovieApi } from "@/app/types/movie"
 
 interface DisplayProps {
-    movieData: DummyItem[],
+    movieData: RateMovieApi[],
     listView: boolean,
     gridView: boolean
 }
@@ -29,13 +29,13 @@ const DisplayMovies = ({movieData, listView, gridView}: DisplayProps) => {
 
     return (
         <ul className={`h-[95%] w-full space-y-[2%] ${gridView && "grid grid-cols-2 gap-4"}`}>
-            {movieData.map((item: DummyItem) => {
-                const isOpen = !!openWatched[item.id];
-                const itemRating = ratings[item.id] || 0;
+            {movieData.map((item: RateMovieApi) => {
+                const isOpen = !!openWatched[item.movie_id];
+                const itemRating = ratings[item.movie_id] || 0;
 
                 return (
                     <li 
-                        key={item.id} 
+                        key={item.movie_id} 
                         className={
                             `flex w-full text-xl font-semibold items-center px-2 shadow-md shadow-black bg-[#394B51] rounded-xl 
                             ${listView && "h-[20%]"} ${gridView && "h-[85%]"}`
@@ -46,12 +46,12 @@ const DisplayMovies = ({movieData, listView, gridView}: DisplayProps) => {
                         <section 
                             className={`flex flex-col ${listView && "w-[70%]"} ${gridView && "w-[50%]"} h-[80%] px-[2%]`}
                         >
-                            <span className="text-lg font-bold text-white">{item.name}</span>
-                            <span className="text-sm text-gray-400 h-3/4">{item.desc}</span>
+                            <span className="text-lg font-bold text-white">{item.title}</span>
+                            <span className="text-sm text-gray-400 h-3/4">{item.summary}</span>
                             <div className="flex items-center space-x-3 mt-4 w-[100%]">
                                 {!isOpen ? (
                                     <button
-                                        onClick={() => handleAdd(item.id)}
+                                        onClick={() => handleAdd(item.movie_id)}
                                         className="flex items-center space-x-1 px-3 py-1.5 bg-teal-500/20 border-teal-400 text-teal-200 shadow-inner hover:bg-teal-800 rounded-xl transition-colors duration-250"
                                     >
                                         <PlusIcon size={18} />
@@ -59,7 +59,7 @@ const DisplayMovies = ({movieData, listView, gridView}: DisplayProps) => {
                                     </button>
                                 ) : (
                                     <button
-                                        onClick={() => handleAdd(item.id)}
+                                        onClick={() => handleAdd(item.movie_id)}
                                         className="flex items-center space-x-1 px-3 py-1.5 bg-teal-500/20 border-teal-400 text-teal-200 shadow-inner hover:bg-teal-800 rounded-xl transition-colors duration-250"
                                     >
                                         <Heart size={18} />
@@ -69,7 +69,7 @@ const DisplayMovies = ({movieData, listView, gridView}: DisplayProps) => {
                                 {isOpen && (
                                     <div className="w-[80%] flex">
                                         <button 
-                                            onClick={() => handleRemove(item.id)}
+                                            onClick={() => handleRemove(item.movie_id)}
                                             className="flex items-center space-x-1 px-3 py-1 bg-slate-500/40 hover:bg-red-600 rounded-xl transition-colors duration-250"
                                         >
                                             <TrashIcon size={18}/>
@@ -77,7 +77,7 @@ const DisplayMovies = ({movieData, listView, gridView}: DisplayProps) => {
                                         </button>
                                         <RateMovieButtons 
                                             rating={itemRating} 
-                                            setRating={(value) => handleSetRating(item.id, value)}
+                                            setRating={(value) => handleSetRating(item.movie_id, value)}
                                         />
                                         <button 
                                             onClick={() => rateMovie(item, itemRating)}

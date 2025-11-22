@@ -7,6 +7,7 @@ from routes.user import router as user_router
 from routes.movies import router as movie_router
 from model.utils.cold_start_user_tower import ColdStartUserTower
 from model.utils.movie_tower import MovieTower
+from model.utils.reranker_model import Reranker
 from middleware.cors import add_cors
 
 # lifespan function to manage startup/shutdown
@@ -15,6 +16,7 @@ async def lifespan(app: FastAPI):
     # Load models once on startup
     app.state.cold_start_user_tower = ColdStartUserTower(embedding_dim=512)
     app.state.movie_tower = MovieTower(embedding_dim=512)
+    app.state.reranker_model = Reranker(production=False)
 
     yield
 

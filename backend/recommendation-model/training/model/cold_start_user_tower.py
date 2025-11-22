@@ -21,11 +21,7 @@ class ColdStartUserTower(nn.Module):
 
         self.projector = torch.nn.Linear(preferred_genres.shape[1], embedding_dim, device=self.device)
         self.relu = nn.ReLU()
-
-        user_df = pl.read_csv('datasets/output-small/user-output.csv')
-        print('Max userId:', user_df['userId'].max())
-        print('Expected max (num_users - 1):', 609)
-
+        
     def forward(self, user_batch) -> torch.Tensor:
         # use precomputed embeddings
         pref_genre_features = self.pref_genre_tensor[user_batch]

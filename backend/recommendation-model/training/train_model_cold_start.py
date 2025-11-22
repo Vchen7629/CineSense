@@ -51,7 +51,6 @@ class TrainColdStartModel():
         self.traintest = TrainTest(pos_ratings_path, mode='coldstart')
 
         self.user_tower = ColdStartUserTower(
-            user_csv_path=pos_ratings_path,
             embedding_dim=embedding_dim, 
             device="cuda",
             large_dataset=large_dataset

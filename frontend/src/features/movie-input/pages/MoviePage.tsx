@@ -1,21 +1,74 @@
 import Header from "@/features/navbar/components/Header";
 import SearchBar from "../components/searchBar";
 import { useState } from "react";
-import { dummyData } from "../misc/dummyData";
-import type { DummyItem } from "../types/data";
+import { 
+    sciFiAdventure1,
+    sciFiAdventure2,
+    sciFiAdventure3,
+    sciFiAdventure4,
+    sciFiAdventure5,
+    sciFiAdventure6,
+    sciFiAdventure7,
+    sciFiAdventure8,
+    sciFiAdventure9,
+    sciFiAdventure10,
+    actionThriller1,
+    actionThriller2,
+    actionThriller3,
+    actionThriller4,
+    actionThriller5,
+    actionThriller6,
+    actionThriller7,
+    actionThriller8,
+    actionThriller9,
+    actionThriller10,
+    dramaRomance1,
+    dramaRomance2,
+    dramaRomance3,
+    dramaRomance4,
+    dramaRomance5,
+    dramaRomance6,
+    dramaRomance7,
+    dramaRomance8,
+    dramaRomance9,
+    dramaRomance10,
+    comedy1,
+    comedy2,
+    comedy3,
+    comedy4,
+    comedy5,
+    comedy6,
+    comedy7,
+    comedy8,
+    comedy9,
+    comedy10,
+    horrorThriller1,
+    horrorThriller2,
+    horrorThriller3,
+    horrorThriller4,
+    horrorThriller5,
+    horrorThriller6,
+    horrorThriller7,
+    horrorThriller8,
+    horrorThriller9,
+    horrorThriller10
+} from "../misc/dummyMovies";
 import PaginationComponent from "../components/pagination";
 import GridListViewComponent from "../components/gridListViewComponent";
 import DisplayMovies from "../components/moviesDisplay";
 import { SearchFilter } from "../components/searchFilter";
 import { genres, languages } from "../misc/filterItems";
 import YearFilterComponent from "../components/yearFilter";
+import type { RateMovieApi } from "@/app/types/movie";
 
 export default function MovieInputPage() {
     const [currentPage, setCurrentPage] = useState<number>(1)
-    const [data] = useState<DummyItem[]>(dummyData)
-    const [filteredData, setFilteredData] = useState<DummyItem[]>(dummyData)
+    const [data] = useState<RateMovieApi[]>(horrorThriller10)
+    const [filteredData, setFilteredData] = useState<RateMovieApi[]>(horrorThriller10)
     const [gridView, setGridView] = useState<boolean>(false)
     const [listView, setListView] = useState<boolean>(true)
+
+    console.log(data)
 
     const itemsPerPage = 4
     const totalPage = Math.ceil(filteredData.length / itemsPerPage);

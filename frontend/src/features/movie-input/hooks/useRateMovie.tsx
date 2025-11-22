@@ -1,22 +1,25 @@
-import type { DummyItem } from "../types/data";
+import type { RateMovieApi } from "@/app/types/movie";
 import { RateMovie } from "@/app/utils/movie";
 
 // function for sending the movie metadata to the backend api
 export function useRateMovie() {
     const rateMovieMutation = RateMovie();
 
-    const rateMovie = (item: DummyItem, rating: number) => {
+    const rateMovie = (item: RateMovieApi, rating: number) => {
         rateMovieMutation.mutate({
-            movie_id: item.id,          
-            user_id: "2",              
-            name: item.name,
+            movie_id: item.movie_id,          
+            user_id: "50",              
+            title: item.title,
             genres: item.genres,
             release_date: item.release_date,
-            summary: item.desc,         
+            summary: item.summary,         
             actors: item.actors,
             director: item.director || [], 
             poster_path: item.poster_path || "",
-            rating: rating
+            rating: rating,
+            tmdb_vote_avg: item.tmdb_vote_avg,
+            tmdb_vote_count: item.tmdb_vote_count,
+            tmdb_popularity: item.tmdb_popularity
         });
     };
 

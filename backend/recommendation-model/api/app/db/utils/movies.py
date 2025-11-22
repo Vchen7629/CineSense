@@ -67,7 +67,8 @@ async def add_new_movie_embedding(session, movie_id: str, movie_embedding: List[
         }
     )
 
-async def add_new_movie_rating(session, user_id: str, movie_id: str, rating: int):
+# sql function to add the new movie rating into user watchlist table 
+async def add_new_movie_rating(session, user_id: str, movie_id: str, rating: float):
     query = text("""
         INSERT INTO user_watchlist (user_id, movie_id, user_rating, added_at, updated_at)
         VALUES (:user_id, :movie_id, :user_rating, NOW(), NOW())
@@ -106,6 +107,58 @@ async def add_new_movie_rating(session, user_id: str, movie_id: str, rating: int
         else:
             raise HTTPException(status_code=400, detail="Database integrity error")
 
+# update the movie rating stats table for most updated stats that reranker can use
+async def update_movie_rating_stats(session, movie_id: str, tmdb_avg_rating: float, tmdb_vote_log: float, tmdb_popularity: float):
+    query = text("""
+        WITH movie_stats AS (
+            SELECT
+                COUNT(*) as count,
+                CAST(AVG(user_rating) AS REAL) as avg
+            FROM user_watchlist
+            WHERE movie_id = :movie_id
+        )
+        INSERT INTO movie_rating_stats (
+            movie_id,
+            avg_rating,
+            rating_count,
+            rating_count_log,
+            tmdb_avg_rating,
+            tmdb_vote_log,
+            tmdb_popularity,
+            last_updated
+        )
+        SELECT 
+            :movie_id,
+            movie_stats.avg,
+            movie_stats.count,
+            LN(movie_stats.count + 1),
+            :tmdb_avg_rating,
+            :tmdb_vote_log,
+            :tmdb_popularity,
+            NOW()
+        FROM movie_stats
+        ON CONFLICT (movie_id)
+        DO UPDATE SET 
+            avg_rating = EXCLUDED.avg_rating,
+            rating_count = EXCLUDED.rating_count,
+            rating_count_log = EXCLUDED.rating_count_log,
+            tmdb_avg_rating = EXCLUDED.tmdb_avg_rating,
+            tmdb_vote_log = EXCLUDED.tmdb_vote_log,
+            tmdb_popularity = EXCLUDED.tmdb_popularity,
+            last_updated = NOW()          
+    """)
+
+    result = await session.execute(query,
+        {
+            "movie_id": movie_id,
+            "tmdb_avg_rating": tmdb_avg_rating,
+            "tmdb_vote_log": tmdb_vote_log,
+            "tmdb_popularity": tmdb_popularity
+        }    
+    )
+
+    if not result:
+        raise HTTPException(status_code=500, detail="failed to update movie rating to latest stats")
 
 # fetches the movie_embeddings for the user
 async def get_movie_embeddings(session, user_id: str):
@@ -138,30 +191,62 @@ async def get_movie_embeddings_by_movie_ids(
 
     return rows
 
+# get movie metadata for all similar user ids found by most similar cosine sim
+# and wasnt watched/rated by the current user
 async def get_movies_metadata_by_movie_ids(
-    session, movie_ids: List[str]
+    session, 
+    similar_user_ids: List[str],
+    exclude_movie_ids: List[str],
+    limit: int = 300
 ):
     query = text("""
-        SELECT movie_metadata (
-            movie_id, movie_name, genres, release_date, summary, actors, director, poster_path
+        WITH candidate_movies AS (
+            SELECT movie_id, COUNT(*) as frequency
+            FROM user_watchlist
+            WHERE user_id = ANY(:similar_user_ids)
+            AND movie_id != ALL(:exclude_movie_ids)
+            GROUP BY movie_id
+            ORDER BY frequency DESC
+            LIMIT :limit
         )
-        FROM movie_metadata
-        WHERE movie_id = ANY(:movie_ids)
-        ORDER BY array_position(:movie_ids::text[], movie_id)
+        SELECT 
+            m.*,
+            mrs.*,
+            emb.embedding as movie_embedding,
+            c.frequency
+        FROM candidate_movies c
+        JOIN movie_metadata m ON c.movie_id = m.movie_id
+        JOIN movie_rating_stats mrs on c.movie_id = mrs.movie_id
+        JOIN movie_embedding_personalized emb ON c.movie_id = emb.movie_id
+        ORDER BY c.frequency DESC
     """)
 
-    result = await session.execute(query, {"movie_ids": movie_ids})
+    result = await session.execute(
+        query, 
+        {
+            "similar_user_ids": similar_user_ids,
+            "exclude_movie_ids": exclude_movie_ids if exclude_movie_ids else [''],
+            "limit": limit
+        }
+    )
+
     rows = result.fetchall()
     recommendations = [
         {
             "movie_id": row.movie_id,
+            "movie_emb": row.movie_embedding,
             "title": row.movie_name,
             "genres": row.genres,
             "release_date": row.release_date,
             "summary": row.summary,
             "actors": row.actors,
-            "director": row.director,
-            "poster_path": row.poster_path
+            "directors": row.director,
+            "poster_path": row.poster_path,
+            "movie_rating_log": row.rating_count_log,
+            "movie_avg_rating": row.avg_rating,
+            "tmdb_vote_avg": row.tmdb_avg_rating,
+            "tmdb_vote_log": row.tmdb_vote_log,
+            "tmdb_popularity": row.tmdb_popularity
         }
         for row in rows
     ]
