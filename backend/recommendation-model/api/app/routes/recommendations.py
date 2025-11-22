@@ -17,7 +17,7 @@ router = APIRouter(prefix="/recommendations")
 async def get_recommendations(
     user_id: str, 
     session: AsyncSession = Depends(get_session), 
-    rerank_model: Reranker = Depends(get_reranking_model)
+    #rerank_model: Reranker = Depends(get_reranking_model)
 ):
     num_users = await get_user_with_ratings_count(session)
 
@@ -49,6 +49,6 @@ async def get_recommendations(
     await session.commit()
 
     # use lightgbm reranking model to reduce 300 candidate movies down to 10 best movies for the specific user
-    collaborative_recommendations = rerank_model.rerank_movies(user_metadata, candidate_movies)
+    #collaborative_recommendations = rerank_model.rerank_movies(user_metadata, candidate_movies)
 
-    return collaborative_recommendations
+    #return collaborative_recommendations

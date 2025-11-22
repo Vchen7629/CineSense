@@ -1,15 +1,14 @@
 from fastapi.middleware.cors import CORSMiddleware
+from middleware.config import settings
 
 def add_cors(app):
-    origins = [
-        "http://localhost:3000",  # React dev server
-        "http://localhost:8000",  # optional if needed
-    ]
+    origins = settings.cors_origins
 
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"],  # or ["*"] for all origins
+        allow_origins=origins,  # or ["*"] for all origins
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
+        expose_headers=["*"],
     )

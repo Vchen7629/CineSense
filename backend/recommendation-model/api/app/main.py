@@ -14,9 +14,9 @@ from middleware.cors import add_cors
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Load models once on startup
-    app.state.cold_start_user_tower = ColdStartUserTower(embedding_dim=512)
-    app.state.movie_tower = MovieTower(embedding_dim=512)
-    app.state.reranker_model = Reranker(production=False)
+    app.state.cold_start_user_tower = ColdStartUserTower()
+    app.state.movie_tower = MovieTower()
+    #app.state.reranker_model = Reranker()
 
     yield
 
