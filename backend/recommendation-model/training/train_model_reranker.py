@@ -22,7 +22,11 @@ class Reranker:
             self.user_features_path = os.path.join(current_dir, "datasets", "output", "reranker-user-features.csv")
 
             # training data
-            self.ratings_path = os.path.join(current_dir, "datasets", "output", "user-positive-ratings.csv")
+            self.pos_ratings_path = os.path.join(current_dir, "datasets", "output", "user-positive-ratings.csv")
+            self.neg_ratings_path = os.path.join(current_dir, "datasets", "output", "user-negative-ratings.csv")
+
+            # save model path
+            self.save_model_path = os.path.join(current_dir, "..", "api", "app", "model", "files", "reranker-model.txt")
         else:
             # embeddings
             self.movie_embedding_path = os.path.join(current_dir, "datasets", "output-small", "movie_embeddings.npy")
@@ -37,6 +41,9 @@ class Reranker:
             # training data
             self.pos_ratings_path = os.path.join(current_dir, "datasets", "output-small", "user-positive-ratings.csv")
             self.neg_ratings_path = os.path.join(current_dir, "datasets", "output-small", "user-negative-ratings.csv")
+
+            # save model path
+            self.save_model_path = os.path.join(current_dir, "..", "api", "app", "model", "files_small", "reranker-model.txt")
     
     # load all the necessary data for training
     def load_data(self) -> None:
@@ -176,5 +183,8 @@ if __name__ == "__main__":
     print("evaluating hitrate")
     # evaluate hit rate with leave one out
     eval.hitrate(k=10, num_negatives=99)
+
+    # save model (txt)
+    model.save_model(reranker.save_model_path)
 
     print("done")
