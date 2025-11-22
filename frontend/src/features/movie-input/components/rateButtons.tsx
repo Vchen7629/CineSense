@@ -1,5 +1,5 @@
 import { Star } from "lucide-react"
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 interface rateButtonProps {
     rating: number
@@ -8,10 +8,6 @@ interface rateButtonProps {
 
 const RateMovieButtons = ({rating, setRating}: rateButtonProps) => {
     const [hovered, setHovered] = useState<number>(0);
-    
-    useEffect(() => {
-        console.log("RATING CHANGED:", rating)
-    }, [rating]);
 
     const handleStarHover = (index: number, isLeftHalf: boolean) => {
         const starValue = isLeftHalf ? index + 0.5 : index + 1;
