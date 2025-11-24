@@ -1,17 +1,16 @@
-import requests
 import polars as pl
 import aiohttp
 import asyncio
-import os
-from typing import Optional, List, Union
+from typing import Optional, List
 import re
 from dataclasses import dataclass, asdict
+from shared.path_config import path_helper
 
 API_KEY = 'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIwM2Q2YWFlZDhhZWQ0MWVjMGY4ZmVhM2MyZWYwNGU1ZCIsIm5iZiI6MTc1ODc3MzE3MC4yNDcsInN1YiI6IjY4ZDRiZmIyOTYxNzQwMTEyM2EyYmMyNCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.aDdNgN5KfMoSVfsPxuQrbsWPMXeVQDjU1GymrTmVNNc'
 OMDB_API_KEY = 'e3c669f6'
 OMDB_API_KEY2 = '62ba9d55'
 headers = {'Authorization': f'Bearer {API_KEY}'}
-current_dir = os.path.dirname(__file__)
+paths = path_helper(large_dataset=False)
 
 # structure for a complete movie row in the csv
 @dataclass
@@ -46,7 +45,7 @@ class MovieMetaData:
     poster_path: Optional[str] = ""
 
 def handle_not_found(movie_id: str, imdbId: str):
-    output_path = os.path.join(current_dir, '..', 'datasets', 'output', 'not-found-imdb.csv')
+    output_path = paths.not_found_imdb_path
 
      # Convert all values to strings, replacing None with ''
     row = [(str(movie_id), str(imdbId) if imdbId is not None else '')]
@@ -439,7 +438,7 @@ async def fetch_complete_movie_metadata(session, movieId: str, imdb_id: str, tit
         return None
 
 async def fetch_all(batch_size: int = 20):
-    input_missing_path = os.path.join(current_dir, '..', 'datasets', 'output', 'missing-metadata.csv')
+    input_missing_path = paths.missing_movie_metadata_path
     # Read imdbId as string to preserve leading zeros
     missing_df = pl.read_csv(input_missing_path, dtypes={'imdbId': pl.Utf8}, truncate_ragged_lines=True)
 
@@ -462,7 +461,7 @@ async def fetch_all(batch_size: int = 20):
 
 
 if __name__ == '__main__':
-    output_update_path = os.path.join(current_dir, '..', 'datasets', 'metadata', 'TMDB_all_movies_cleaned.csv')
+    output_update_path = paths.tmdb_all_movies_cleaned_path
 
     print('Fetching missing rows')
     results = asyncio.run(fetch_all())

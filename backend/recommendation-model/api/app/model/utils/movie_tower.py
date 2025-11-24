@@ -5,42 +5,30 @@ import numpy as np
 from sentence_transformers import SentenceTransformer
 from fastapi import HTTPException
 from typing import List
-import joblib
-from middleware.config import settings
+from utils.config import settings
 
 # Dynamically generate new embeddings for unseen movies
 class MovieTower:
-    def __init__(self, device="cpu") -> None:
+    def __init__(
+        self, 
+        movie_tower_path: str,
+        genre_mlb,
+        sentence_transformer_model: SentenceTransformer, 
+        device="cpu"
+    ) -> None:
         self.device = device
         self.embedding_dim = settings.embedding_dim
+        self.movie_tower_path = movie_tower_path
+        self.genre_mlb = genre_mlb
         self.relu = nn.ReLU()
 
         # Load preprocessing tools
-        self.sentence_transformer_encoder = SentenceTransformer("intfloat/multilingual-e5-small")
-        
-        self._load_model_files()
-        # Load the same MultiLabelBinarizer used for training
-        self.genre_mlb = joblib.load(self.genre_mlb_path)
+        self.sentence_transformer_encoder = sentence_transformer_model
 
         # loading model weights and layers when initialize
         self._extract_feature_dims()
         self._linear_layers()
         self._load_trained_weights()
-
-    def _load_model_files(self) -> None:
-        movie_tower_path = settings.movie_tower_model_path
-        genre_mlb_path = settings.genre_mlb_path
-
-        # Download from S3 if needed
-        if movie_tower_path.startswith("s3://"):
-            pass
-            #user_tower_path = s3_loader.download_model(user_tower_path)
-        if genre_mlb_path.startswith("s3://"):
-            #genre_mlb_path = s3_loader.download_model(genre_mlb_path)
-            pass
-
-        self.movie_tower_path = movie_tower_path
-        self.genre_mlb_path = genre_mlb_path
 
     def _extract_feature_dims(self) -> None:
         """ Loads trained movie tower state dict """

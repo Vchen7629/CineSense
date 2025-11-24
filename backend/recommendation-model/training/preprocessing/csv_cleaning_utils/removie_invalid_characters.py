@@ -1,12 +1,12 @@
-import os
 import re
-
-current_dir = os.path.dirname(__file__)
+from shared.path_config import path_helper
 
 # removes invisible unicode marks like U+200E and makes multi line quotes into one line
 def remove_invalid_character() -> None:
-    input_movies_metadata = os.path.join(current_dir, "..", "..", "datasets", "metadata", "TMDB_all_movies.csv")
-    output_clean = os.path.join(current_dir, "..", "..", "datasets", "metadata", "TMDB_all_movies_cleaned.csv")
+    paths = path_helper()
+
+    input_movies_metadata = paths.tmdb_all_movies_path
+    output_clean = paths.tmdb_all_movies_cleaned_path
     hidden_chars = re.compile(r'[\u2028\u2029\u200E\u200F\u202A-\u202E\uFEFF]')
 
     with open(input_movies_metadata, "r", encoding="utf-8", errors="replace") as infile, \

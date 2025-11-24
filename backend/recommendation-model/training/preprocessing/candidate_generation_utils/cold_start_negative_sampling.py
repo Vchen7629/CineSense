@@ -1,12 +1,11 @@
-import os
 import polars as pl
 from shared.load_genres import load_genre_mappings
 from shared.split_hard_random_candidates import split_hard_random_candidates
+from shared.path_config import path_helper
 import time
 import csv
+import os
 import numpy as np
-
-current_dir = os.path.dirname(__file__)
 
 # This preprocessing step creates mixed negative samples with 64 negatives per user
 # For cold start: 80% genre-based (from user's top-3 genres) + 20% random (any genre)
@@ -19,18 +18,13 @@ def cold_start_negative_sampling(
     genre_ratio: float = 0.8,
     large_dataset: bool = False
 ) -> None:
-    if large_dataset:
-        negative_output_path = os.path.join(current_dir, "..", "..", "datasets", "output", "user-cold-start-negatives.csv")
-        positive_ratings_path = os.path.join(current_dir, "..", "..", "datasets", "output", "user-positive-ratings.csv")
-        negative_ratings_path = os.path.join(current_dir, "..", "..", "datasets", "output", "user-negative-ratings.csv")
-        movie_metadata_path = os.path.join(current_dir, "..", "..", "datasets", "output", "movie-metadata.csv")
-        user_genre_path = os.path.join(current_dir, "..", "..", "datasets", "output", "user-top3-genres.csv")
-    else:
-        negative_output_path = os.path.join(current_dir, "..", "..", "datasets", "output-small", "user-cold-start-negatives.csv")
-        positive_ratings_path = os.path.join(current_dir, "..", "..", "datasets", "output-small", "user-positive-ratings.csv")
-        negative_ratings_path = os.path.join(current_dir, "..", "..", "datasets", "output-small", "user-negative-ratings.csv")
-        movie_metadata_path = os.path.join(current_dir, "..", "..", "datasets", "output-small", "movie-metadata.csv")
-        user_genre_path = os.path.join(current_dir, "..", "..", "datasets", "output-small", "user-top3-genres.csv")
+    paths = path_helper(large_dataset=large_dataset)
+
+    negative_output_path = paths.user_cold_start_negatives_path
+    positive_ratings_path = paths.pos_ratings_path
+    negative_ratings_path = paths.neg_ratings_path
+    movie_metadata_path = paths.movie_metadata_path
+    user_genre_path = paths.top3_genres_path
 
     pos_df = pl.read_csv(positive_ratings_path)
     neg_df = pl.read_csv(negative_ratings_path)

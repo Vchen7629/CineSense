@@ -1,22 +1,16 @@
-import os
 import polars as pl
-
-current_dir = os.path.dirname(__file__)
+from shared.path_config import path_helper
 
 # creates a new movie-metadata.csv containing movie metadata
 def create_movies_metadata(large_dataset: bool = False):
-    if large_dataset:
-        input_links_path = os.path.join(current_dir, "..", "..", "datasets", "ml-latest", "links.csv")
-        missing_metadata_output_path = os.path.join(current_dir, "..", "..", "datasets", "output", "missing-metadata.csv")
-        pruned_movies_path = os.path.join(current_dir, "..", "..", "datasets", "output", "movie-output.csv")
-        movie_metadata_path = os.path.join(current_dir, "..", "..", "datasets", "output", "movie-metadata.csv")
-    else:
-        input_links_path = os.path.join(current_dir, "..", "..", "datasets", "ml-latest-small", "links.csv")
-        missing_metadata_output_path = os.path.join(current_dir, "..", "..", "datasets", "output-small", "missing-metadata.csv")
-        pruned_movies_path = os.path.join(current_dir, "..", "..", "datasets", "output-small", "movie-output.csv")
-        movie_metadata_path = os.path.join(current_dir, "..", "..","datasets", "output-small", "movie-metadata.csv")
-    
-    input_movies_metadata = os.path.join(current_dir, "..", "..", "datasets", "metadata", "TMDB_all_movies_cleaned.csv")
+    paths = path_helper(large_dataset=large_dataset)
+
+    input_links_path = paths.movielens_links_path
+    missing_metadata_output_path = paths.missing_movie_metadata_path
+    pruned_movies_path = paths.pruned_movies_path
+    movie_metadata_path = paths.movie_metadata_path
+    input_movies_metadata = paths.tmdb_all_movies_cleaned_path
+
     movie_df = pl.read_csv(pruned_movies_path)
     links_df = pl.read_csv(input_links_path, dtypes={"imdbId": pl.Utf8})
     metadata_df = pl.read_csv(input_movies_metadata)

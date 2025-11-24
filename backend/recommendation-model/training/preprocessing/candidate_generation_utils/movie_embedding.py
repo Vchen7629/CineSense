@@ -1,33 +1,24 @@
-import os
 from sentence_transformers import SentenceTransformer
 from sklearn.preprocessing import MultiLabelBinarizer
 import polars as pl
 import numpy as np
 import joblib
-
-current_dir = os.path.dirname(__file__)
+from shared.path_config import path_helper
 
 # creates numpy files containing the embeddings:
 #   - Movie title: Embedded using a bert model
 #   - Movie genres: Embedded using mlb
 def create_movie_embeddings(large_dataset: bool = False) -> None:
-    if large_dataset:
-        movie_title_output_path = os.path.join(current_dir, "..", "..", "datasets", "output", "title_embeddings.npy")
-        movie_genre_output_path = os.path.join(current_dir, "..", "..", "datasets", "output", "genre_mlb.npy")
-        movie_year_output_path = os.path.join(current_dir, "..", "..", "datasets", "output", "movie_year.npy")
-        overview_dir_cast_emb_path = os.path.join(current_dir, "..", "..", "datasets", "output", "overview_dir_cast_embeddings.npy")
-        movie_metadata_path = os.path.join(current_dir, "..", "..", "datasets", "output", "movie-metadata.csv")
-        api_genre_mlb_path = os.path.join(current_dir, "..", "..", "..", "api", "app", "model", "files", "genre_mlb.joblib")
-        training_genre_mlb_path = os.path.join(current_dir, "..", "..", "datasets", "output", "genre_mlb.joblib")
-    else:
-        movie_title_output_path = os.path.join(current_dir, "..", "..", "datasets", "output-small", "title_embeddings.npy")
-        movie_genre_output_path = os.path.join(current_dir, "..", "..", "datasets", "output-small", "genre_mlb.npy")
-        movie_year_output_path = os.path.join(current_dir, "..", "..", "datasets", "output-small", "movie_year.npy")
-        overview_dir_cast_emb_path = os.path.join(current_dir, "..", "..", "datasets", "output-small", "overview_dir_cast_embeddings.npy")
-        movie_metadata_path = os.path.join(current_dir, "..", "..", "datasets", "output-small", "movie-metadata.csv")
-        api_genre_mlb_path = os.path.join(current_dir, "..", "..", "..", "api", "app", "model", "files_small", "genre_mlb.joblib")
-        training_genre_mlb_path = os.path.join(current_dir, "..", "..", "datasets", "output-small", "genre_mlb.joblib")
-    
+    paths = path_helper(large_dataset=large_dataset)
+
+    movie_title_output_path = paths.movie_title_embeddings_path
+    movie_genre_output_path = paths.movie_genre_mlb_path
+    movie_year_output_path = paths.movie_year_normalized_path
+    overview_dir_cast_emb_path = paths.movie_overview_dir_cast_embeddings_path
+    movie_metadata_path = paths.movie_metadata_path
+    api_genre_mlb_path = paths.genre_mlb_api_path
+    training_genre_mlb_path = paths.genre_mlb_path
+
     model = SentenceTransformer('intfloat/multilingual-e5-small')
     mlb = MultiLabelBinarizer()
     metadata_df = pl.read_csv(movie_metadata_path)

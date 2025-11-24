@@ -1,28 +1,20 @@
-import os
 import polars as pl
-from sklearn.preprocessing import MultiLabelBinarizer
 import numpy as np
 import joblib
-
-current_dir = os.path.dirname(__file__)
+from shared.path_config import path_helper
 
 # Extracts the User's top 3 preferred genres and creates npy file with an mlb embedding
 # this is only used during training for the cold start model
 def create_user_preferred_genres_embedding(large_dataset: bool = False) -> None:
-    if large_dataset:
-        genre_output = os.path.join(current_dir, "..", "..", "datasets", "output", "preferred-genres.npy")
-        user_csv_path = os.path.join(current_dir, "..", "..", "datasets", "output", "user-positive-ratings.csv")
-        movie_metadata_path = os.path.join(current_dir, "..", "..", "datasets", "output", "movie-metadata.csv")
-        user_genre_path = os.path.join(current_dir, "..", "..", "datasets", "output", "user-top3-genres.csv")
-        genre_mlb_path = os.path.join(current_dir, "..", "..", "datasets", "output", "genre_mlb.joblib")
-    else:
-        genre_output = os.path.join(current_dir, "..", "..", "datasets", "output-small", "preferred-genres.npy")
-        user_csv_path = os.path.join(current_dir, "..", "..", "datasets", "output-small", "user-positive-ratings.csv")
-        movie_metadata_path = os.path.join(current_dir, "..", "..", "datasets", "output-small", "movie-metadata.csv")
-        user_genre_path = os.path.join(current_dir, "..", "..", "datasets", "output-small", "user-top3-genres.csv")
-        genre_mlb_path = os.path.join(current_dir, "..", "..", "datasets", "output-small", "genre_mlb.joblib")
+    paths = path_helper(large_dataset=large_dataset)
 
-    user_df = pl.read_csv(user_csv_path)
+    genre_output = paths.user_preferred_genres_path
+    pos_ratings_path = paths.pos_ratings_path
+    movie_metadata_path = paths.movie_metadata_path
+    user_genre_path = paths.top3_genres_path
+    genre_mlb_path = paths.genre_mlb_path
+
+    user_df = pl.read_csv(pos_ratings_path)
     movie_df = pl.read_csv(movie_metadata_path)
     genre_mlb = joblib.load(genre_mlb_path)
     

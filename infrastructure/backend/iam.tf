@@ -2,18 +2,43 @@
 # Read/Download access for ecs task so docker container can
 # read/download model files
 resource "aws_iam_policy" "ecs_s3_policy" {
-    name = "ModelFilesReadOnly"
-    description = "Read/Download permissions ecs task to access model files "
+    name                    = "ModelFilesReadOnly"
+    description             = "Read/Download permissions ecs task to access model files "
 
     policy = jsonencode({
-        Version = "2012-10-17"
-        Statement = [
+        Version             = "2012-10-17"
+        Statement           = [
             {
-                Action = [
+                Action      = [
                     "s3:GetObject",
                     "s3:ListBucket"
                 ]
-                Effect = "Allow"
+                Effect      = "Allow"
+                Resource    = [
+                    aws_s3_bucket.model_files.arn,
+                    "${aws_s3_bucket.model_files.arn}/*"
+                ]
+            }
+        ]
+    })
+}
+
+# Policy for uploading trained model files to s3
+resource "aws_iam_policy" "model_files_upload_policy" {
+    name                = "ModelFileUploadPolicy"
+    description         = "Allow uploading trained model files to S3"
+
+    policy              = jsonencode({
+        Version         = "2012-10-17"
+        Statement = [
+            {
+                Effect  = "Allow"
+                Action  = [
+                    "s3:PutObject",
+                    "s3:PutObjectAcl",
+                    "s3:GetObject",
+                    "s3:ListBucket"
+                ]
                 Resource = [
                     aws_s3_bucket.model_files.arn,
                     "${aws_s3_bucket.model_files.arn}/*"
@@ -21,6 +46,15 @@ resource "aws_iam_policy" "ecs_s3_policy" {
             }
         ]
     })
+}
+
+resource "aws_iam_user" "training_user" {
+    name = "cinesense-training-user"
+}
+
+resource "aws_iam_user_policy_attachment" "training_user_s3" {
+    user        = aws_iam_user.training_user.name
+    policy_arn  = aws_iam_policy.model_files_upload_policy.arn
 }
 
 resource "aws_iam_role" "recommendation_task_role" {

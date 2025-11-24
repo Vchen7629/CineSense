@@ -2,21 +2,20 @@
 import torch
 import numpy as np
 import polars as pl
-import os
+from shared.path_config import path_helper
 
 class GenerateUserEmbeddings:
     def __init__(self, movie_tower, large_dataset: bool = False):
         self.embedding_dim = 512
         self.large_dataset = large_dataset
-        current_dir = os.path.dirname(__file__)
+        paths = path_helper(large_dataset=large_dataset)
+
+        self.ratings_path = paths.pos_ratings_path
+        self.user_emb_path = paths.user_embedding_path
 
         if large_dataset:
-            self.ratings_path = os.path.join(current_dir, "..", "datasets", "output", "user-positive-ratings.csv")
-            self.user_emb_path = os.path.join(current_dir, "..", "datasets", "output", "user-embeddings.npy")
             self.num_movies = 64548
         else:
-            self.ratings_path = os.path.join(current_dir, "..", "datasets", "output-small", "user-positive-ratings.csv")
-            self.user_emb_path = os.path.join(current_dir, "..", "datasets", "output-small", "user-embeddings.npy")
             self.num_movies = 7363
 
         # Load trained movie tower

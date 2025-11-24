@@ -1,18 +1,14 @@
 import polars as pl
 import numpy as np
-import os
+from shared.path_config import path_helper
 
 class RankingModelEval: 
     def __init__(self, large_dataset: bool = False):
-        current_dir = os.path.dirname(__file__)
+        paths = path_helper(large_dataset=large_dataset)
 
-        if large_dataset:
-            movie_embeddings_path = os.path.join(current_dir, "..", "datasets", "output", "movie_embeddings.npy")
-            user_ratings_path = os.path.join(current_dir, "..", "datasets", "output", "user-positive-ratings.csv")
-        else:
-            movie_embeddings_path = os.path.join(current_dir, "..", "datasets", "output-small", "movie_embeddings.npy")
-            user_ratings_path = os.path.join(current_dir, "..", "datasets", "output-small", "user-positive-ratings.csv")
-
+        movie_embeddings_path = paths.movie_embedding_path
+        user_ratings_path = paths.pos_ratings_path
+        
         # Read user ratings CSV
         user_df = pl.read_csv(user_ratings_path)
 

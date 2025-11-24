@@ -1,27 +1,20 @@
 import numpy as np
-import os
 import polars as pl
 import torch
 import torch.nn.functional as f
-from typing import List
 from collections import Counter
 from tqdm import tqdm
+from shared.path_config import path_helper
 
 # class with helper functions for testing accuracy of the candidate generation two tower
 # model which fetches candidates (movies) based on similar users using cosine similarity
 class CandidateGenerationModelEval:
     def __init__(self, large_dataset: bool = False):
-        
-        current_dir = os.path.dirname(__file__)
+        paths = path_helper(large_dataset=large_dataset)
 
-        if large_dataset:
-            movie_embeddings_path = os.path.join(current_dir, "..", "datasets", "output", "movie_embeddings.npy")
-            user_ratings_path = os.path.join(current_dir, "..", "datasets", "output", "user-positive-ratings.csv")
-            user_emb_path = os.path.join(current_dir, "..", "datasets", "output", "user-embeddings.npy")
-        else:
-            movie_embeddings_path = os.path.join(current_dir, "..", "datasets", "output-small", "movie_embeddings.npy")
-            user_ratings_path = os.path.join(current_dir, "..", "datasets", "output-small", "user-positive-ratings.csv")
-            user_emb_path = os.path.join(current_dir, "..", "datasets", "output-small", "user-embeddings.npy")
+        movie_embeddings_path = paths.movie_embedding_path
+        user_ratings_path = paths.pos_ratings_path
+        user_emb_path = paths.user_embedding_path
 
         # Load precomputed movie embeddings and convert to torch tensor
         movie_embeddings_np = np.load(movie_embeddings_path)

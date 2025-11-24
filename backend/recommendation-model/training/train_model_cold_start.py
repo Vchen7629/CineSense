@@ -6,10 +6,10 @@ from info_nce import InfoNCE
 from torch.utils.data import DataLoader
 from utils.train_test_split import TrainTest
 from post_training.cold_start_evaluation import ColdStartEval
-from post_training.save_model import SaveModel
+from post_training.save_model_local import SaveModel
 import polars as pl
-import numpy as np
 import time
+from shared.path_config import path_helper
 
 # for the "not enough SMs to use max_autotune_gemm mode" error
 import warnings
@@ -25,28 +25,21 @@ class TrainColdStartModel():
         # embeddings config
         embedding_dim = 512 # size of embedding vector
 
+        paths = path_helper(large_dataset=large_dataset)
+
         if large_dataset:
-            # config
             self.num_movies = 64543
             self.batch_size = 4096
-
-            pos_ratings_path = os.path.join(current_dir, "datasets", "output", "user-positive-ratings.csv")
-            neg_ratings_path = os.path.join(current_dir, "datasets", "output", "user-cold-start-negatives.csv")
-            self.user_genres_path = os.path.join(current_dir, "datasets", "output", "user-top3-genres.csv")
-            self.movie_metadata_path = os.path.join(current_dir, "datasets", "output", "movie-metadata.csv")
-
-            self.neg_df = pl.read_csv(neg_ratings_path)
         else:
-            # config
             self.num_movies = 9632
             self.batch_size = 256
 
-            pos_ratings_path = os.path.join(current_dir, "datasets", "output-small", "user-positive-ratings.csv")
-            neg_ratings_path = os.path.join(current_dir, "datasets", "output-small", "user-cold-start-negatives.csv")
-            self.user_genres_path = os.path.join(current_dir, "datasets", "output-small", "user-top3-genres.csv")
-            self.movie_metadata_path = os.path.join(current_dir, "datasets", "output-small", "movie-metadata.csv")
-
-            self.neg_df = pl.read_csv(neg_ratings_path)
+        pos_ratings_path = paths.pos_ratings_path
+        cold_start_negatives_path = paths.user_cold_start_negatives_path
+        self.user_genres_path = paths.top3_genres_path
+        self.movie_metadata_path = paths.movie_metadata_path
+        
+        self.neg_df = pl.read_csv(cold_start_negatives_path)
 
         self.traintest = TrainTest(pos_ratings_path, mode='coldstart')
 
@@ -222,20 +215,12 @@ if __name__ == "__main__":
 
     # save models after training
 
-    config = {
-        "dbname": "example_db",
-        "user": "postgres",
-        "password": "password",
-        "host": "localhost",
-        "port": 5432
-    }
-    
     SaveModel(
         user_tower=train.user_tower, 
         movie_tower=train.movie_tower,
         num_movies=train.num_movies,
         personalized=False
-    ).save_all(save_to_db=True, db_config=config)
+    ).save_all(save_to_local_db=False)
 
 
     

@@ -1,32 +1,24 @@
-import os
-from reranker_utils.user_rated_count import user_rated_movie_count
-from reranker_utils.user_num_liked_feature import user_num_liked_feature
-from reranker_utils.movie_rating_count import movie_rating_count
-from reranker_utils.avg_rating import avg_rating
-from reranker_utils.movie_year_features import movie_year_features
-from reranker_utils.movie_language_feature import movie_language_feature
-from reranker_utils.movie_tmdb_features import movie_tmdb_features
-from reranker_utils.movie_genre_features import movie_genre_features
-from reranker_utils.movie_cast_director_count import movie_cast_director_count
-from reranker_utils.generate_favorite_cast_director import generate_favorite_cast_director
+from .reranker_utils.user_rated_count import user_rated_movie_count
+from .reranker_utils.user_num_liked_feature import user_num_liked_feature
+from .reranker_utils.movie_rating_count import movie_rating_count
+from .reranker_utils.avg_rating import avg_rating
+from .reranker_utils.movie_year_features import movie_year_features
+from .reranker_utils.movie_language_feature import movie_language_feature
+from .reranker_utils.movie_tmdb_features import movie_tmdb_features
+from .reranker_utils.movie_genre_features import movie_genre_features
+from .reranker_utils.movie_cast_director_count import movie_cast_director_count
+from .reranker_utils.generate_favorite_cast_director import generate_favorite_cast_director
+from shared.path_config import path_helper
 
 # preprocessing functions for generating the csv dataset for lightgbm reranking model
-
-current_dir = os.path.dirname(__file__)
-
 def preprocess_reranking_model_files(large_dataset: bool = False):
-    if large_dataset:
-        reranker_user_features_path = os.path.join(current_dir, "..", "datasets", "output", "reranker-user-features.csv")
-        reranker_movie_features_path = os.path.join(current_dir, "..", "datasets", "output", "reranker-movie-features.csv")
-        pos_ratings_path = os.path.join(current_dir, "..", "datasets", "output", "user-positive-ratings.csv")
-        neg_ratings_path = os.path.join(current_dir, "..", "datasets", "output", "user-negative-ratings.csv")
-        movie_metadata_path = os.path.join(current_dir, "..", "datasets", "output", "movie-metadata.csv")
-    else:
-        reranker_user_features_path = os.path.join(current_dir, "..", "datasets", "output-small", "reranker-user-features.csv")
-        reranker_movie_features_path = os.path.join(current_dir, "..", "datasets", "output-small", "reranker-movie-features.csv")
-        pos_ratings_path = os.path.join(current_dir, "..", "datasets", "output-small", "user-positive-ratings.csv")
-        neg_ratings_path = os.path.join(current_dir, "..", "datasets", "output-small", "user-negative-ratings.csv")
-        movie_metadata_path = os.path.join(current_dir, "..", "datasets", "output-small", "movie-metadata.csv")
+    paths = path_helper(large_dataset=large_dataset)
+
+    reranker_user_features_path = paths.user_reranker_features_path
+    reranker_movie_features_path = paths.movie_reranker_features_path
+    pos_ratings_path = paths.pos_ratings_path
+    neg_ratings_path = paths.neg_ratings_path
+    movie_metadata_path = paths.movie_metadata_path
 
     user_rated_movie_count(reranker_user_features_path, pos_ratings_path, neg_ratings_path)
     # calculate the average rating the user gives to their rated movies

@@ -1,27 +1,14 @@
 import lightgbm as lgb
 import numpy as np
-import os
 from typing import List, Any
-from middleware.config import settings
+from utils.config import settings
 
 class Reranker:
-    def __init__(self):
-        
-        self._load_model_file()
-
-        self.model = lgb.Booster(model_file=self.reranker_model_path)
-
-    def _load_model_file(self):
-        reranker_model_path = settings.reranker_model_path
-
-        # Download from S3 if needed
-        if reranker_model_path.startswith("s3://"):
-            pass
-
-        self.reranker_model_path = reranker_model_path
+    def __init__(self, reranker_model_path: str):
+        self.model = lgb.Booster(model_file=reranker_model_path)
     
+    # Compute overlap count between user and movie feature lists
     def _compute_feature_overlap(self, user_features: List[str], movie_features: List[str]) -> np.ndarray:
-        """Compute between user and movie feature lists"""
         user_set = set(user_features) if user_features else set()
 
         overlaps = []

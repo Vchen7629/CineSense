@@ -1,5 +1,5 @@
 import polars as pl
-import os
+from shared.path_config import path_helper
 
 # preprocessing script that generates top 50 favorite actors and top 10 favorite directors
 # for each user in the dataset based on their rated movies and writes to csv to be used later
@@ -8,12 +8,8 @@ def generate_favorite_cast_director(
     user_pos_rating_path: str, 
     large_dataset: bool = False
 ) -> None: 
-    current_dir = os.path.dirname(__file__)
-
-    if large_dataset:
-        favorite_actor_dir_path = os.path.join(current_dir, "..", "..", "datasets", "output", "favorite-actor-directors.csv")
-    else:
-        favorite_actor_dir_path = os.path.join(current_dir, "..", "..", "datasets", "output-small", "favorite-actor-directors.csv")
+    paths = path_helper(large_dataset=large_dataset)
+    favorite_actor_dir_path = paths.user_favorite_actor_dir_path
 
     metadata_df = pl.read_csv(movie_metadata_path).select(["movie_idx", "cast_normalized", "director"])
     pos_rating_df = pl.read_csv(user_pos_rating_path).select(["userId", "movie_idx"])

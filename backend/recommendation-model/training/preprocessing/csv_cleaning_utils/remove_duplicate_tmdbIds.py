@@ -1,15 +1,11 @@
-import os
 import asyncio
 import aiohttp
 import polars as pl
 from typing import List
-from dotenv import load_dotenv
-
-current_dir = os.path.dirname(__file__)
+from utils.env_config import settings
 
 # Load environment variables
-load_dotenv()
-TMDB_API_KEY = os.getenv("TMDB_API_KEY")
+TMDB_API_KEY = settings.TMDB_API_KEY
 TMDB_BASE_URL = "https://api.themoviedb.org/3"
 
 async def get_genres(session: aiohttp.ClientSession, tmdb_id: int, semaphore: asyncio.Semaphore):

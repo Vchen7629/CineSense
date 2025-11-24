@@ -1,10 +1,7 @@
 import polars as pl
 import torch
 import numpy as np
-import os
 import time
-
-current_dir = os.path.dirname(__file__)
 
 # pytorch dataset for user,movie pairs with negative samping, negatives
 # are looked up on the fly based on current neg set
