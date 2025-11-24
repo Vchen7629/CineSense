@@ -2,20 +2,19 @@ from sqlalchemy import text
 from typing import List
 import numpy as np
 from sqlalchemy.exc import IntegrityError
-from asyncpg.exceptions import ForeignKeyViolationError
 from fastapi import HTTPException
 
 # sql function that inserts movie metadata and does nothing if it already exists
 async def add_movie_metadata(
     session,
     movie_id: str, 
-    movie_name: str = None, 
-    genres: List[str] = None, 
-    release_date: str = None, 
-    summary: str = None, 
-    actors: List[str] = None,
-    director: List[str] = None,
-    poster_path: str = None
+    movie_name: str, 
+    genres: List[str], 
+    release_date: int, 
+    summary: str, 
+    actors: List[str],
+    director: List[str],
+    poster_path: str
 ):
     query = text("""
         INSERT INTO movie_metadata (

@@ -19,6 +19,13 @@ dependencies = [
     "uvicorn>=0.38.0",
 ]
 
+[dependency-groups]
+dev = [
+    "pyrefly>=0.42.3",
+    "ruff>=0.14.6",
+]
+
+
 [tool.uv.sources]
 torch = { index = "pytorch-cu128" }
 
@@ -27,17 +34,14 @@ name = "pytorch-cu128"
 url = "https://download.pytorch.org/whl/cu128"
 explicit = true
 
-[tool.mypy]
-python_version = "3.12"
-check_untyped_defs = true
-disallow_untyped_defs = true
-disallow_incomplete_defs = true
-warn_return_any = true
-warn_unused_ignores = true
-
-[dependency-groups]
-dev = [
-    "mypy>=1.18.2",
-    "ruff>=0.14.6",
+[tool.pyrefly]
+project-excludes = [
+    "**/tests/",
+    "**/migrations/",
+    "**/__pycache__/",
 ]
+search-path = ["app"]
+python-version = "3.12.0"
+ignore-missing-imports = ["*"]
+typeCheckingMode = "basic"
 

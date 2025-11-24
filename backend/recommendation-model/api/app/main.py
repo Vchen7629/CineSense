@@ -9,7 +9,7 @@ from model.utils.cold_start_user_tower import ColdStartUserTower
 from model.utils.movie_tower import MovieTower
 from model.utils.reranker_model import Reranker
 from middleware.cors import add_cors
-from utils.config import settings
+from utils.env_config import settings
 from utils.download_model_files import download_recommendation_model_files
 from utils.load_model_files import load_sentence_transformer_model, load_recommendation_models
 import logging

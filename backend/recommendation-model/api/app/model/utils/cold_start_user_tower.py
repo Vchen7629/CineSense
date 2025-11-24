@@ -1,9 +1,8 @@
 
 import torch.nn.functional as f
 import torch
-import joblib
 from typing import List
-from utils.config import settings
+from utils.env_config import settings
 import numpy as np
 
 # User tower for cold start users - users who just signed up and only have selected 3 genres -
@@ -26,7 +25,7 @@ class ColdStartUserTower:
         self.projector.load_state_dict({'weight': state_dict['projector.weight'], 'bias': state_dict['projector.bias']})
         self.projector.eval()
 
-    def embedding(self, genres: List[str]) -> List[np.ndarray]:
+    def embedding(self, genres: List[str]) -> str:
         genre_onehot = self.genre_mlb.transform([genres])
         genre_tensor = torch.tensor(genre_onehot, dtype=torch.float32, device=self.device)        
         

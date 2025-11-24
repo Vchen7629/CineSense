@@ -1,7 +1,7 @@
 import joblib
 from pathlib import Path
 from sentence_transformers import SentenceTransformer
-from utils.config import settings
+from utils.env_config import settings
 import logging
 
 logger = logging.getLogger(__name__)

@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 from model.utils.cold_start_user_tower import ColdStartUserTower
-from db.utils.user import new_user_genre_embedding
+from db.utils.user_sql_queries import new_user_genre_embedding
 from db.config.conn import get_session
 from sqlalchemy.ext.asyncio import AsyncSession
 from utils.dependencies import get_cold_start_user_tower

@@ -1,5 +1,4 @@
 from sqlalchemy import text
-from datetime import datetime
 from sqlalchemy.exc import IntegrityError
 from fastapi import HTTPException
 from typing import List
@@ -29,7 +28,7 @@ async def get_user_genres(session, user_id: str):
     return top_3_genres, genre_embedding
 
 # create a new user embedding using the 3 genres selected during signup
-async def new_user_genre_embedding(session, user_id: str, genre_embedding: np.ndarray, top3_genres: List[str]):
+async def new_user_genre_embedding(session, user_id: str, genre_embedding: str, top3_genres: List[str]):
     query = text("""
         WITH insert1 AS (
             INSERT INTO user_genre_embeddings (user_id, genre_embedding, last_updated)
@@ -50,7 +49,6 @@ async def new_user_genre_embedding(session, user_id: str, genre_embedding: np.nd
                 "top_3_genres": top3_genres,
             }
         )
-        await session.commit()
     except IntegrityError as e:
         await session.rollback()
         error_message = str(e).lower()

@@ -1,19 +1,28 @@
 # Code for connecting to the PostgreSQL Database
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession, AsyncEngine
 from typing import AsyncGenerator
-from utils.config import settings
+from utils.env_config import settings
 
 DATABASE_URL = settings.database_url
 
-engine = create_async_engine(url=DATABASE_URL, echo=True)
+engine: AsyncEngine = create_async_engine(url=DATABASE_URL, echo=True, pool_pre_ping=True)
 
 # session factor
-async_session = sessionmaker(bind=engine, class_=AsyncSession, expire_on_commit=False)
+async_session = async_sessionmaker(
+    bind=engine, 
+    class_=AsyncSession, 
+    expire_on_commit=False
+)
 
 # creates a short lived session from the sessionmaker factory
 # used per request
 async def get_session() -> AsyncGenerator[AsyncSession, None]:
     async with async_session() as session:
-        yield session
+        try:
+            yield session
+            await session.commit()
+        except Exception:
+            await session.rollback()
+            raise
+        finally:
+            await session.close()

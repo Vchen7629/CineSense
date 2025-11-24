@@ -1,16 +1,24 @@
 # helper functions for downloading model files from AWS s3
 import boto3
 from pathlib import Path
-from utils.config import settings
+from utils.env_config import settings
 import logging
 
 logger = logging.getLogger(__name__)
 
-# uses IAM role in prod
+# uses IAM role in prod, otherwise uses credentials
 def get_s3_client():
     if settings.use_iam_role:
         logger.info("Using IAM role for S3 access")
         return boto3.client('s3', region_name=settings.aws_region)
+    else:
+        logger.info("Using AWS credentials for S3 access")
+        return boto3.client(
+            's3',
+            region_name=settings.aws_region,
+            aws_access_key_id=settings.aws_access_key,
+            aws_secret_access_key=settings.aws_secret_access_key
+        )
 
 # download all recommendation model files from S3 to local directory
 def download_recommendation_model_files():
