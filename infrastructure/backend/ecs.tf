@@ -11,9 +11,9 @@ resource "aws_ecs_task_definition" "recommendation" {
     network_mode = "awsvpc"
     region = "us-west-1"
 
-    # t3.medium ec2 limits
-    cpu     = "2048" # 2 vCPU
-    memory  = "4096" # 4 GB
+    # less than t3.medium ec2 limits to leave room for os
+    cpu     = "1792" # 2 vCPU
+    memory  = "3072" # 3 GB
 
     task_role_arn       = aws_iam_role.recommendation_task_role.arn
     execution_role_arn  = aws_iam_role.ecs_task_execution_role.arn
@@ -105,9 +105,8 @@ resource "aws_ecs_task_definition" "user-auth" {
     network_mode = "awsvpc"
     region = "us-west-1"
 
-    # t3a.micro ec2 limits
-    cpu     = "2048" # 2 vCPU
-    memory  = "1024" # 1 GB
+    cpu     = "1024" # 1 vCPU
+    memory  = "768" 
 
     execution_role_arn = aws_iam_role.ecs_task_execution_role.arn
 

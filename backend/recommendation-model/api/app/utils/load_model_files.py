@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 # in dev: uses huggingface model
 def load_sentence_transformer_model() -> SentenceTransformer:
     if settings.production:
-        model_path = "/app/models/multilinguial-e5-small"
+        model_path = "/app/models/multilingual-e5-small"
         logger.info(f"Loading production model from {model_path}")
 
         if not Path(model_path).exists():
