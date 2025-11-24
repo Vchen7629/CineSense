@@ -5,6 +5,7 @@ on:
     branches: 
         - main
         - cd-test
+        - infrastructure
     
 jobs:
   detect_changes:
