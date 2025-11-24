@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends
 from db.config.conn import get_session
 from db.utils.movies import get_movies_metadata_by_movie_ids, get_cold_start_recommendations
 from db.utils.user import (
@@ -17,7 +17,7 @@ router = APIRouter(prefix="/recommendations")
 async def get_recommendations(
     user_id: str, 
     session: AsyncSession = Depends(get_session), 
-    #rerank_model: Reranker = Depends(get_reranking_model)
+    rerank_model: Reranker = Depends(get_reranking_model)
 ):
     num_users = await get_user_with_ratings_count(session)
 
@@ -40,15 +40,18 @@ async def get_recommendations(
     # get user metadata for current user and similar users userIds
     user_metadata, similar_users = await get_similar_users_and_user_metadata(session, user_id, similar_user_count=50)
 
-    # get movie_ids of similar users 
+    # get movie_ids of similar users
     excluded_movies_ids = [row[0] for row in rated_movie_ids]
 
+    # extract just the user_ids from similar_users rows
+    similar_user_ids = [row.user_id for row in similar_users]
+
     # fetch our candidate movies from collaborative filtering, default 300 movies
-    candidate_movies = await get_movies_metadata_by_movie_ids(session, similar_users, excluded_movies_ids)
+    candidate_movies = await get_movies_metadata_by_movie_ids(session, similar_user_ids, excluded_movies_ids)
 
     await session.commit()
 
     # use lightgbm reranking model to reduce 300 candidate movies down to 10 best movies for the specific user
-    #collaborative_recommendations = rerank_model.rerank_movies(user_metadata, candidate_movies)
+    collaborative_recommendations = rerank_model.rerank_movies(user_metadata, candidate_movies)
 
-    #return collaborative_recommendations
+    return collaborative_recommendations
