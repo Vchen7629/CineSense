@@ -1,6 +1,6 @@
-from fastapi import APIRouter, Request, Depends
+from fastapi import APIRouter, Depends
 from model.utils.cold_start_user_tower import ColdStartUserTower
-from db.utils.user import new_user_genre_embedding, test
+from db.utils.user import new_user_genre_embedding
 from db.config.conn import get_session
 from sqlalchemy.ext.asyncio import AsyncSession
 from utils.dependencies import get_cold_start_user_tower
@@ -27,14 +27,3 @@ async def new_user(
     await new_user_genre_embedding(session, userId, user_embedding, genres)
 
     return {"message": f"successfully added genre embeddings for user: {userId}"}
-
-# we need to create an embedding using the user tower for the
-# selected top 3 genres for cold start recommendations
-@router.get("/create/{userId}")
-async def new_user(
-    userId: str,
-    session: AsyncSession = Depends(get_session),
-):
-    result = await test(session, userId)
-
-    return result

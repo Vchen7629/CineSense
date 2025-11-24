@@ -2,18 +2,23 @@ import lightgbm as lgb
 import numpy as np
 import os
 from typing import List, Any
+from middleware.config import settings
 
 class Reranker:
-    def __init__(self, production: bool = False):
+    def __init__(self):
         
-        current_dir = os.path.dirname(__file__)
+        self._load_model_file()
 
-        if not production:
-            model_file = os.path.join(current_dir, "..", "files_small", "reranker-model.txt")
-        else:
-            model_file = "todo: load from s3"
+        self.model = lgb.Booster(model_file=self.reranker_model_path)
 
-        self.model = lgb.Booster(model_file=model_file)
+    def _load_model_file(self):
+        reranker_model_path = settings.reranker_model_path
+
+        # Download from S3 if needed
+        if reranker_model_path.startswith("s3://"):
+            pass
+
+        self.reranker_model_path = reranker_model_path
     
     def _compute_feature_overlap(self, user_features: List[str], movie_features: List[str]) -> np.ndarray:
         """Compute between user and movie feature lists"""

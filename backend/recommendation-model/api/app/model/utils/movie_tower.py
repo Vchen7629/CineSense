@@ -6,38 +6,45 @@ from sentence_transformers import SentenceTransformer
 from fastapi import HTTPException
 from typing import List
 import joblib
-import os
+from middleware.config import settings
 
 # Dynamically generate new embeddings for unseen movies
 class MovieTower:
-    def __init__(self, embedding_dim: int = 512, device="cpu", large_dataset: bool = False) -> None:
-        self.embedding_dim = embedding_dim
+    def __init__(self, device="cpu") -> None:
         self.device = device
-        current_dir = os.path.dirname(__file__)
-
-        if large_dataset:
-            self.model_dir = os.path.join(current_dir, "..", "files")
-        else:
-            self.model_dir = os.path.join(current_dir, "..", "files_small")
-
+        self.embedding_dim = settings.embedding_dim
         self.relu = nn.ReLU()
 
         # Load preprocessing tools
         self.sentence_transformer_encoder = SentenceTransformer("intfloat/multilingual-e5-small")
-
+        
+        self._load_model_files()
         # Load the same MultiLabelBinarizer used for training
-        genre_mlb_path = os.path.join(self.model_dir, "genre_mlb.joblib")
-        self.genre_mlb = joblib.load(genre_mlb_path)
+        self.genre_mlb = joblib.load(self.genre_mlb_path)
 
         # loading model weights and layers when initialize
         self._extract_feature_dims()
         self._linear_layers()
         self._load_trained_weights()
 
+    def _load_model_files(self) -> None:
+        movie_tower_path = settings.movie_tower_model_path
+        genre_mlb_path = settings.genre_mlb_path
+
+        # Download from S3 if needed
+        if movie_tower_path.startswith("s3://"):
+            pass
+            #user_tower_path = s3_loader.download_model(user_tower_path)
+        if genre_mlb_path.startswith("s3://"):
+            #genre_mlb_path = s3_loader.download_model(genre_mlb_path)
+            pass
+
+        self.movie_tower_path = movie_tower_path
+        self.genre_mlb_path = genre_mlb_path
+
     def _extract_feature_dims(self) -> None:
         """ Loads trained movie tower state dict """
-        tower_path = os.path.join(self.model_dir, "movie_tower.pth")
-        self.state_dict = torch.load(tower_path, weights_only=True, map_location=self.device)
+        self.state_dict = torch.load(self.movie_tower_path, weights_only=True, map_location=self.device)
 
         # Extract shapes from saved weights
         self.title_in_features = self.state_dict['title_linear.weight'].shape[1]  # Should be 384

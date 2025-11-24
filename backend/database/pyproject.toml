@@ -3,9 +3,10 @@ name = "test-db"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.12"
 dependencies = [
     "alembic>=1.17.2",
+    "boto3>=1.35.0",
     "pgvector>=0.4.1",
     "psycopg2-binary>=2.9.11",
     "sqlalchemy>=2.0.44",
