@@ -79,7 +79,7 @@ jobs:
       
       - name: Run MyPy Type Checking
         working-directory: backend/recommendation-model/api
-        run:  uv run mypy .
+        run:  uv run pyrefly check
     
   test-auth-api:
     runs-on: ubuntu-latest
@@ -109,5 +109,5 @@ jobs:
       
       - name: Run MyPy Type Checking
         working-directory: backend/user-api
-        run: uv run mypy .
+        run: uv run pyrefly check
           
