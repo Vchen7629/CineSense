@@ -142,7 +142,14 @@ resource "aws_ecs_service" "recommendation" {
     cluster                 = aws_ecs_cluster.cinesense.id
     task_definition         = aws_ecs_task_definition.recommendation.arn
     desired_count           = 1
-    launch_type             = "EC2"
+    force_new_deployment    = true
+
+    # to make sure it runs on t3.medium
+    capacity_provider_strategy {
+        capacity_provider = aws_ecs_capacity_provider.recommendation.name
+        weight           = 1
+        base             = 1
+    }
 
     network_configuration { 
         subnets             = [aws_subnet.private.id]
@@ -162,9 +169,16 @@ resource "aws_ecs_service" "recommendation" {
 resource "aws_ecs_service" "user-auth" {
     name            = "auth-service"
     cluster         = aws_ecs_cluster.cinesense.id
-    task_definition = aws_ecs_task_definition.user-auth.arn
-    desired_count   = 1
-    launch_type     = "EC2"
+    task_definition         = aws_ecs_task_definition.user-auth.arn
+    desired_count           = 1
+    force_new_deployment    = true
+
+    # to make sure it runs on t3a.micro
+    capacity_provider_strategy {
+        capacity_provider = aws_ecs_capacity_provider.auth.name
+        weight           = 1
+        base             = 1
+    }
 
     network_configuration {
         subnets          = [aws_subnet.private.id]
