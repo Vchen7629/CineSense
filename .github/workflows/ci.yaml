@@ -1,0 +1,113 @@
+name: Linting and Type Checking
+
+on:
+  push:
+    branches:
+      - main
+      - ci-test
+      - infrastructure
+
+jobs:
+  detect_changes:
+    runs-on: ubuntu-latest
+    outputs:
+      frontend: ${{ steps.filter.outputs.frontend }}
+      recommendation: ${{ setps.filter.outputs.recommendation }}
+      auth: ${{ steps.filter.outputs.auth }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with: 
+          filters: |
+            frontend:
+              - 'frontend/**'
+            recommendation:
+              - 'backend/recommendation-model/api/**'
+            auth:
+              - 'backend/user-api/**'
+  test-frontend:
+    runs-on: ubuntu-latest
+    if: detect_changes.outputs.frontend == 'true'
+    timeout-minutes: 5
+    steps: 
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: setup node
+        uses: actions/setup-node@v5
+        with:
+          node-version: '>=23.10.0'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+      
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Linting
+        working-directory: frontend
+        run: npm run lint
+        continue-on-error: true
+      
+  test-recommendation-api:
+    runs-on: ubuntu-latest
+    if: detect_changes.outputs.recommendation == 'true'
+    timeout-minutes: 5
+    steps: 
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.8.19"
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      
+      - name: Install the project
+        run: uv sync --locked --all-extras --dev
+        working-directory: backend/recommendation-model/api
+
+      - name: Linting
+        working-directory: backend/recommendation-model/api
+        run: |
+          uv run ruff check .
+      
+      - name: Run MyPy Type Checking
+        working-directory: backend/recommendation-model/api
+        run:  uv run pyrefly check
+    
+  test-auth-api:
+    runs-on: ubuntu-latest
+    if: detect_changes.outputs.auth == 'true'
+    timeout-minutes: 5
+    steps: 
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.8.19"
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      
+      - name: Install the project
+        run: uv sync --locked --all-extras --dev
+        working-directory: backend/user-api
+
+      - name: Linting
+        working-directory: backend/user-api
+        run: uv run ruff check .
+      
+      - name: Run MyPy Type Checking
+        working-directory: backend/user-api
+        run: uv run pyrefly check
+          

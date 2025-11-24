@@ -1,11 +1,11 @@
-from fastapi import APIRouter, HTTPException, status, Request, Depends
+from fastapi import APIRouter, HTTPException, Depends
 from typing import List
 from model.utils.movie_tower import MovieTower
-from db.utils.user import (
+from db.utils.user_sql_queries import (
     regenerate_user_movie_embedding,
     update_user_ratings_stats
 )
-from db.utils.movies import (
+from db.utils.movies_sql_queries import (
     add_new_movie_embedding, 
     add_new_movie_rating, 
     add_movie_metadata, 
@@ -93,8 +93,6 @@ async def new_rated_movie(
 
     movie = await update_movie_rating_stats(session, imdb_id, tmdb_vote_avg, tmdb_vote_log, tmdb_popularity)
     user = await update_user_ratings_stats(session, user_id)
-
-    await session.commit()
     
     return {
         "message": "Rating added" if is_new_rating else "Rating updated",

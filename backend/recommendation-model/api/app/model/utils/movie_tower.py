@@ -5,7 +5,7 @@ import numpy as np
 from sentence_transformers import SentenceTransformer
 from fastapi import HTTPException
 from typing import List
-from utils.config import settings
+from utils.env_config import settings
 
 # Dynamically generate new embeddings for unseen movies
 class MovieTower:

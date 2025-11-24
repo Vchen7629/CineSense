@@ -1,20 +1,20 @@
 import lightgbm as lgb
 import numpy as np
 from typing import List, Any
-from utils.config import settings
+from numpy.typing import NDArray
 
 class Reranker:
     def __init__(self, reranker_model_path: str):
         self.model = lgb.Booster(model_file=reranker_model_path)
     
     # Compute overlap count between user and movie feature lists
-    def _compute_feature_overlap(self, user_features: List[str], movie_features: List[str]) -> np.ndarray:
+    def _compute_feature_overlap(self, user_features: List[str], movie_features: List[str]) -> NDArray[np.float32]:
         user_set = set(user_features) if user_features else set()
 
-        overlaps = []
-        for movie_feature in movie_features:
-            movie_set = set(movie_feature) if movie_features else set()
-            overlaps.append(len(user_set & movie_set))
+        overlaps = [
+            len(user_set & set(movie_feature))
+            for movie_feature in movie_features
+        ]
         
         return np.array(overlaps, dtype=np.float32)
 
@@ -73,12 +73,12 @@ class Reranker:
             features.append(feature_row)
         
         X = np.array(features, dtype=np.float32)
-        
+
         # Predict with LightGBM reranker model
         scores = self.model.predict(X)
 
         # rerank candidates by score
-        top_10_movies = sorted(zip(candidate_movies, scores), key=lambda x: x[1], reverse=True)[:10]
+        top_10_movies = sorted(zip(candidate_movies, scores), key=lambda x: x[1], reverse=True)[:10]  # type: ignore
 
         # Remove movie embeddings from response and format results
         results = []

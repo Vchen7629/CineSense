@@ -17,6 +17,8 @@ class Settings(BaseSettings):
 
     # AWS access
     aws_region: Optional[str] = None
+    aws_access_key: Optional[str] = None
+    aws_secret_access_key: Optional[str] = None
     use_iam_role: bool = False
 
     # model file storage
