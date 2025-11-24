@@ -21,7 +21,7 @@ resource "aws_ecs_task_definition" "recommendation" {
     container_definitions = jsonencode([
         {
             name        = "recommendation-api"
-            image       = "${aws_ecr_repository.recommendation_repo.repository_url}:latest"
+            image       = "${aws_ecr_repository.recommendation_api.repository_url}:latest"
             essential   = true
 
             portMappings = [
@@ -114,7 +114,7 @@ resource "aws_ecs_task_definition" "user-auth" {
     container_definitions = jsonencode([
         {
             name        = "auth-api"
-            image       = "${aws_ecr_repository.auth_repo.repository_url}:latest"
+            image       = "${aws_ecr_repository.auth_api.repository_url}:latest"
             essential   = true
 
             portMappings = [

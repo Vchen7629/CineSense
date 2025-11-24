@@ -1,6 +1,6 @@
 # for recommendation fastapi docker image
-resource "aws_ecr_repository" "recommendation_repo" {
-    name                    = "recommendation-repo"
+resource "aws_ecr_repository" "recommendation_api" {
+    name                    = "cinesense-recommendation-api"
     image_tag_mutability    = "MUTABLE"
 
     image_scanning_configuration {
@@ -8,13 +8,13 @@ resource "aws_ecr_repository" "recommendation_repo" {
     }
 
     tags = {
-        Name                = "cinesense-recommendation-repo"
+        Name                = "cinesense-recommendation-api"
     }
 }
 
 # for user auth fastapi docker image
-resource "aws_ecr_repository" "auth_repo" {
-    name                    = "auth-repo"
+resource "aws_ecr_repository" "auth_api" {
+    name                    = "cinesense-auth-api"
     image_tag_mutability    = "MUTABLE"
 
     image_scanning_configuration {
@@ -22,7 +22,7 @@ resource "aws_ecr_repository" "auth_repo" {
     }
 
     tags = {
-        Name                = "cinesense-auth-repo"
+        Name                = "cinesense-auth-api"
     }
 }
 

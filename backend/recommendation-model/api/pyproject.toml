@@ -15,9 +15,12 @@ dependencies = [
     "pydantic-settings>=2.12.0",
     "sentence-transformers>=5.1.2",
     "sqlalchemy>=2.0.44",
-    "torch==2.8.0+cu128",
+    "torch==2.8.0+cpu",
     "uvicorn>=0.38.0",
 ]
+
+[tool.uv.sources]
+torch = { index = "pytorch-cpu" }
 
 [dependency-groups]
 dev = [
@@ -25,13 +28,9 @@ dev = [
     "ruff>=0.14.6",
 ]
 
-
-[tool.uv.sources]
-torch = { index = "pytorch-cu128" }
-
 [[tool.uv.index]]
-name = "pytorch-cu128"
-url = "https://download.pytorch.org/whl/cu128"
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
 explicit = true
 
 [tool.pyrefly]
