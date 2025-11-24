@@ -24,7 +24,7 @@ jobs:
             frontend:
               - 'frontend/**'
             recommendation:
-              - 'backend/recommendation-model/**'
+              - 'backend/recommendation-model/api/**'
             auth:
               - 'backend/user-api/**'
             database:
