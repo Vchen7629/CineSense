@@ -51,7 +51,7 @@ async def lifespan(app: FastAPI):
 
     logger.info("Shutting down...")
     await engine.dispose()
-    logger.info("Shutdown complete!!!")
+    logger.info("Shutdown complete!")
 
 app = FastAPI(lifespan=lifespan)
 
