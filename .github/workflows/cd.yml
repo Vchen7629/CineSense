@@ -31,7 +31,7 @@ jobs:
               - 'backend/database/**'
   deploy-frontend:
     needs: detect_changes
-    if: detect_changes.outputs.frontend == 'true'
+    if: needs.detect_changes.outputs.frontend == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps: 
@@ -71,9 +71,9 @@ jobs:
               --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
               --paths "/*"
   
-  deploy-recommendation-api: 
+  deploy-recommendation-api:
     needs: detect_changes
-    if: detect_changes.outputs.recommendation == 'true'
+    if: needs.detect_changes.outputs.recommendation == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps: 
@@ -118,9 +118,9 @@ jobs:
             --service recommendation-service \
             --region us-west-1
   
-  deploy-auth-api: 
+  deploy-auth-api:
     needs: detect_changes
-    if: detect_changes.outputs.auth == 'true'
+    if: needs.detect_changes.outputs.auth == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps: 
@@ -167,7 +167,7 @@ jobs:
 
   deploy-database:
     needs: detect_changes
-    if: detect_changes.outputs.database == 'true'
+    if: needs.detect_changes.outputs.database == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps: 
