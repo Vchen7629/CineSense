@@ -1,25 +1,18 @@
-from csv_cleaning_utils.removie_invalid_characters import remove_invalid_character
-from csv_cleaning_utils.remove_invalid_movies import remove_invalid_movies
-from csv_cleaning_utils.update_tmdb_id import update_tmdb_id
-from csv_cleaning_utils.fix_mismatches import fix_movie_mismatches
-from csv_cleaning_utils.remove_duplicate_tmdbIds import remove_duplicate_tmdb_ids
-import os
+from .csv_cleaning_utils.removie_invalid_characters import remove_invalid_character
+from .csv_cleaning_utils.remove_invalid_movies import remove_invalid_movies
+from .csv_cleaning_utils.update_tmdb_id import update_tmdb_id
+from .csv_cleaning_utils.fix_mismatches import fix_movie_mismatches
+from .csv_cleaning_utils.remove_duplicate_tmdbIds import remove_duplicate_tmdb_ids
+from shared.path_config import path_helper
 
 def run_clean_csv_functions(init: bool = True, large_dataset: bool = False):
-    current_dir = os.path.dirname(__file__)
+    paths = path_helper(large_dataset=large_dataset)
 
-    if large_dataset:
-        movies_path = os.path.join(current_dir, "..", "datasets", "ml-latest", "movies.csv")
-        links_path = os.path.join(current_dir, "..", "datasets", "ml-latest", "links.csv")
-        imdb_mismatches_path = os.path.join(current_dir, "..", "datasets", "cleaning-files", "imdb_mismatches.csv")
-        duplicate_id_path = os.path.join(current_dir, "..", "datasets", "cleaning-files", "duplicate_id.csv")
-        ratings_path = os.path.join(current_dir, "..", "datasets", "ml-latest", "ratings.csv")
-    else:
-        movies_path = os.path.join(current_dir, "..", "datasets", "ml-latest-small", "movies.csv")
-        links_path = os.path.join(current_dir, "..", "datasets", "ml-latest-small", "links.csv")
-        imdb_mismatches_path = os.path.join(current_dir, "..", "datasets", "cleaning-files-small", "imdb_mismatches.csv")
-        duplicate_id_path = os.path.join(current_dir, "..", "datasets", "cleaning-files-small", "duplicate_id.csv")
-        ratings_path = os.path.join(current_dir, "..", "datasets", "ml-latest-small", "ratings.csv")
+    movies_path = paths.movielens_movies_path
+    links_path = paths.movielens_links_path
+    ratings_path = paths.movielens_ratings_path
+    imdb_mismatches_path = paths.imdb_mismatches_path
+    duplicate_id_path = paths.duplicate_tmdbId_path
 
     if init: # clean the original dataset by removing incorrect characters
         remove_invalid_character()

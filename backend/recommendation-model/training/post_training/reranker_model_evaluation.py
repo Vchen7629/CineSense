@@ -1,8 +1,6 @@
-import os
 import polars as pl
 import numpy as np
 from utils.extract_features import extract_reranker_features_single
-import time
 
 class RerankerModelEval:
     def __init__(self,

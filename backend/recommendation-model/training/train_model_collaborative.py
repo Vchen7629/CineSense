@@ -1,16 +1,14 @@
-import os
 import torch
-from model.personalized_user_tower import PersonalizedUserTower
 from model.movie_tower import MovieTower
 from info_nce import InfoNCE
 from torch.utils.data import DataLoader
 from utils.train_test_split import TrainTest
 from post_training.candidate_gen_model_evaluation import CandidateGenerationModelEval
-from post_training.save_model import SaveModel
-from utils.build_user_movie_dataset import BuildUserMovieDataset
+from post_training.save_model_local import SaveModel
 from post_training.generate_user_embeddings import GenerateUserEmbeddings
 import polars as pl
 import time
+from shared.path_config import path_helper
 
 # for the "not enough SMs to use max_autotune_gemm mode" error
 import warnings
@@ -22,8 +20,6 @@ torch._inductor.config.triton.cudagraph_dynamic_shape_warn_limit = None
 # enable fastest backend
 #torch.backends.cudnn.benchmark = True
 
-current_dir = os.path.dirname(__file__)
-
 class TrainPersonalizedModel():
     def __init__(self, large_dataset: bool = False):
         # embeddings config
@@ -33,21 +29,21 @@ class TrainPersonalizedModel():
             # config
             self.num_movies = 64543
             self.batch_size = 4096
+            paths = path_helper(large_dataset=large_dataset)
 
-            self.pos_ratings_path = os.path.join(current_dir, "datasets", "output", "user-positive-ratings.csv")
-            neg_ratings_path = os.path.join(current_dir, "datasets", "output", "user-collaborative-negatives.csv")
-
-            self.neg_df = pl.read_csv(neg_ratings_path)
+            self.pos_ratings_path = paths.pos_ratings_path
+            neg_ratings_path = paths.neg_ratings_path
         else:
             # config
             self.num_movies = 9632
             self.batch_size = 256
 
-            self.pos_ratings_path = os.path.join(current_dir, "datasets", "output-small", "user-positive-ratings.csv")
-            neg_ratings_path = os.path.join(current_dir, "datasets", "output-small", "user-collaborative-negatives.csv")
+            paths = path_helper(large_dataset=large_dataset)
 
-            self.neg_df = pl.read_csv(neg_ratings_path)
+            self.pos_ratings_path = paths.pos_ratings_path
+            neg_ratings_path = paths.user_collaborative_negatives_path
 
+        self.neg_df = pl.read_csv(neg_ratings_path)
         self.traintest = TrainTest(self.pos_ratings_path, mode='collaborative')
 
         self.movie_tower = MovieTower(

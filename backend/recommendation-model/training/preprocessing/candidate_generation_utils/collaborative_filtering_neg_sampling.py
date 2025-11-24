@@ -1,10 +1,8 @@
-import os
 import polars as pl
 import numpy as np
 import time
 import csv
-
-current_dir = os.path.dirname(__file__)
+from shared.path_config import path_helper
 
 def collaborative_filtering_negative_sampling(
     num_sets: int = 10, 
@@ -12,14 +10,11 @@ def collaborative_filtering_negative_sampling(
     hard_neg_ratio: float = 0.5,
     large_dataset: bool = False
 ) -> None:
-    if large_dataset:
-        negative_output_path = os.path.join(current_dir, "..", "..", "datasets", "output", "user-collaborative-negatives.csv")
-        positive_ratings_path = os.path.join(current_dir, "..", "..", "datasets", "output", "user-positive-ratings.csv")
-        negative_ratings_path = os.path.join(current_dir, "..", "..", "datasets", "output", "user-negative-ratings.csv")
-    else:
-        negative_output_path = os.path.join(current_dir, "..", "..", "datasets", "output-small", "user-collaborative-negatives.csv")
-        positive_ratings_path = os.path.join(current_dir, "..", "..", "datasets", "output-small", "user-positive-ratings.csv")
-        negative_ratings_path = os.path.join(current_dir, "..", "..", "datasets", "output-small", "user-negative-ratings.csv")
+    paths = path_helper(large_dataset=large_dataset)
+
+    negative_output_path = paths.user_collaborative_negatives_path
+    positive_ratings_path = paths.pos_ratings_path
+    negative_ratings_path = paths.neg_ratings_path
 
     pos_df = pl.read_csv(positive_ratings_path)
     neg_df = pl.read_csv(negative_ratings_path)

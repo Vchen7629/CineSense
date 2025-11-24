@@ -2,7 +2,6 @@ import torch
 import torch.nn.functional as f
 import numpy as np
 from collections import defaultdict
-import polars as pl
 from shared.load_genres import load_genre_mappings
 from shared.split_hard_random_candidates import split_hard_random_candidates
 

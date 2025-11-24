@@ -1,21 +1,15 @@
-import os
 import polars as pl
 from ..shared.extract_year import extract_title_without_year, extract_year_from_title
-
-current_dir = os.path.dirname(__file__)
+from shared.path_config import path_helper
 
 # prunes movie.csv to only unique movies and creates a idx mapping for user to movie dataset
 def add_movie_user_idx_mapping(large_dataset: bool = False):
-    if large_dataset:
-        positive_ratings_path = os.path.join(current_dir, "..", "..", "datasets", "output", "user-positive-ratings.csv")
-        negative_ratings_path = os.path.join(current_dir, "..", "..", "datasets", "output", "user-negative-ratings.csv")
-        input_movie_path = os.path.join(current_dir, "..", "..", "datasets", "ml-latest", "movies.csv")
-        pruned_movies_path = os.path.join(current_dir, "..", "..", "datasets", "output", "movie-output.csv")
-    else:
-        positive_ratings_path = os.path.join(current_dir, "..", "..", "datasets", "output-small", "user-positive-ratings.csv")
-        negative_ratings_path = os.path.join(current_dir, "..", "..", "datasets", "output-small", "user-negative-ratings.csv")
-        input_movie_path = os.path.join(current_dir, "..", "..", "datasets", "ml-latest-small", "movies.csv")
-        pruned_movies_path = os.path.join(current_dir, "..", "..", "datasets", "output-small", "movie-output.csv")
+    paths = path_helper(large_dataset=large_dataset)
+
+    positive_ratings_path = paths.pos_ratings_path
+    negative_ratings_path = paths.neg_ratings_path
+    input_movie_path = paths.movielens_movies_path
+    pruned_movies_path = paths.pruned_movies_path
 
     pos_ratings_df = pl.read_csv(positive_ratings_path)
     neg_ratings_df = pl.read_csv(negative_ratings_path)

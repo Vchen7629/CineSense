@@ -1,50 +1,26 @@
-import os
 import lightgbm as lgb
 import polars as pl
 import numpy as np
 from utils.cross_validation import tune_hyperparamaters_cv
 from utils.extract_features import extract_reranker_features_batch
 from post_training.reranker_model_evaluation import RerankerModelEval
+from shared.path_config import path_helper
 
 class Reranker:
     def __init__(self, large_dataset: bool = False) -> None:
-        current_dir = os.path.dirname(__file__)
+        paths = path_helper(large_dataset=large_dataset)
 
-        if large_dataset:
-            # embeddings
-            self.movie_embedding_path = os.path.join(current_dir, "datasets", "output", "movie_embeddings.npy")
-            self.user_embedding_path = os.path.join(current_dir, "datasets", "output", "user-embeddings.npy")
+        self.pos_ratings_path = paths.pos_ratings_path
+        self.neg_ratings_path = paths.neg_ratings_path
+        self.movie_embedding_path = paths.movie_embedding_path
+        self.movie_features_path = paths.movie_reranker_features_path
+        self.user_embedding_path = paths.user_embedding_path
+        self.user_favorite_genres_path = paths.top3_genres_path
+        self.user_favorite_actor_dir_path = paths.user_favorite_actor_dir_path
+        self.user_features_path = paths.user_reranker_features_path
+        self.save_model_api_path = paths.reranker_model_api_path
+        self.save_model_local_path = paths.reranker_model_path
 
-            # precomputed features
-            self.user_favorite_genres_path = os.path.join(current_dir, "datasets", "output", "user-top3-genres.csv")
-            self.user_favorite_actor_dir_path = os.path.join(current_dir, "datasets", "output", "favorite-actor-directors.csv")
-            self.movie_features_path = os.path.join(current_dir, "datasets", "output", "reranker-movie-features.csv")
-            self.user_features_path = os.path.join(current_dir, "datasets", "output", "reranker-user-features.csv")
-
-            # training data
-            self.pos_ratings_path = os.path.join(current_dir, "datasets", "output", "user-positive-ratings.csv")
-            self.neg_ratings_path = os.path.join(current_dir, "datasets", "output", "user-negative-ratings.csv")
-
-            # save model path
-            self.save_model_path = os.path.join(current_dir, "..", "api", "app", "model", "files", "reranker-model.txt")
-        else:
-            # embeddings
-            self.movie_embedding_path = os.path.join(current_dir, "datasets", "output-small", "movie_embeddings.npy")
-            self.user_embedding_path = os.path.join(current_dir, "datasets", "output-small", "user-embeddings.npy")
-
-            # precomputed features
-            self.user_favorite_genres_path = os.path.join(current_dir, "datasets", "output-small", "user-top3-genres.csv")
-            self.user_favorite_actor_dir_path = os.path.join(current_dir, "datasets", "output-small", "favorite-actor-directors.csv")
-            self.movie_features_path = os.path.join(current_dir, "datasets", "output-small", "reranker-movie-features.csv")
-            self.user_features_path = os.path.join(current_dir, "datasets", "output-small", "reranker-user-features.csv")
-
-            # training data
-            self.pos_ratings_path = os.path.join(current_dir, "datasets", "output-small", "user-positive-ratings.csv")
-            self.neg_ratings_path = os.path.join(current_dir, "datasets", "output-small", "user-negative-ratings.csv")
-
-            # save model path
-            self.save_model_path = os.path.join(current_dir, "..", "api", "app", "model", "files_small", "reranker-model.txt")
-    
     # load all the necessary data for training
     def load_data(self) -> None:
         # embeddings
@@ -185,6 +161,7 @@ if __name__ == "__main__":
     eval.hitrate(k=10, num_negatives=99)
 
     # save model (txt)
-    model.save_model(reranker.save_model_path)
+    model.save_model(reranker.save_model_api_path)
+    model.save_model(reranker.save_model_local_path)
 
     print("done")

@@ -1,19 +1,17 @@
-from dotenv import load_dotenv
 import polars as pl
 import aiohttp
 import asyncio
-import os
 from typing import Optional, List
 import re
 from dataclasses import dataclass, asdict
+from utils.env_config import settings
+from shared.path_config import path_helper
 
-current_dir = os.path.dirname(__file__)
+paths = path_helper(large_dataset=False)
 
 # Load environment variables
-load_dotenv()
-TMDB_API_KEY = os.getenv("TMDB_API_KEY")
+TMDB_API_KEY = settings.TMDB_API_KEY
 headers = {'Authorization': f'Bearer {TMDB_API_KEY}'}
-current_dir = os.path.dirname(__file__)
 
 # structure for a complete movie row in the csv
 @dataclass
@@ -48,11 +46,8 @@ class MovieMetaData:
     poster_path: Optional[str] = ""
 
 def handle_not_found(movie_id: str, imdbId: str, large_dataset: bool = False):
-    if large_dataset:
-        output_path = os.path.join(current_dir, '..', '..', 'datasets', 'output', 'not-found-imdb.csv')
-    else:
-        output_path = os.path.join(current_dir, '..', '..', 'datasets', 'output-small', 'not-found-imdb.csv')
-
+    output_path = paths.not_found_imdb_path
+    
      # Convert all values to strings, replacing None with ''
     row = [(str(movie_id), str(imdbId) if imdbId is not None else '')]
 
@@ -367,10 +362,8 @@ async def fetch_complete_movie_metadata(session, movieId: str, imdb_id: str, tit
         return None
 
 async def fetch_all(batch_size: int = 20, large_dataset: bool = False):
-    if large_dataset:
-        input_missing_path = os.path.join(current_dir, '..', '..', 'datasets', 'output', 'missing-metadata.csv')
-    else: 
-        input_missing_path = os.path.join(current_dir, '..', '..', 'datasets', 'output-small', 'missing-metadata.csv')
+    input_missing_path = paths.missing_movie_metadata_path
+
     # Read imdbId as string to preserve leading zeros
     missing_df = pl.read_csv(input_missing_path, dtypes={'imdbId': pl.Utf8}, truncate_ragged_lines=True)
 
@@ -393,7 +386,7 @@ async def fetch_all(batch_size: int = 20, large_dataset: bool = False):
 
 
 def run_fetch_movies(large_dataset: bool = False):
-    output_update_path = os.path.join(current_dir, '..', '..', 'datasets', 'metadata', 'TMDB_all_movies_cleaned.csv')
+    output_update_path = paths.tmdb_all_movies_cleaned_path
 
     print('Fetching missing rows')
     results = asyncio.run(fetch_all(large_dataset=large_dataset))
