@@ -21,6 +21,7 @@ def tune_hyperparamaters_cv(groups, X, y, n_splits: int = 5):
         {'n_estimators': 150, 'learning_rate': 0.05, 'num_leaves': 63, 'max_depth': 8, 'min_child_samples': 20},
         {'n_estimators': 200, 'learning_rate': 0.01, 'num_leaves': 31, 'max_depth': 6, 'min_child_samples': 30},
         {'n_estimators': 100, 'learning_rate': 0.05, 'num_leaves': 15, 'max_depth': 5, 'min_child_samples': 20},
+        {'n_estimators': 150, 'learning_rate': 0.08, 'num_leaves': 63, 'max_depth': 8, 'min_child_samples': 20, 'feature_fraction': 0.8, 'bagging_fraction': 0.8, 'bagging_freq': 5}
     ]
 
     best_score = 0
