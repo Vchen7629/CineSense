@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       frontend: ${{ steps.filter.outputs.frontend }}
-      recommendation: ${{ setps.filter.outputs.recommendation }}
+      recommendation: ${{ steps.filter.outputs.recommendation }}
       auth: ${{ steps.filter.outputs.auth }}
       database: ${{ steps.filter.outputs.database }}
     steps:
