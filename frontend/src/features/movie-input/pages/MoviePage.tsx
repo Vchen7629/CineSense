@@ -25,7 +25,7 @@ export default function MovieInputPage() {
 
     return (
         <>
-            <Header/>
+            <Header/>     
             <main className="flex flex-col justify-between h-[90vh] w-full py-[6vh] px-[10vw]">
                 <section className="flex w-full h-[10%] items-center justify-between mb-[1%]">
                     <div className="flex flex-col">

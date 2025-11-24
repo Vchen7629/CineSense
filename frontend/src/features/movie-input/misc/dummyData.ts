@@ -1,3 +1,5 @@
+import { callAPI, search } from "../../../app/services/MovieSearchService"
+
 export const dummyData = [
     {id: "1", name: "movie 1", desc: "movie description", genres: ["Adventure", "Sci-Fi", "Comedy"], release_date: 2017, actors: ["actor 1", "actor 2"], director: ["director 1", "director 2"], rating: 0, poster_path: "idk.com"},
     {id: "2", name: "movie 2", desc: "movie description", genres: ["Mystery", "Adventure", "Action"], release_date: 2018, actors: ["actor 1", "actor 2"], director: ["director 1", "director 2"], rating: 0, poster_path: "idk.com"},
