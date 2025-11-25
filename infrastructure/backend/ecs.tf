@@ -92,8 +92,11 @@ resource "aws_ecs_task_definition" "recommendation" {
                 {
                     name    = "log_level"
                     value   = "INFO"
+                },
+                {
+                    name    = "cors_origins"
+                    value   = "[\"https://cinesense.tech\",\"https://www.cinesense.tech\"]"
                 }
-
             ]
         }
     ])
@@ -143,6 +146,8 @@ resource "aws_ecs_service" "recommendation" {
     task_definition         = aws_ecs_task_definition.recommendation.arn
     desired_count           = 1
     force_new_deployment    = true
+    deployment_maximum_percent         = 200
+    deployment_minimum_healthy_percent = 0
 
     # to make sure it runs on t3.medium
     capacity_provider_strategy {
@@ -172,6 +177,8 @@ resource "aws_ecs_service" "user-auth" {
     task_definition         = aws_ecs_task_definition.user-auth.arn
     desired_count           = 1
     force_new_deployment    = true
+    deployment_maximum_percent         = 200
+    deployment_minimum_healthy_percent = 0
 
     # to make sure it runs on t3a.micro
     capacity_provider_strategy {
