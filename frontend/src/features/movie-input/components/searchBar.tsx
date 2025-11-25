@@ -1,9 +1,9 @@
-import type { DummyItem } from "../types/data"
+import type { RateMovieApi } from "@/app/types/movie"
 import { HandleSearch } from "../utils/handleSearch"
 
 interface SearchProps {
-    data: DummyItem[]
-    setData: React.Dispatch<React.SetStateAction<DummyItem[]>>
+    data: RateMovieApi[]
+    setData: React.Dispatch<React.SetStateAction<RateMovieApi[]>>
     listView: boolean
     gridView: boolean
 }

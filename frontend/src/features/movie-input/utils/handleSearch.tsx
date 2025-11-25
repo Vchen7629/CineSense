@@ -1,16 +1,16 @@
-import type { DummyItem } from "../types/data";
+import type { RateMovieApi } from "@/app/types/movie";
 
 // Function to filter archive data based on search input
 export function HandleSearch(
     query: string, 
-    data: DummyItem[], 
-    setData: React.Dispatch<React.SetStateAction<DummyItem[]>>
+    apiRes: RateMovieApi[], 
+    setApiRes: React.Dispatch<React.SetStateAction<RateMovieApi[]>>
 ) {
     if (!query) {
-        return setData(data)
+        return setApiRes(apiRes)
     } else {
-        setData(data
-            .filter(item => item.name != null && item.name.toLowerCase().includes(query.toLowerCase())) // combine null check and search
+        setApiRes(apiRes
+            .filter(item => item.title != null && item.title.toLowerCase().includes(query.toLowerCase())) // combine null check and search
         );
     };
 }
