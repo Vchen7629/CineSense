@@ -22,10 +22,10 @@ resource "aws_lb_target_group" "recommendation" {
     health_check {
         path                    = "/health"
         healthy_threshold       = 2
-        unhealthy_threshold     = 3
-        timeout                 = 5
+        unhealthy_threshold     = 10
+        timeout                 = 10
         interval                = 30
-        matcher                 = "200" 
+        matcher                 = "200"
     } 
 
     tags = {

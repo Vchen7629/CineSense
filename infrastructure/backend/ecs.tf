@@ -86,8 +86,8 @@ resource "aws_ecs_task_definition" "recommendation" {
                     value   = var.aws-model-file-s3-name
                 },
                 {
-                    name    = "s3_bucket_prefix"
-                    value   = "models/production/v1"
+                    name    = "s3_model_prefix"
+                    value   = "models/production/v1/"
                 },
                 {
                     name    = "log_level"
