@@ -13,7 +13,13 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 COPY pyproject.toml uv.lock ./
 RUN uv sync --frozen --no-dev
 
-COPY app ./app
+# Copy app contents to /app instead of /app/app
+COPY app/* ./
+COPY app/db ./db
+COPY app/model ./model
+COPY app/routes ./routes
+COPY app/middleware ./middleware
+COPY app/utils ./utils
 
 # Create models directory
 RUN mkdir -p /app/models /tmp/models
@@ -33,5 +39,4 @@ EXPOSE 8000
 # Set Python path so imports work correctly
 ENV PYTHONPATH=/app
 
-# Run using the synced environment
-CMD [".venv/bin/uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD [".venv/bin/uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
