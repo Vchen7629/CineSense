@@ -149,6 +149,9 @@ resource "aws_ecs_service" "recommendation" {
     deployment_maximum_percent         = 200
     deployment_minimum_healthy_percent = 0
 
+    # Give the app time to download models and start (5 minutes)
+    health_check_grace_period_seconds = 300
+
     # to make sure it runs on t3.medium
     capacity_provider_strategy {
         capacity_provider = aws_ecs_capacity_provider.recommendation.name
