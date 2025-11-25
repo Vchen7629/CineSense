@@ -24,9 +24,9 @@ class Settings(BaseSettings):
     # model file storage
     s3_bucket_name: Optional[str] = None
     # choose between
-    # - models/production/v1 - trained and tested trained model files
-    # - models/development/v1 - testing model files
-    s3_model_prefix: str = "models/production/v1"
+    # - models/production/v1/ - trained and tested trained model files
+    # - models/development/v1/ - testing model files
+    s3_model_prefix: str = "models/production/v1/"
 
     # local model paths (used during development)
     local_model_dir: str = "app/model/files_small"

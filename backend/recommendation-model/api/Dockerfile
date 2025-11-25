@@ -30,5 +30,8 @@ ENV TRANSFORMERS_OFFLINE=1
 
 EXPOSE 8000
 
+# Set Python path so imports work correctly
+ENV PYTHONPATH=/app
+
 # Run using the synced environment
 CMD [".venv/bin/uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
