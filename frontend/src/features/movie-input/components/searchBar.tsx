@@ -1,26 +1,26 @@
 import type { DummyItem } from "../types/data"
 import { callAPI, search } from "../../../app/services/MovieSearchService"
-import { useState } from "react"
+import { useEffect, useState } from "react";
 
 interface SearchProps {
-    data: DummyItem[]
-    setData: React.Dispatch<React.SetStateAction<DummyItem[]>>
+    apiRes: DummyItem[]
+    setApiRes: React.Dispatch<React.SetStateAction<any>>
     listView: boolean
     gridView: boolean
 }
 
 
 
-const SearchBar = ({listView, gridView}: SearchProps) => {
+const SearchBar = ({apiRes, setApiRes, listView, gridView}: SearchProps) => {
 
     // This is whats currently being typed. Don't delete this incase we need it.
     const [searchText, setSearchText] = useState<string>("")
 
-
     //searching once the button is pressed
-    const handleClick = () => 
+    const handleClick = async () => 
     {
-    search(searchText)
+        search(searchText)
+        setApiRes(searchText)
     }
 
 
@@ -46,6 +46,7 @@ const SearchBar = ({listView, gridView}: SearchProps) => {
                         if (e.key === 'Enter') 
                         {
                             search(searchText);
+                            setApiRes(searchText);
                         }
                     }
                 }
@@ -55,6 +56,7 @@ const SearchBar = ({listView, gridView}: SearchProps) => {
             </button>
         </div>
     )
+
 }
 
-export default SearchBar
+export default SearchBar;

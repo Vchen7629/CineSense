@@ -16,6 +16,7 @@ export default function MovieInputPage() {
     const [filteredData, setFilteredData] = useState<DummyItem[]>(dummyData)
     const [gridView, setGridView] = useState<boolean>(false)
     const [listView, setListView] = useState<boolean>(true)
+    const [apiRes] = useState<any>()
 
     const itemsPerPage = 4
     const totalPage = Math.ceil(filteredData.length / itemsPerPage);
@@ -39,7 +40,7 @@ export default function MovieInputPage() {
                         <div className="h-[60%] w-[30%] bg-[#394B51] shadow-md shadow-black rounded-xl px-[1%] py-[1.5%]">
                             <div className="h-[95%]">
                                 <section className="w-full h-[13%] mb-[7.5%]">
-                                    <SearchBar data={data} setData={setFilteredData} listView={listView} gridView={gridView}/>
+                                    <SearchBar apiRes={apiRes} setApiRes={setFilteredData} listView={listView} gridView={gridView}/>
                                 </section>
                                 <section className="flex items-center justify-between px-4 mb-[5%]">
                                     <div className="flex flex-col">
@@ -78,7 +79,7 @@ export default function MovieInputPage() {
                 ) : gridView && (
                     <section className="flex flex-col h-full space-y-[1%]">
                         <section className="flex items-center w-full h-[10%] ">
-                            <SearchBar data={data} setData={setFilteredData} listView={listView} gridView={gridView}/>
+                            <SearchBar apiRes={apiRes} setApiRes={setFilteredData} listView={listView} gridView={gridView}/>
                         </section>
                         <section className="flex items-center px-2 space-x-[1%]">
                             <span className="text-xl mr-[2%] text-white font-light">Filters:</span>

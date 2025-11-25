@@ -1,5 +1,6 @@
 import type { DummyItem } from "@/features/movie-input/types/data";
 import React from "react";
+import { useEffect, useState } from "react";
 
 const options = {
   method: 'GET',
