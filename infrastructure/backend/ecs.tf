@@ -11,9 +11,9 @@ resource "aws_ecs_task_definition" "recommendation" {
     network_mode = "awsvpc"
     region = "us-west-1"
 
-    # t3.medium ec2 limits
-    cpu     = "2048" # 2 vCPU
-    memory  = "4096" # 4 GB
+    # less than t3.medium ec2 limits to leave room for os
+    cpu     = "1792" # 2 vCPU
+    memory  = "3072" # 3 GB
 
     task_role_arn       = aws_iam_role.recommendation_task_role.arn
     execution_role_arn  = aws_iam_role.ecs_task_execution_role.arn
@@ -21,7 +21,7 @@ resource "aws_ecs_task_definition" "recommendation" {
     container_definitions = jsonencode([
         {
             name        = "recommendation-api"
-            image       = "${aws_ecr_repository.recommendation_repo.repository_url}:latest"
+            image       = "${aws_ecr_repository.recommendation_api.repository_url}:latest"
             essential   = true
 
             portMappings = [
@@ -86,14 +86,17 @@ resource "aws_ecs_task_definition" "recommendation" {
                     value   = var.aws-model-file-s3-name
                 },
                 {
-                    name    = "s3_bucket_prefix"
-                    value   = "models/production/v1"
+                    name    = "s3_model_prefix"
+                    value   = "models/production/v1/"
                 },
                 {
                     name    = "log_level"
                     value   = "INFO"
+                },
+                {
+                    name    = "cors_origins"
+                    value   = "[\"https://cinesense.tech\",\"https://www.cinesense.tech\"]"
                 }
-
             ]
         }
     ])
@@ -105,16 +108,15 @@ resource "aws_ecs_task_definition" "user-auth" {
     network_mode = "awsvpc"
     region = "us-west-1"
 
-    # t3a.micro ec2 limits
-    cpu     = "2048" # 2 vCPU
-    memory  = "1024" # 1 GB
+    cpu     = "1024" # 1 vCPU
+    memory  = "768" 
 
     execution_role_arn = aws_iam_role.ecs_task_execution_role.arn
 
     container_definitions = jsonencode([
         {
             name        = "auth-api"
-            image       = "${aws_ecr_repository.auth_repo.repository_url}:latest"
+            image       = "${aws_ecr_repository.auth_api.repository_url}:latest"
             essential   = true
 
             portMappings = [
@@ -143,7 +145,16 @@ resource "aws_ecs_service" "recommendation" {
     cluster                 = aws_ecs_cluster.cinesense.id
     task_definition         = aws_ecs_task_definition.recommendation.arn
     desired_count           = 1
-    launch_type             = "EC2"
+    force_new_deployment    = true
+    deployment_maximum_percent         = 200
+    deployment_minimum_healthy_percent = 0
+
+    # to make sure it runs on t3.medium
+    capacity_provider_strategy {
+        capacity_provider = aws_ecs_capacity_provider.recommendation.name
+        weight           = 1
+        base             = 1
+    }
 
     network_configuration { 
         subnets             = [aws_subnet.private.id]
@@ -163,9 +174,18 @@ resource "aws_ecs_service" "recommendation" {
 resource "aws_ecs_service" "user-auth" {
     name            = "auth-service"
     cluster         = aws_ecs_cluster.cinesense.id
-    task_definition = aws_ecs_task_definition.user-auth.arn
-    desired_count   = 1
-    launch_type     = "EC2"
+    task_definition         = aws_ecs_task_definition.user-auth.arn
+    desired_count           = 1
+    force_new_deployment    = true
+    deployment_maximum_percent         = 200
+    deployment_minimum_healthy_percent = 0
+
+    # to make sure it runs on t3a.micro
+    capacity_provider_strategy {
+        capacity_provider = aws_ecs_capacity_provider.auth.name
+        weight           = 1
+        base             = 1
+    }
 
     network_configuration {
         subnets          = [aws_subnet.private.id]

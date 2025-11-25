@@ -7,7 +7,9 @@ resource "aws_apigatewayv2_api" "main" {
         allow_origins   = ["https://cinesense.tech", "https://www.cinesense.tech"]
         allow_methods   = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
         allow_headers   = ["*"]
-        max_age         = 300 
+        expose_headers  = ["*"]
+        allow_credentials = true
+        max_age         = 300
     }
 }
 

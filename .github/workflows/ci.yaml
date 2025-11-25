@@ -28,7 +28,7 @@ jobs:
               - 'backend/user-api/**'
   test-frontend:
     runs-on: ubuntu-latest
-    if: detect_changes.outputs.frontend == 'true'
+    if: needs.detect_changes.outputs.frontend == 'true'
     timeout-minutes: 5
     steps: 
       - name: Checkout repository
@@ -52,7 +52,7 @@ jobs:
       
   test-recommendation-api:
     runs-on: ubuntu-latest
-    if: detect_changes.outputs.recommendation == 'true'
+    if: needs.detect_changes.outputs.recommendation == 'true'
     timeout-minutes: 5
     steps: 
       - name: Checkout repository
@@ -83,7 +83,7 @@ jobs:
     
   test-auth-api:
     runs-on: ubuntu-latest
-    if: detect_changes.outputs.auth == 'true'
+    if: needs.detect_changes.outputs.auth == 'true'
     timeout-minutes: 5
     steps: 
       - name: Checkout repository

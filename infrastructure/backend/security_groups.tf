@@ -63,6 +63,14 @@ data "aws_ec2_managed_prefix_list" "cloudfront" {
     name            = "com.amazonaws.global.cloudfront.origin-facing"
 }
 
+# Data source for S3 managed prefix list
+data "aws_prefix_list" "s3" {
+  filter {
+    name   = "prefix-list-name"
+    values = ["com.amazonaws.us-west-1.s3"]
+  }
+}
+
 # ALB rules
 resource "aws_security_group_rule" "alb_ingress_http" {
     type                        = "ingress"
@@ -205,6 +213,16 @@ resource "aws_security_group_rule" "ec2_egress_dns" {
   cidr_blocks               = ["0.0.0.0/0"]
   security_group_id         = aws_security_group.ec2_instances.id
   description               = "Allow DNS resolution"
+}
+
+resource "aws_security_group_rule" "ec2_egress_s3" {
+  type                      = "egress"
+  from_port                 = 443
+  to_port                   = 443
+  protocol                  = "tcp"
+  prefix_list_ids           = [data.aws_prefix_list.s3.id]
+  security_group_id         = aws_security_group.ec2_instances.id
+  description               = "Allow HTTPS to S3 for ECR image layers"
 }
 
 # vpc endpoints security group rules

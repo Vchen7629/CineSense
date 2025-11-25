@@ -51,7 +51,7 @@ async def lifespan(app: FastAPI):
 
     logger.info("Shutting down...")
     await engine.dispose()
-    logger.info("Shutdown complete!")
+    logger.info("Shutdown complete!!!")
 
 app = FastAPI(lifespan=lifespan)
 
@@ -67,6 +67,10 @@ logger.info("Routes registered Successfully!")
 @app.get("/")
 async def base():
     return {"message": "welcome to user recommendations api"}
+
+@app.get("/health")
+async def health():
+    return {"status": "healthy!"}
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)

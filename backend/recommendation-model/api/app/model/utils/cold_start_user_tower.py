@@ -21,7 +21,7 @@ class ColdStartUserTower:
         self.relu = torch.nn.ReLU()
 
         # load model - trained weights
-        state_dict = torch.load(self.user_tower_path, weights_only=True)
+        state_dict = torch.load(self.user_tower_path, weights_only=True, map_location=torch.device(self.device))
         self.projector.load_state_dict({'weight': state_dict['projector.weight'], 'bias': state_dict['projector.bias']})
         self.projector.eval()
 

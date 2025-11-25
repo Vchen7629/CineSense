@@ -31,7 +31,7 @@ jobs:
               - 'backend/database/**'
   deploy-frontend:
     needs: detect_changes
-    if: detect_changes.outputs.frontend == 'true'
+    if: needs.detect_changes.outputs.frontend == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps: 
@@ -49,7 +49,9 @@ jobs:
           working-directory: frontend
           run: npm install
 
-        - name: build
+        - name: Build with environment variables
+          env:
+            VITE_API_BASE_URL: ${{ secrets.PRODUCTION_API_URL }}
           working-directory: frontend
           run: npm run build
         
@@ -71,9 +73,9 @@ jobs:
               --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
               --paths "/*"
   
-  deploy-recommendation-api: 
+  deploy-recommendation-api:
     needs: detect_changes
-    if: detect_changes.outputs.recommendation == 'true'
+    if: needs.detect_changes.outputs.recommendation == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps: 
@@ -83,8 +85,8 @@ jobs:
       - name: set aws credentials
         uses: aws-actions/configure-aws-credentials@v5.0.0
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_BACKEND }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_BACKEND }}
           aws-region: us-west-1
 
       - name: Login to Amazon ECR
@@ -98,7 +100,7 @@ jobs:
           IMAGE_TAG: ${{ github.sha }}
         working-directory: backend/recommendation-model/api
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f api/Dockerfile .
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f Dockerfile .
           docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
@@ -118,9 +120,9 @@ jobs:
             --service recommendation-service \
             --region us-west-1
   
-  deploy-auth-api: 
+  deploy-auth-api:
     needs: detect_changes
-    if: detect_changes.outputs.auth == 'true'
+    if: needs.detect_changes.outputs.auth == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps: 
@@ -130,8 +132,8 @@ jobs:
       - name: set aws credentials
         uses: aws-actions/configure-aws-credentials@v5.0.0
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_BACKEND }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_BACKEND }}
           aws-region: us-west-1
 
       - name: Login to Amazon ECR
@@ -145,7 +147,7 @@ jobs:
           IMAGE_TAG: ${{ github.sha }}
         working-directory: backend/user-api
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f .
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f Dockerfile .
           docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
@@ -167,7 +169,7 @@ jobs:
 
   deploy-database:
     needs: detect_changes
-    if: detect_changes.outputs.database == 'true'
+    if: needs.detect_changes.outputs.database == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps: 
@@ -177,8 +179,8 @@ jobs:
       - name: set aws credentials
         uses: aws-actions/configure-aws-credentials@v5.0.0
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_BACKEND }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_BACKEND }}
           aws-region: us-west-1
 
       - name: Login to Amazon ECR
@@ -192,7 +194,7 @@ jobs:
           IMAGE_TAG: ${{ github.sha }}
         working-directory: backend/database
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f .
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f Dockerfile .
           docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
