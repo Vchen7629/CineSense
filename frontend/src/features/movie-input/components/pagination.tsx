@@ -39,7 +39,7 @@ const PaginationComponent = ({
         {'<'}
       </button>
       <div className='text-white text-lg font-light'>
-        Showing {currentPage} of {totalPage}
+        Showing {totalPage === 0 ? 0 : currentPage} of {totalPage}
       </div>
       <button
         className="flex items-center justify-center h-7 w-7 hover:bg-teal-800 bg-teal-600 rounded-md shadow-sm shadow-black transition-colors duration-250"

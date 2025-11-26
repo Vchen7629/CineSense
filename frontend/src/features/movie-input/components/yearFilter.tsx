@@ -1,8 +1,11 @@
 import type React from "react"
-import { useState } from "react"
 
-const YearFilterComponent = () => {
-  const [year, setYear] = useState<string>()
+interface yearFilterValueProps {
+  yearFilterValue: string
+  setYearFilterValue: React.Dispatch<React.SetStateAction<string>>
+}
+
+const YearFilterComponent = ({ yearFilterValue, setYearFilterValue }: yearFilterValueProps) => {
 
   const minYear = 1888;
   const maxYear = new Date().getFullYear();
@@ -12,7 +15,7 @@ const YearFilterComponent = () => {
 
     // Allow empty input
     if (raw === "") {
-      setYear("");
+      setYearFilterValue("");
       return;
     }
 
@@ -20,19 +23,24 @@ const YearFilterComponent = () => {
     if (/^\d+$/.test(raw)) {
       const num = Number(raw);
 
-      if (num >= minYear && num <= maxYear) {
-        setYear(raw);
+      // Allow typing even if not complete
+      if (raw.length <= 4) {
+        // Only set if it's potentially valid (not checking max yet to allow typing)
+        if (raw.length < 4 || (num >= minYear && num <= maxYear)) {
+          setYearFilterValue(raw);
+        }
       }
     }
   }
 
   return (
-    <input 
+    <input
       type="text"
-      value={year}
+      value={yearFilterValue}
       onChange={handleChange}
       placeholder="YYYY"
-      className="pl-2 rounded-lg h-8 w-14 border bg-teal-500/20 text-teal-200 shadow-inner hover:bg-teal-800" 
+      maxLength={4}
+      className="pl-2 rounded-lg h-8 w-14 border bg-teal-500/20 text-teal-200 shadow-inner hover:bg-teal-800"
     />
   )
 }

@@ -38,7 +38,7 @@ export default function MovieCard({ item, listView, gridView }: MovieCardProps) 
         <li
             className={
                 `flex w-full text-xl font-semibold items-center px-2 shadow-md shadow-black bg-[#394B51] rounded-xl
-                ${listView && "h-[25%]"} ${gridView && "h-[90%]"}`
+                ${listView && "h-[25%]"} ${gridView && "max-h-[20vh]"}`
             }
             role="listitem"
         >

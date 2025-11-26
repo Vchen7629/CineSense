@@ -21,6 +21,9 @@ import {
 
 interface searchFilterProps {
   list: filterItem[]
+  filterValue: string
+  setCurrentPage: React.Dispatch<React.SetStateAction<number>>
+  setFilterValue: React.Dispatch<React.SetStateAction<string>>
   placeholder_text: string
 }
 
@@ -29,9 +32,8 @@ interface filterItem {
   label: string
 }
 
-export function SearchFilter({list, placeholder_text}: searchFilterProps) {
+export function SearchFilter({list, filterValue, setCurrentPage, setFilterValue, placeholder_text}: searchFilterProps) {
   const [open, setOpen] = React.useState(false)
-  const [value, setValue] = React.useState("")
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -42,8 +44,8 @@ export function SearchFilter({list, placeholder_text}: searchFilterProps) {
           aria-expanded={open}
           className="w-[200px] justify-between bg-teal-500/20 border-teal-400 text-teal-200 shadow-inner hover:bg-teal-800 border-none transition-colors duration-250"
         >
-          {value
-            ? list.find((item: filterItem) => item.value === value)?.label
+          {filterValue
+            ? list.find((item: filterItem) => item.value === filterValue)?.label
             : `Select ${placeholder_text}...`}
           <ChevronsUpDown className="opacity-50" />
         </Button>
@@ -59,15 +61,17 @@ export function SearchFilter({list, placeholder_text}: searchFilterProps) {
                   key={item.value}
                   value={item.value}
                   onSelect={(currentValue) => {
-                    setValue(currentValue === value ? "" : currentValue)
-                    setOpen(false)
+                    const newValue = currentValue === filterValue ? "" : currentValue;
+                    setFilterValue(newValue);
+                    setOpen(false);
+                    setCurrentPage(1);
                   }}
                 >
                   {item.label}
                   <Check
                     className={cn(
                       "ml-auto",
-                      value === item.value ? "opacity-100" : "opacity-0"
+                      filterValue === item.value ? "opacity-100" : "opacity-0"
                     )}
                   />
                 </CommandItem>

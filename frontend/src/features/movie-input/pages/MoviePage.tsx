@@ -1,6 +1,6 @@
 import Header from "@/features/navbar/components/Header";
 import SearchBar from "../components/searchBar";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import PaginationComponent from "../components/pagination";
 import GridListViewComponent from "../components/gridListViewComponent";
 import { SearchFilter } from "../components/searchFilter";
@@ -11,6 +11,8 @@ import { Loader } from "lucide-react";
 import type { TMDBMovieApiRes } from "@/app/types/tmdb";
 import MovieCard from "../components/movieCard";
 import LoadingMovieSkeleton from "../components/loadingMovieSkeleton";
+import { getGenreName } from "../utils/genreMap";
+import { getLanguageName } from "../utils/languageMap";
 
 export default function MovieInputPage() {
     const [currentPage, setCurrentPage] = useState<number>(1)
@@ -19,6 +21,9 @@ export default function MovieInputPage() {
     const [gridView, setGridView] = useState<boolean>(false)
     const [listView, setListView] = useState<boolean>(true)
     const [itemsPerPage, setItemsPerPage] = useState<number>(4)
+    const [genreFilterValue, setGenreFilterValue] = useState<string>("")
+    const [languageFilterValue, setLanguageFilterValue] = useState<string>("")
+    const [yearFilterValue, setYearFilterValue] = useState<string>("")
 
     // React Query hook with loading state
     const { data: apiRes = [], isLoading, error } = useSearchMovies({
@@ -27,14 +32,47 @@ export default function MovieInputPage() {
         enabled: searchQuery.length > 0
     })
 
-    const totalPage = Math.ceil(apiRes.length / itemsPerPage);
+    // filtering logic
+    const filteredApiRes = useMemo(() => {
+        if (apiRes.length === 0) {
+            return [];
+        }
+
+        let filtered = [...apiRes];
+
+        if (genreFilterValue) {
+            filtered = filtered.filter((movie) =>
+                movie.genre_ids.some((genreId: number) => getGenreName(genreId) === genreFilterValue)
+            );
+        }
+
+        if (languageFilterValue) {
+            filtered = filtered.filter((movie) =>
+                getLanguageName(movie.original_language) === languageFilterValue
+            );
+        }
+
+        if (yearFilterValue) {
+            filtered = filtered.filter((movie) => {
+                const movieYear = movie.release_date?.split('-')[0];
+                return movieYear === yearFilterValue;
+            });
+        }
+
+        return filtered;
+    }, [apiRes, genreFilterValue, languageFilterValue, yearFilterValue]);
+
+    const totalPage = Math.ceil(filteredApiRes.length / itemsPerPage);
     const startIndex = (currentPage - 1) * itemsPerPage
     const endIndex = startIndex + itemsPerPage
-    const paginatedMovies = apiRes.slice(startIndex, endIndex)
+    const paginatedMovies = filteredApiRes.slice(startIndex, endIndex)
 
     const handleSearch = () => {
         setSearchQuery(apiQuery)
         setCurrentPage(1)
+        setGenreFilterValue("")
+        setLanguageFilterValue("")
+        setYearFilterValue("")
     }
 
     return (
@@ -71,21 +109,36 @@ export default function MovieInputPage() {
                                         <span className="text-md text-white font-semibold">Filter By Genres:</span>
                                         <span className="text-xs text-gray-300">choose a genre to filter results</span>
                                     </div>
-                                    <SearchFilter list={genres} placeholder_text="genres"/>
+                                    <SearchFilter
+                                        list={genres}
+                                        filterValue={genreFilterValue}
+                                        setCurrentPage={setCurrentPage}
+                                        setFilterValue={setGenreFilterValue}
+                                        placeholder_text="genres"
+                                    />
                                 </section>
                                 <section className="flex items-center justify-between px-4 mb-[5%]">
                                     <div className="flex flex-col">
                                         <span className="text-md text-white font-semibold">Filter By Languages:</span>
                                         <span className="text-xs text-gray-300">choose a language to filter results</span>
                                     </div>
-                                    <SearchFilter list={languages} placeholder_text="language"/>
+                                    <SearchFilter
+                                        list={languages}
+                                        filterValue={languageFilterValue}
+                                        setCurrentPage={setCurrentPage}
+                                        setFilterValue={setLanguageFilterValue}
+                                        placeholder_text="language"
+                                    />
                                 </section>
                                 <section className="flex items-center justify-between px-4">
                                     <div className="flex flex-col">
                                         <span className="text-md text-white font-semibold">Filter By Year:</span>
                                         <span className="text-sm text-gray-300">between 1888 - current</span>
                                     </div>
-                                    <YearFilterComponent/>
+                                    <YearFilterComponent
+                                        yearFilterValue={yearFilterValue}
+                                        setYearFilterValue={setYearFilterValue}
+                                    />
                                 </section>
                             </div>
                             <PaginationComponent
@@ -118,7 +171,7 @@ export default function MovieInputPage() {
                                 <div className="flex items-center justify-center h-3/4 w-full ">
                                     <div className="text-center">
                                         <span className="text-2xl text-gray-400">No movies found for {apiQuery}</span>
-                                        <p className="text-gray-500 mt-2">Try a different search term</p>
+                                        <p className="text-gray-500 mt-2">Try a different search term or different filters</p>
                                     </div>
                                 </div>
                             ) : (
@@ -151,11 +204,26 @@ export default function MovieInputPage() {
                         </section>
                         <section className="flex items-center px-2 space-x-[1%]">
                             <span className="text-xl mr-[2%] text-white font-light">Filters:</span>
-                            <SearchFilter list={genres} placeholder_text="genres"/>
-                            <SearchFilter list={languages} placeholder_text="language"/>
+                            <SearchFilter
+                                list={genres}
+                                filterValue={genreFilterValue}
+                                setCurrentPage={setCurrentPage}
+                                setFilterValue={setGenreFilterValue}
+                                placeholder_text="genres"
+                            />
+                            <SearchFilter
+                                list={languages}
+                                filterValue={languageFilterValue}
+                                setCurrentPage={setCurrentPage}
+                                setFilterValue={setLanguageFilterValue}
+                                placeholder_text="language"
+                            />
                             <section className="flex items-center space-x-2">
                                 <span className="text-md text-white font-light">Year:</span>
-                                <YearFilterComponent/>
+                                <YearFilterComponent
+                                    yearFilterValue={yearFilterValue}
+                                    setYearFilterValue={setYearFilterValue}
+                                />
                             </section>
                         </section>
                         <section className="flex flex-col w-full h-[85vh]">
@@ -190,7 +258,7 @@ export default function MovieInputPage() {
                                 <div className="flex items-center justify-center h-3/4 w-full ">
                                     <div className="text-center">
                                         <span className="text-2xl text-gray-400">No movies found for {apiQuery}</span>
-                                        <p className="text-gray-500 mt-2">Try a different search term</p>
+                                        <p className="text-gray-500 mt-2">Try a different search term or different filters</p>
                                     </div>
                                 </div>
                             ) : (
