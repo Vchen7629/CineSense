@@ -5,7 +5,7 @@ on:
     branches: 
         - main
         - cd-test
-        - infrastructure
+        - UserSignUp/LoginApi
     
 jobs:
   detect_changes:
