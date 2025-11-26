@@ -1,12 +1,12 @@
 # Entry Point
 from fastapi import FastAPI
 from sqlalchemy import inspect
+import uvicorn
 
-from .routes import status, user
-from .db.dbConn import engine
+from routes import status, user
+from db.dbConn import engine
 
-from .db.base import Base
-from . import models
+from db.base import Base
 
 
 app = FastAPI()
@@ -24,4 +24,6 @@ with engine.connect() as conn:
     tables = inspector.get_table_names()
     print("tables in DB:", tables)
 
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8001)
     

@@ -971,6 +971,7 @@ dependencies = [
     { name = "pydantic" },
     { name = "pytest" },
     { name = "sqlalchemy" },
+    { name = "uvicorn" },
 ]
 
 [package.dev-dependencies]
@@ -988,6 +989,7 @@ requires-dist = [
     { name = "pydantic", specifier = ">=2.11.10" },
     { name = "pytest", specifier = ">=8.4.2" },
     { name = "sqlalchemy", specifier = ">=2.0.43" },
+    { name = "uvicorn", specifier = ">=0.37.0" },
 ]
 
 [package.metadata.requires-dev]
