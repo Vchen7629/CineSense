@@ -4,28 +4,18 @@
 
 import uuid
 from fastapi import Request, HTTPException, status, Depends
-from sqlalchemy.orm import Session
-
-from ..db.dbConn import get_db
-from ..models.sessions import Session as SessionModel
-from ..models.users import User
+from sqlalchemy.ext.asyncio import AsyncSession
+from db.config.conn import get_session
+from models.sessions import Session as SessionModel
+from models.users import User
+from datetime import datetime, timedelta, timezone
 
 SESSION_COOKIE_NAME = "session_token"
-
-def create_session(db: Session, user_id: int) -> str:
-
-    token = str(uuid.uuid4())
-    session = SessionModel(session_token=token, user_id=user_id)
-    db.add(session)
-    db.commit()
-    db.refresh(session)
-    return token
 
 
 def get_current_user(
     request: Request,
-    db: Session = Depends(get_db),
-
+    db: AsyncSession = Depends(get_session),
 ) -> User:
     
     token = request.cookies.get(SESSION_COOKIE_NAME)

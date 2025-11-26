@@ -22,3 +22,24 @@ export const CreateGenreEmbeddings = () => {
         }
     })
 }
+
+export const CreateNewAccount = () => {
+    return useMutation({
+        mutationFn: UserService.signup,
+        retry: 2,
+
+        onSuccess: (data) => {
+            console.log('User Created successfully:', data);
+        },
+
+        onError: (error: unknown) => {
+            if (error instanceof AxiosError) {
+                console.error('Error signing up:', error.response?.data || error.message);
+            } else if (error instanceof Error) {
+                console.error('Error signing up:', error.message);
+            } else {
+                console.error('Error signing up:', error);
+            }
+        }
+    })
+}

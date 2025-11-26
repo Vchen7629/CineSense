@@ -4,8 +4,7 @@ from contextlib import asynccontextmanager
 from sqlalchemy import inspect
 import uvicorn
 from db.config.conn import engine, async_session
-from sqlalchemy import text
-from routes import status, user
+from routes import status, auth
 from utils.env_config import settings
 import logging
 
@@ -39,7 +38,7 @@ app = FastAPI(lifespan=lifespan)
 
 # Including routes from routes folder.
 app.include_router(status.router, prefix="", tags=["status"])
-app.include_router(user.router)
+app.include_router(auth.router)
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8001)
