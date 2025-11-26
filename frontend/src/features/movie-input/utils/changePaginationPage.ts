@@ -1,7 +1,7 @@
 export function ChangePaginationPage(
   setCurrentPage: React.Dispatch<React.SetStateAction<number>>,
   totalPage: number,
-  action: number, // pass in +1 for next, -1 for previous page
+  action: number,
   currentPage: number
 ) {
   // calculate new page value
@@ -12,6 +12,5 @@ export function ChangePaginationPage(
     return;
   }
 
-  // Only call setCurrentPage if page changes, ie not page 1 or last page
   setCurrentPage(newPage)
 }

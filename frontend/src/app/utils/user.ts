@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
-import { UserService } from '../services/user';
+import { UserService } from '../api_services/user';
 import { AxiosError } from 'axios';
 
 export const CreateGenreEmbeddings = () => {

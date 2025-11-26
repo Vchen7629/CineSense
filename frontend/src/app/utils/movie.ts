@@ -1,6 +1,6 @@
 // Wrapper Functions for axios calls to handle success/error with React Query
 import { useMutation } from '@tanstack/react-query';
-import { MovieService } from '../services/movie';
+import { MovieService } from '../api_services/movie';
 import { AxiosError } from 'axios';
 
 export const RateMovie = () => {
