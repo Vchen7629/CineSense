@@ -1,4 +1,4 @@
-import { ThumbsUpIcon, PlusIcon, TrashIcon, Heart } from "lucide-react"
+import { ThumbsUpIcon, PlusIcon, TrashIcon, Heart, Loader, Check, X } from "lucide-react"
 import { useState } from "react"
 import type { TMDBMovieApiRes } from "@/app/types/tmdb"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/shared/components/shadcn/dialog"
@@ -17,14 +17,15 @@ export default function MovieCard({ item, listView, gridView }: MovieCardProps) 
     const [isOpen, setIsOpen] = useState(false);
     const [rating, setRating] = useState(0);
     const [creditsDialogOpen, setCreditsDialogOpen] = useState(false);
-    const rateMovie = useRateMovie();
-
+    const { rateMovie, isLoading: isRating, isError: ratingError, isSuccess: ratingSuccess } = useRateMovie()
 
     // Only fetch credits when dialog is opened
     const { data: credits, isLoading: creditsLoading } = useFetchMovieCredits({
         id: item.id,
         enabled: creditsDialogOpen
     });
+
+    
 
     const handleAdd = () => {
         setIsOpen(true);
@@ -107,10 +108,30 @@ export default function MovieCard({ item, listView, gridView }: MovieCardProps) 
                                 setRating={setRating}
                             />
                             <button
-                                className="flex items-center space-x-1 px-3 py-1 bg-green-400/20 shadow-inner hover:bg-green-800 rounded-xl transition-colors duration-250"
-                            >
-                                <ThumbsUpIcon size={18}/>
-                                <span className="text-sm">Rate!</span>
+                                onClick={() => rateMovie(item, rating)}
+                                className="flex items-center justify-center space-x-1 w-fit px-3 py-1 bg-green-400/20 shadow-inner hover:bg-green-800 rounded-xl transition-colors duration-250"
+                            >   
+                                {isRating ? (
+                                    <div className="flex w-[2vw] justify-center">
+                                        <Loader className="animate-spin"/>
+                                    </div>
+                                ) : ratingError ? (
+                                    <>
+                                        <X size={18}/>
+                                        <span className="text-sm">Error rating</span>
+                                    </>
+                                ) : ratingSuccess ? (
+                                    <>
+                                        <Check size={18}/>
+                                        <span className="text-sm">Rated</span>
+                                    </>
+                                    
+                                ) : (
+                                    <>
+                                        <ThumbsUpIcon size={18}/>
+                                        <span className="text-sm">Rate!</span>
+                                    </>
+                                )}
                             </button>
                         </div>
                     )}

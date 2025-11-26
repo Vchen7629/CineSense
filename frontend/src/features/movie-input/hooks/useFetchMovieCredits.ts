@@ -14,7 +14,7 @@ export function useFetchMovieCredits({ id, enabled = false }: { id: number; enab
 
             // Extract top 5 actors
             const actors = credits.cast
-                .slice(0, 10)
+                .slice(0, 20)
                 .map((person: { name: string }) => person.name);
 
             // Extract directors from crew
