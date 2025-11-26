@@ -2,7 +2,6 @@ import type { TMDBMovieApiRes } from "@/app/types/tmdb";
 import { RateMovie } from "@/app/utils/movie";
 import { TMDBServices } from "@/app/api_services/tmdb";
 import { getGenreNames } from "../utils/genreMap";
-import { useQuery } from "@tanstack/react-query";
 
 // function for sending the movie metadata to the backend api
 export function useRateMovie() {
