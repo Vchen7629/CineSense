@@ -8,6 +8,7 @@ ENV_FILE = PROJECT_ROOT / ".env"
 
 class Settings(BaseSettings):
     production: bool = False
+    debug: bool = False
 
     db_username: str
     db_password: str
@@ -23,7 +24,7 @@ class Settings(BaseSettings):
     # API Settings
     log_level: str = "INFO"
     cors_origins: List[str] = ["http://localhost:3000"]
-    
+
     model_config = SettingsConfigDict(
         env_file=str(ENV_FILE),
         env_file_encoding="utf-8",

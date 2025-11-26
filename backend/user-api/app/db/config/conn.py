@@ -6,7 +6,7 @@ from utils.env_config import settings
 DATABASE_URL = settings.database_url
 
 #be able to talk to the database
-engine: AsyncEngine = create_async_engine(url=DATABASE_URL, echo=True, pool_pre_ping=True)
+engine: AsyncEngine = create_async_engine(url=DATABASE_URL, echo=settings.debug, pool_pre_ping=True)
 
 # session factory
 async_session = async_sessionmaker(
