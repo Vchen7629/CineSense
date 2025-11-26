@@ -24,7 +24,7 @@ class RateMovieRequest(BaseModel):
     user_id: str
     title: str
     genres: List[str]
-    release_date: int
+    release_date: str
     summary: str
     actors: List[str]
     director: List[str]
@@ -55,17 +55,23 @@ async def new_rated_movie(
     tmdb_popularity = body.tmdb_popularity
 
     tmdb_vote_log = np.log1p(tmdb_vote_count)
-    
+
     if not user_id:
         raise HTTPException(status_code=404, detail="No user_id provided")
-    
+
     if not rating:
         raise HTTPException(status_code=404, detail="No rating provided")
-    
-    # release date needs to be just year YYYY
-    movie_embedding = movie_tower.generate_new_movie_embedding(title, genres, release, actors, director, summary)
 
-    await add_movie_metadata(session, imdb_id, title, genres, release, summary, actors, director, poster_path)
+    # Convert release_date string to int year for model processing
+    try:
+        release_year = int(release[:4]) if isinstance(release, str) else int(release)
+    except (ValueError, TypeError):
+        raise HTTPException(status_code=400, detail="Invalid release_date format. Expected YYYY or full date string.")
+
+    # release date needs to be just year YYYY
+    movie_embedding = movie_tower.generate_new_movie_embedding(title, genres, release_year, actors, director, summary)
+
+    await add_movie_metadata(session, imdb_id, title, genres, release_year, summary, actors, director, poster_path)
 
     await add_new_movie_embedding(session, imdb_id, movie_embedding)
 
@@ -91,16 +97,14 @@ async def new_rated_movie(
 
     await regenerate_user_movie_embedding(session, user_id, user_emb)
 
-    movie = await update_movie_rating_stats(session, imdb_id, tmdb_vote_avg, tmdb_vote_log, tmdb_popularity)
-    user = await update_user_ratings_stats(session, user_id)
+    await update_movie_rating_stats(session, imdb_id, tmdb_vote_avg, tmdb_vote_log, tmdb_popularity)
+    await update_user_ratings_stats(session, user_id)
     
     return {
         "message": "Rating added" if is_new_rating else "Rating updated",
         "user_id": user_id,
         "movie_id": imdb_id,
-        "rating": rating,
-        "movie_test": movie,
-        "user_test": user
+        "rating": rating
     }
 
 

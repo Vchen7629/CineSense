@@ -153,6 +153,16 @@ resource "aws_security_group_rule" "ecs_egress_dns" {
   description                   = "Allow DNS resolution"
 }
 
+resource "aws_security_group_rule" "ecs_egress_s3" {
+  type                          = "egress"
+  from_port                     = 443
+  to_port                       = 443
+  protocol                      = "tcp"
+  prefix_list_ids               = [data.aws_prefix_list.s3.id]
+  security_group_id             = aws_security_group.ecs_tasks.id
+  description                   = "Allow HTTPS to S3 for model file downloads"
+}
+
 # rds security group rules
 resource "aws_security_group_rule" "rds_ingress_ecs" {
   type                          = "ingress"

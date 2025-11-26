@@ -4,7 +4,7 @@ export interface RateMovieApi {
     user_id?: string,
     title: string,
     genres: string[],
-    release_date: number,
+    release_date: string,
     summary: string,
     actors: string[],
     director: string[],
