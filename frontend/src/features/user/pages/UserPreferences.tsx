@@ -3,10 +3,25 @@ import UserPreferencesHeader from "../components/UserPreferencesHeader";
 import { useState } from "react";
 import UserPreferencesGenresGrid from "../components/UserPreferencesGenres";
 import { SignUpConfirmButton } from "../components/SignUpConfirmButton";
+import { useLocation } from "react-router";
+import { useSignUpUserAccount } from "../hooks/useSignUpUserAccount";
+import { useCreateGenreEmbeddings } from "../hooks/useCreateGenreEmbedding";
 
 export default function UserPreferences() {
   const [selectedGenres, setSelectedGenres] = useState<string[]>([])
   const [canSignup, setCanSignup] = useState<boolean>(false)
+  const location = useLocation()
+  const { username, email, password } = location.state || {};
+  const { signup, isLoading, isError, isSuccess: successUserSignUp } = useSignUpUserAccount()
+  const createEmbeddings = useCreateGenreEmbeddings()
+
+  async function handleCompleteSignUp() {
+      signup(username, email, password)
+
+      if (successUserSignUp) {
+          //await createEmbeddings(user_id)
+      }
+  }
 
   return (
     <main className="bg-[#2E454D] min-h-screen">
