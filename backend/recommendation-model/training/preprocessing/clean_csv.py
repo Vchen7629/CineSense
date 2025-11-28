@@ -1,5 +1,6 @@
 from .csv_cleaning_utils.removie_invalid_characters import remove_invalid_character
 from .csv_cleaning_utils.remove_invalid_movies import remove_invalid_movies
+from .csv_cleaning_utils.fill_missing_tmdb_ids import fill_missing_tmdb_ids
 from .csv_cleaning_utils.update_tmdb_id import update_tmdb_id
 from .csv_cleaning_utils.fix_mismatches import fix_movie_mismatches
 from .csv_cleaning_utils.remove_duplicate_tmdbIds import remove_duplicate_tmdb_ids
@@ -13,14 +14,22 @@ def run_clean_csv_functions(init: bool = True, large_dataset: bool = False):
     ratings_path = paths.movielens_ratings_path
     imdb_mismatches_path = paths.imdb_mismatches_path
     duplicate_id_path = paths.duplicate_tmdbId_path
+    null_tmdb_path = duplicate_id_path.replace('duplicate_id.csv', 'null_tmdb_id.csv')
 
     if init: # clean the original dataset by removing incorrect characters
         remove_invalid_character()
 
+    # Fill missing tmdbIds in links.csv by looking them up via IMDB IDs
+    # - Only fills in tmdbIds where imdbId exists but tmdbId is null
+    # - Validates title and year match before updating
+    # - Works for both movies and TV shows
+    # - Saves remaining null tmdbIds to null_tmdb_id.csv
+    fill_missing_tmdb_ids(movies_path, links_path, null_tmdb_path)
+
     # Check all movies via IMDB ID lookup
     # - Updates links.csv with correct TMDB IDs where title and year match
     # - Writes all mismatches (TV shows, 404s, title/year mismatches) to imdb_mismatches.csv
-    #update_tmdb_id(movies_path, links_path, imdb_mismatches_path)
+    update_tmdb_id(movies_path, links_path, imdb_mismatches_path)
 
     # Find duplicate movies with the same tmdbid
     # - db depnds on tmdbId as primary key so this is to prevent duplicate key errors
@@ -29,11 +38,11 @@ def run_clean_csv_functions(init: bool = True, large_dataset: bool = False):
 
     # Fix title and year mismatches in movies.csv
     # - Only fixes if titles share common words
-    #fix_movie_mismatches(movies_path, imdb_mismatches_path)
+    fix_movie_mismatches(movies_path, imdb_mismatches_path)
 
     # Remove TV shows and 404s from the dataset
     # - All other issues are kept for manual review
-    #remove_invalid_movies(movies_path, links_path, imdb_mismatches_path, large_dataset)
+    remove_invalid_movies(movies_path, links_path, imdb_mismatches_path, large_dataset)
 
 if __name__ == "__main__":
-    run_clean_csv_functions(init=False)
+    run_clean_csv_functions(init=True)
