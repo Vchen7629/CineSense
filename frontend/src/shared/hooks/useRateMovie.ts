@@ -9,7 +9,7 @@ import { AxiosError } from "axios";
 export function useRateMovie() {
     const mutation = useMutation({
         mutationFn: MovieService.rate,
-        retry: 3,
+        retry: 1,
         onSuccess: (data) => {
             console.log('Movie rated successfully:', data)
         },
@@ -24,7 +24,7 @@ export function useRateMovie() {
         }
     });
 
-    const rateMovie = async (item: TMDBMovieApiRes, rating: number) => {
+    const rateMovie = async (user_id: string, item: TMDBMovieApiRes, rating: number) => {
         try {
             const credits = await TMDBServices.fetchMovieCredits({ id: item.id });
             const movie_year = item.release_date.split('-')[0]
@@ -42,7 +42,7 @@ export function useRateMovie() {
 
             await mutation.mutateAsync({
                 movie_id: String(item.id),
-                user_id: "cbebfe51-8bf0-4b03-9237-cfd54d1a0b94",
+                user_id: user_id,
                 title: item.title,
                 genres: getGenreNames(item.genre_ids),
                 release_date: movie_year,

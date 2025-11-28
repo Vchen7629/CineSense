@@ -49,5 +49,26 @@ export const MovieService = {
                 throw error;
             }
         }
+    },
+
+    // get movie recommendations
+    getRecommendations: async({ user_id }: { user_id: string }) => {
+        try {
+            const response = await recommendations_api.get(`recommendations/get/${user_id}`)
+
+            console.log(response)
+            return response.data
+        } catch (error: unknown) {
+            if (error instanceof AxiosError) {
+                console.error(error.response?.data || error.message);
+                throw error;
+            } else if (error instanceof Error) {
+                console.error(error.message);
+                throw error;
+            } else {
+                console.error(error);
+                throw error;
+            }
+        }
     }
 }
