@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router";
 import { useCreateGenreEmbeddings } from "../hooks/useCreateGenreEmbedding";
-import { useSignUpUserAccount } from "../../../shared/hooks/useSignup";
+import { useSignUpUserAccount } from "../hooks/useSignup";
 import { toast } from "sonner";
 
 
