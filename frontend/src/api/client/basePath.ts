@@ -6,10 +6,12 @@ const USER_AUTH_API_BASE_URL = import.meta.env.VITE_USER_AUTH_API_BASE_URL || 'h
 
 export const user_auth_api = axios.create({
   baseURL: USER_AUTH_API_BASE_URL,
+  withCredentials: true,
 });
 
 export const recommendations_api = axios.create({
   baseURL: RECOMMENDATION_API_BASE_URL,
+  withCredentials: true,
 });
 
 export const tmdb_api = axios.create({

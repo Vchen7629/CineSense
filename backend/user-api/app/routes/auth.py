@@ -70,7 +70,9 @@ async def login(
         value=session_token,
         httponly=True,
         samesite="lax",
-        max_age=3600 # 1 hour
+        secure=False,  # Set to True in production with HTTPS
+        max_age=3600,  # 1 hour
+        path="/"  # Cookie available for all paths
     )
 
     return {"message": "Login Successful"}
