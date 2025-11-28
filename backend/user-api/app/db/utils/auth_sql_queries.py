@@ -12,10 +12,22 @@ async def check_valid_session_token(session: AsyncSession, token: str):
 
 async def create_session(user_id: int, db: AsyncSession) -> str:
     token = str(uuid.uuid4())
-
     expire_time = datetime.now(timezone.utc) + timedelta(hours=1)
-    session = Session(session_token=token, user_id=user_id, expire_at=expire_time)
-    db.add(session)
-    await db.flush()
+
+    # Check if user already has a session
+    query = select(Session).where(Session.user_id == user_id)
+    result = await db.execute(query)
+    existing_session = result.scalar_one_or_none()
+
+    if existing_session:
+        # Update existing session with new token and expiry
+        existing_session.session_token = token
+        existing_session.expire_at = expire_time
+        await db.flush()
+    else:
+        # Create new session
+        session = Session(session_token=token, user_id=user_id, expire_at=expire_time)
+        db.add(session)
+        await db.flush()
 
     return token
