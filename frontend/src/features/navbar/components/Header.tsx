@@ -1,9 +1,23 @@
 import { Switch } from "@/features/navbar/components/darkLightModeSwitch"
-import { Link } from "react-router"
+import { Link, useNavigate } from "react-router"
 import { useAuth } from "../../../shared/hooks/useAuth"
+import { useLogout } from "../hooks/useLogout"
+import { LogOut } from "lucide-react"
 
 const Header = () => {
     const { isAuthenticated, user } = useAuth()
+    const logout = useLogout()
+    const navigate = useNavigate()
+
+    async function handleLogout() {
+        try {
+            await logout()
+            navigate("/")
+        } catch (error: any) {
+            console.log(error)
+            return
+        }
+    }
 
     return (
         <header className="flex justify-between w-screen h-[10vh] bg-[#394B51] shadow-lg px-[2.5%]">
@@ -28,6 +42,13 @@ const Header = () => {
                             <Link to="/profile" className="text-xl text-white font-medium hover:text-gray-500">
                                 {user.username}
                             </Link>
+                            <button 
+                                onClick={() => handleLogout()}
+                                className="ml-2 flex items-center space-x-2 p-2 hover:text-teal-400 transition-colors duration-250"
+                            >
+                                <LogOut />
+                                <span>Logout</span>
+                            </button>
                         </div>
                     )}
                     {!isAuthenticated && ( // Display the login and signup buttons if user is not logged in
