@@ -1,6 +1,6 @@
 import { AxiosError } from "axios"
-import { tmdb_api } from "../lib/basePath"
-import type { FetchTMDBMovies } from "../types/tmdb"
+import { tmdb_api } from "../client/basePath"
+import type { FetchTMDBMovies } from "../../shared/types/tmdb"
 
 const apiKey = import.meta.env.VITE_API_KEY || "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIwM2Q2YWFlZDhhZWQ0MWVjMGY4ZmVhM2MyZWYwNGU1ZCIsIm5iZiI6MTc1ODc3MzE3MC4yNDcsInN1YiI6IjY4ZDRiZmIyOTYxNzQwMTEyM2EyYmMyNCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.aDdNgN5KfMoSVfsPxuQrbsWPMXeVQDjU1GymrTmVNNc"
 

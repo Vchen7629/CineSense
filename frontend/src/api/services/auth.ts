@@ -1,8 +1,8 @@
 // Code for http requests involving users
 import { AxiosError } from 'axios';
-import { recommendations_api } from '../lib/basePath';
-import { user_auth_api } from '../lib/basePath';
-import type { createGenreEmbProps } from '../types/user';
+import { recommendations_api } from '../client/basePath';
+import { user_auth_api } from '../client/basePath';
+import type { createGenreEmbProps } from '../../shared/types/user';
 
 export const UserService = {
     // create embeddings for selected genres during signup

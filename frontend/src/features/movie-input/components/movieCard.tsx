@@ -1,11 +1,11 @@
 import { ThumbsUpIcon, PlusIcon, TrashIcon, Heart, Loader, Check, X } from "lucide-react"
 import { useState } from "react"
-import type { TMDBMovieApiRes } from "@/app/types/tmdb"
+import type { TMDBMovieApiRes } from "@/shared/types/tmdb"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/shared/components/shadcn/dialog"
 import { getGenreName } from "../utils/genreMap"
 import { useFetchMovieCredits } from "../hooks/useFetchMovieCredits"
 import RateMovieButtons from "./rateButtons"
-import { useRateMovie } from "../hooks/useRateMovie"
+import { useRateMovie } from "../../../shared/hooks/useRateMovie"
 
 interface MovieCardProps {
     item: TMDBMovieApiRes;

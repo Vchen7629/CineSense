@@ -1,6 +1,6 @@
 // Code for http requests involving movies
-import type { RateMovieApi } from '../types/movie';
-import { recommendations_api } from '../lib/basePath';
+import type { RateMovieApi } from '../../shared/types/movie';
+import { recommendations_api } from '../client/basePath';
 import { AxiosError } from 'axios';
 
 export const MovieService = {

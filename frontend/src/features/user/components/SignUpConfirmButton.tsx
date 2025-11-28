@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router";
 import { useCreateGenreEmbeddings } from "../hooks/useCreateGenreEmbedding";
-import { useSignUpUserAccount } from "../hooks/useSignUpUserAccount";
+import { useSignUpUserAccount } from "../hooks/useSignupUserAccount";
 import { toast } from "sonner";
 
 
@@ -13,7 +13,6 @@ interface SignUpConfirmButtonProps {
 }
 
 export const SignUpConfirmButton = ({ selectedGenres, canSignup, username, email, password }: SignUpConfirmButtonProps) => {
-    const test_user_id = "4"
     const createGenreEmbeddings = useCreateGenreEmbeddings();
     const { signup, isLoading, isError, } = useSignUpUserAccount()
     const navigate = useNavigate()
