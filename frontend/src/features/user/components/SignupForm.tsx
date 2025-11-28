@@ -137,7 +137,8 @@ const SignUpForm = ({ onContinue }: SignUpForm) => {
                 /> 
                 <button
                     type="submit"
-                    className="bg-teal-600 w-full h-[5.5vh] text-white font-medium border-2 border-black rounded-lg mt-8 flex items-center justify-center"
+                    disabled={!form.formState.isValid}
+                    className="bg-teal-600 w-full h-[5.5vh] text-white font-medium border-2 border-black rounded-lg mt-8 flex items-center justify-center disabled:bg-teal-800 disabled:cursor-not-allowed transition-all"
                 >
                     Continue
                 </button>
