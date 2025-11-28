@@ -6,6 +6,7 @@ import uvicorn
 from db.config.conn import engine, async_session
 from routes import status, auth
 from utils.env_config import settings
+from middleware.cors import add_cors
 import logging
 
 logging.basicConfig(
@@ -35,6 +36,9 @@ async def lifespan(app: FastAPI):
     logger.info("Shutdown complete!")
 
 app = FastAPI(lifespan=lifespan)
+
+# middleware
+add_cors(app)
 
 # Including routes from routes folder.
 app.include_router(status.router, prefix="", tags=["status"])

@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     
     # API Settings
     log_level: str = "INFO"
-    cors_origins: List[str] = ["http://localhost:3000"]
+    cors_origins: List[str] = ["http://localhost:3000", "http://localhost:5173"]
 
     model_config = SettingsConfigDict(
         env_file=str(ENV_FILE),

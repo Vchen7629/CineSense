@@ -15,8 +15,3 @@ class UserLoginRequest(BaseModel):
 
 class SignUpResponse(BaseModel):
     user_id: str
-    username: str
-    email: EmailStr
-
-    class Config:
-        from_attributes = True
