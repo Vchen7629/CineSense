@@ -17,7 +17,7 @@ export function useAuth() {
 
     return {
         user: data,
-        isAuthenticated: !!data && !!isError,
+        isAuthenticated: !!data && !isError,
         isLoading,
     }
 }

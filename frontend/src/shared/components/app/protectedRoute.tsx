@@ -3,7 +3,11 @@ import { useAuth } from "@/shared/hooks/useAuth";
 
 // Wrapper component for protected routes
 export const ProtectedRoute = ({ children }: { children?: React.ReactNode }) => {
-    const { isAuthenticated } = useAuth()
+    const { isAuthenticated, isLoading } = useAuth()
+
+    if (isLoading) {
+        return null  
+    }
 
     if (!isAuthenticated) {
         return <Navigate to="/login" replace />

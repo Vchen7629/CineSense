@@ -17,7 +17,7 @@ function App() {
       <Route path='signup' element={<SignUpPage/>}/>
 
       {/* Protected routes - wrapped once */}
-      <Route element={<ProtectedRoute><></></ProtectedRoute>}>
+      <Route element={<ProtectedRoute/>}>
         <Route path='recommendations' element={<RecommendationPage/>}/>
         <Route path='add-movies' element={<MovieInputPage/>}/>
         <Route path='profile' element={<ProfilePage/>}/>
