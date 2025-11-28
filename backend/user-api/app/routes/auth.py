@@ -45,7 +45,10 @@ async def signup(request: SignUpRequest, db: AsyncSession = Depends(get_session)
 
     print(f"Verified in DB: {db_user.user_id}, {db_user.username}, {db_user.email}")
 
-    return new_user
+    return {
+        "message": "signup successful!",
+        "user_id": uuid_user_id
+    }
 
 @router.post("/login")
 async def login(
