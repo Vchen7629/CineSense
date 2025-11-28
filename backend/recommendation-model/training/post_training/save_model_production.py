@@ -83,6 +83,7 @@ def save_to_s3(model_version: str = None):
         's3_prefix': s3_prefix
     }
 
+
 if __name__ == "__main__":
     result = save_to_s3(model_version="v1")
     print(f"\nModel files uploaded to: s3://{result['bucket']}/{result['s3_prefix']}/")
