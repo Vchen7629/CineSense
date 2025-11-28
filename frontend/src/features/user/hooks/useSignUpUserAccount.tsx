@@ -8,15 +8,15 @@ export function useSignUpUserAccount() {
         mutationFn: UserService.signup,
         retry: 2,
         onSuccess: (data) => {
-            console.log('Movie rated successfully:', data);
+            console.log('Signed up successfully:', data);
         },
         onError: (error: unknown) => {
             if (error instanceof AxiosError) {
-                console.error('Error rating movie:', error.response?.data || error.message);
+                console.error('Error signing up:', error.response?.data || error.message);
             } else if (error instanceof Error) {
-                console.error('Error rating movie:', error.message);
+                console.error('Error signing up:', error.message);
             } else {
-                console.error('Error rating movie:', error);
+                console.error('Error signing up:', error);
             }
         }
     })

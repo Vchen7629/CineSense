@@ -27,7 +27,29 @@ export const UserService = {
         }
     },
 
-    signup: async({username, email, password}: any) => {
+    login: async({ email, password }: { email: string, password: string }) => {
+        try {
+            const response = await user_auth_api.post('/auth/login', {
+                email: email,
+                password: password
+            })
+
+            return response.data
+        } catch (error: unknown) {
+            if (error instanceof AxiosError) {
+                console.error(error.response?.data || error.message);
+                throw error;
+            } else if (error instanceof Error) {
+                console.error(error.message);
+                throw error;
+            } else {
+                console.error(error);
+                throw error;
+            }
+        }
+    },
+
+    signup: async({username, email, password}: { username: string, email: string, password: string }) => {
         try {
             const response = await user_auth_api.post('/auth/signup', {
                 username: username,
@@ -54,6 +76,7 @@ export const UserService = {
     auth: async() => {
         try {
             const response = await user_auth_api.get('/auth/authenticate')
+            console.log("test", response)
             return response.data;
         } catch (error: unknown) {
             if (error instanceof AxiosError) {
