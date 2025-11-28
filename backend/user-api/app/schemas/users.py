@@ -15,3 +15,8 @@ class UserLoginRequest(BaseModel):
 
 class SignUpResponse(BaseModel):
     user_id: str
+
+class AuthResponse(BaseModel):
+    user_id: str
+    username: str
+    email: str

@@ -36,3 +36,11 @@ async def create_session(user_id: int, db: AsyncSession) -> str:
         await db.flush()
 
     return token
+
+async def delete_session(token, db: AsyncSession):
+    query = select(Session).where(Session.session_token == token)
+    result = await db.execute(query)
+    session = result.scalar_one_or_none()
+
+    if session:
+        await db.delete(session)

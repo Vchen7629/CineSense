@@ -5,11 +5,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from db.config.conn import get_session
 from models.users import User
-from schemas.users import SignUpRequest, UserLoginRequest, SignUpResponse
+from schemas.users import SignUpRequest, UserLoginRequest, SignUpResponse, AuthResponse
 from middleware.security import hash_password, verify_password
 import uuid
 from db.utils.user_sql_queries import get_user_by_email, get_user_by_session_token
-from db.utils.auth_sql_queries import check_valid_session_token, create_session
+from db.utils.auth_sql_queries import check_valid_session_token, create_session, delete_session
 
 SESSION_COOKIE_NAME = "session_token"
 
@@ -77,7 +77,33 @@ async def login(
 
     return {"message": "Login Successful"}
 
-@router.get("/authenticate", response_model=SignUpResponse)
+@router.post("/logout")
+async def logout(
+    request: Request,
+    response: Response,
+    db: AsyncSession = Depends(get_session)
+):
+    token = request.cookies.get(SESSION_COOKIE_NAME)
+
+    if not token:
+        raise HTTPException(
+            status_code=400,
+            detail="Bad request, missing session token"
+        )
+
+    # Delete session from database if it exists
+    delete_session(token, db)
+
+    # clear cookie on client side
+    response.delete_cookie(
+        key=SESSION_COOKIE_NAME,
+        samesite="lax",
+        path="/"
+    )
+
+    return {"message": "Logout Successful"}
+
+@router.get("/authenticate", response_model=AuthResponse)
 async def fetch_user_data(request: Request, db: AsyncSession = Depends(get_session)):
     token = request.cookies.get(SESSION_COOKIE_NAME)
 
