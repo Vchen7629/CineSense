@@ -3,7 +3,7 @@ import { Link } from "react-router"
 import { useAuth } from "../../../shared/hooks/useAuth"
 
 const Header = () => {
-    const { isAuthenticated } = useAuth()
+    const { isAuthenticated, user } = useAuth()
 
     return (
         <header className="flex justify-between w-screen h-[10vh] bg-[#394B51] shadow-lg px-[2.5%]">
@@ -26,7 +26,7 @@ const Header = () => {
                         <div className="flex space-x-[1rem] items-center">
                             <div className="bg-[#D9D9D9] h-[2.5rem] w-[2.5rem] rounded-full"/>
                             <Link to="/profile" className="text-xl text-white font-medium hover:text-gray-500">
-                                User Name
+                                {user.username}
                             </Link>
                         </div>
                     )}
