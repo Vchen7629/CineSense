@@ -1,5 +1,6 @@
 import re
 from shared.path_config import path_helper
+import os
 
 # removes invisible unicode marks like U+200E and makes multi line quotes into one line
 def remove_invalid_character() -> None:
@@ -30,4 +31,4 @@ def remove_invalid_character() -> None:
         if buffer.strip():  # write any remaining
             outfile.write(buffer + "\n")
 
-    print(f"✅ Cleaned and fixed CSV written to: {os.path.abspath(output_clean)}")
+    print(f"Cleaned and fixed CSV written to: {os.path.abspath(output_clean)}")

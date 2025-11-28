@@ -13,6 +13,8 @@ import numpy as np
 # Genre-based negatives are harder (same genre, different quality)
 # Creates 10 sets so model can cycle through without overfitting
 def cold_start_negative_sampling(
+    positive_ratings_path: str,
+    negative_ratings_path: str,
     num_sets: int = 10,
     num_negatives: int = 64,
     genre_ratio: float = 0.8,
@@ -21,8 +23,6 @@ def cold_start_negative_sampling(
     paths = path_helper(large_dataset=large_dataset)
 
     negative_output_path = paths.user_cold_start_negatives_path
-    positive_ratings_path = paths.pos_ratings_path
-    negative_ratings_path = paths.neg_ratings_path
     movie_metadata_path = paths.movie_metadata_path
     user_genre_path = paths.top3_genres_path
 

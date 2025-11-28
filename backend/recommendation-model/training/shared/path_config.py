@@ -60,7 +60,7 @@ class Paths(BaseSettings):
     
     @property
     def cleaning_files_dir(self) -> str:
-        return "cleaning-files" if self.large_dataset else "cleaning-files-small"
+        return "datasets/cleaning-files" if self.large_dataset else "datasets/cleaning-files-small"
     
     @property
     def api_model_dir(self) -> Path:
