@@ -6,7 +6,7 @@ interface rateButtonProps {
     setRating: (rating: number) => void;
 }
 
-const RateMovieButtons = ({rating, setRating}: rateButtonProps) => {
+const RateMovieStars = ({rating, setRating}: rateButtonProps) => {
     const [hovered, setHovered] = useState<number>(0);
 
     const handleStarHover = (index: number, isLeftHalf: boolean) => {
@@ -76,4 +76,4 @@ const RateMovieButtons = ({rating, setRating}: rateButtonProps) => {
     )
 }
 
-export default RateMovieButtons
+export default RateMovieStars
