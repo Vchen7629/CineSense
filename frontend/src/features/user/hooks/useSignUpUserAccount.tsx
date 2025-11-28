@@ -4,8 +4,8 @@ import { CreateNewAccount } from "@/app/utils/user";
 export function useSignUpUserAccount() {
     const createMutation = CreateNewAccount(); 
 
-    const userSignUp = (username: string, email: string, password: string) => {
-        createMutation.mutate({
+    const userSignUp = async (username: string, email: string, password: string) => {
+        return await createMutation.mutateAsync({
             username,
             email,
             password,
@@ -16,7 +16,6 @@ export function useSignUpUserAccount() {
         signup: userSignUp,
         isLoading: createMutation.isPending,
         isError: createMutation.isError,
-        isSuccess: createMutation.isSuccess,
         error: createMutation.error,
     };
 }

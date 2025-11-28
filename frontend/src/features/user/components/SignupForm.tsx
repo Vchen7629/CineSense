@@ -1,6 +1,5 @@
-import { useState } from "react";
 import { z } from "zod"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/shared/components/shadcn/form";
+import { Form, FormControl, FormField, FormItem, FormLabel } from "@/shared/components/shadcn/form";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Toaster, toast } from "sonner";
@@ -29,10 +28,6 @@ const formSchema = z.object({
 })
 
 const SignUpForm = ({ onContinue }: SignUpForm) => {
-    const [username, setUsername] = useState('');
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -79,7 +74,6 @@ const SignUpForm = ({ onContinue }: SignUpForm) => {
     }
 
     function onSubmit (values: z.infer<typeof formSchema>) {
-        console.log("hi", values)
         onContinue(values);
     };
 

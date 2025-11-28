@@ -2,7 +2,6 @@ import Header from "@/features/navbar/components/Header";
 import { PencilIcon } from "lucide-react";
 import SignUpForm from "../components/SignupForm";
 import { useNavigate } from 'react-router';
-import { useState } from "react";
 
 const SignUpPage = () => {
   const navigate = useNavigate()
