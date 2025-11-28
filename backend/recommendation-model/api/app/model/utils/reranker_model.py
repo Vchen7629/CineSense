@@ -83,8 +83,10 @@ class Reranker:
         # Remove movie embeddings from response and format results
         results = []
         for movie, score in top_10_movies:
-            movie_clean = {k: v for k, v in movie.items() if k != 'movie_emb'}
+            movie_clean = {k: v for k, v in movie.items() if k not in ['movie_emb', 'tmdb_vote_log']}
             movie_clean['score'] = float(score)
+            # Transform tmdb_vote_log back to tmdb_vote_count for frontend
+            movie_clean['tmdb_vote_count'] = int(np.exp(movie.get('tmdb_vote_log', 0)) - 1)
             results.append(movie_clean)
 
         return results

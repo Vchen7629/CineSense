@@ -265,14 +265,18 @@ async def get_cold_start_recommendations(session, user_embedding, top3_genre):
                 m.movie_id,
                 m.movie_name,
                 m.genres,
-                m.release_date, 
-                m.summary, 
-                m.actors, 
-                m.director, 
+                m.release_date,
+                m.summary,
+                m.actors,
+                m.director,
                 m.poster_path,
+                mrs.tmdb_avg_rating,
+                mrs.tmdb_vote_log,
+                mrs.tmdb_popularity,
                 (e.embedding <=> CAST(:user_embedding AS vector)) as distance
             FROM movie_metadata m
             JOIN movie_embedding_coldstart e ON m.movie_id = e.movie_id
+            JOIN movie_rating_stats mrs ON m.movie_id = mrs.movie_id
             WHERE m.genres && CAST(:user_genres AS text[])
             ORDER BY distance
             LIMIT 8
@@ -282,21 +286,25 @@ async def get_cold_start_recommendations(session, user_embedding, top3_genre):
                 m.movie_id,
                 m.movie_name,
                 m.genres,
-                m.release_date, 
-                m.summary, 
-                m.actors, 
-                m.director, 
+                m.release_date,
+                m.summary,
+                m.actors,
+                m.director,
                 m.poster_path,
+                mrs.tmdb_avg_rating,
+                mrs.tmdb_vote_log,
+                mrs.tmdb_popularity,
                 999 as distance
             FROM movie_metadata m
+            JOIN movie_rating_stats mrs ON m.movie_id = mrs.movie_id
             WHERE NOT (m.genres && CAST(:user_genres AS text[]))
             ORDER BY RANDOM()
             LIMIT 2
         )
-        SELECT movie_id, movie_name, genres, release_date, summary, actors, director, poster_path, distance
+        SELECT movie_id, movie_name, genres, release_date, summary, actors, director, poster_path, tmdb_avg_rating, tmdb_vote_log, tmdb_popularity, distance
         FROM genre_matched
         UNION ALL
-        SELECT movie_id, movie_name, genres, release_date, summary, actors, director, poster_path, distance
+        SELECT movie_id, movie_name, genres, release_date, summary, actors, director, poster_path, tmdb_avg_rating, tmdb_vote_log, tmdb_popularity, distance
         FROM random_other
         ORDER BY distance;
     """)
@@ -320,7 +328,10 @@ async def get_cold_start_recommendations(session, user_embedding, top3_genre):
             "summary": row.summary,
             "actors": row.actors,
             "director": row.director,
-            "poster_path": row.poster_path
+            "poster_path": row.poster_path,
+            "tmdb_avg_rating": row.tmdb_avg_rating,
+            "tmdb_vote_count": int(np.exp(row.tmdb_vote_log) - 1),
+            "tmdb_popularity": row.tmdb_popularity
         }
         for row in movies
     ]
