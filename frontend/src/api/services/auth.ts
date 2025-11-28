@@ -48,5 +48,24 @@ export const UserService = {
                 throw error;
             }
         }
+    },
+
+    // send the httpOnly cookie to the auth api to get user credentials back
+    auth: async() => {
+        try {
+            const response = await user_auth_api.get('/auth/authenticate')
+            return response.data;
+        } catch (error: unknown) {
+            if (error instanceof AxiosError) {
+                console.error(error.response?.data || error.message);
+                throw error;
+            } else if (error instanceof Error) {
+                console.error(error.message);
+                throw error;
+            } else {
+                console.error(error);
+                throw error;
+            }
+        }
     }
 }
