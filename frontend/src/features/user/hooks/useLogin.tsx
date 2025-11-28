@@ -1,14 +1,16 @@
 import { UserService } from '../../../api/services/auth';
 import { AxiosError } from 'axios';
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 // custom hook for logging in to the user account
 export function useLogin() {
+    const queryClient = useQueryClient();
+
     const mutation = useMutation({
         mutationFn: UserService.login,
         retry: false,
         onSuccess: (data) => {
-            console.log('login success:', data);
+            queryClient.setQueryData(['auth'], data);
         },
         onError: (error: unknown) => {
             if (error instanceof AxiosError) {

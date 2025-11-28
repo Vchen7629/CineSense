@@ -1,11 +1,17 @@
 import { Switch } from "@/features/navbar/components/darkLightModeSwitch"
-import { Link, useNavigate } from "react-router"
+import { Link, useNavigate, useLocation } from "react-router"
 import { useAuth } from "../../../shared/hooks/useAuth"
 import { useLogout } from "../hooks/useLogout"
 import { LogOut } from "lucide-react"
 
 const Header = () => {
-    const { isAuthenticated, user } = useAuth()
+    // location so we only call authenticate on routes where
+    // users are definitely not logged 
+    const location = useLocation()
+    const unauthenticatedRoutes = ['/login', '/signup', '/userpreferences']
+    const shouldSkipAuth = unauthenticatedRoutes.includes(location.pathname)
+
+    const { isAuthenticated, user } = useAuth({ enabled: !shouldSkipAuth})
     const logout = useLogout()
     const navigate = useNavigate()
 

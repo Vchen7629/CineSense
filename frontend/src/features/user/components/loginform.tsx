@@ -1,4 +1,4 @@
-import { email, z } from "zod"
+import { z } from "zod"
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/shared/components/shadcn/form";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod"
