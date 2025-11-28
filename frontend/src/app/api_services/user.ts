@@ -1,13 +1,14 @@
 // Code for http requests involving users
 import { AxiosError } from 'axios';
-import { backend_api } from '../lib/basePath';
+import { recommendations_api } from '../lib/basePath';
+import { user_auth_api } from '../lib/basePath';
 import type { createGenreEmbProps } from '../types/user';
 
 export const UserService = {
     // create embeddings for selected genres during signup
     create_genre_embeddings: async({user_id, genres}: createGenreEmbProps) => {
         try {
-            const response = await backend_api.post(`user/genre_embedding/${user_id}`, {
+            const response = await recommendations_api.post(`user/genre_embedding/${user_id}`, {
                 genres: genres
             })
 
@@ -28,7 +29,7 @@ export const UserService = {
 
     signup: async({username, email, password}: any) => {
         try {
-            const response = await backend_api.post('/auth/signup', {
+            const response = await user_auth_api.post('/auth/signup', {
                 username: username,
                 email: email,
                 password: password

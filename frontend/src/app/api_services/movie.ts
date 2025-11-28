@@ -1,6 +1,6 @@
 // Code for http requests involving movies
 import type { RateMovieApi } from '../types/movie';
-import { backend_api } from '../lib/basePath';
+import { recommendations_api } from '../lib/basePath';
 import { AxiosError } from 'axios';
 
 export const MovieService = {
@@ -21,7 +21,7 @@ export const MovieService = {
         tmdb_popularity
     }: RateMovieApi) => {
         try {
-            const response = await backend_api.post(`movie/rate/${movie_id}`, {
+            const response = await recommendations_api.post(`movie/rate/${movie_id}`, {
                 user_id: user_id,
                 title: title,
                 genres: genres,
