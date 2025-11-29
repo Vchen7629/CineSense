@@ -110,7 +110,7 @@ export default function MovieCard({ item, listView, gridView }: MovieCardProps) 
                                 setRating={setRating}
                             />
                             <RateMovieButton 
-                                onClick={() => rateMovie(user.user_id, item, rating)} 
+                                onClick={() => rateMovie(false, user.user_id, item, rating)} 
                                 isLoading={isRating}
                                 isError={ratingError}
                                 isSuccess={ratingSuccess}

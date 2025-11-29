@@ -20,3 +20,14 @@ export interface TMDBMovieApiRes {
     vote_count: number
     vote_average: number
 }
+
+export type Movie = TMDBMovieApiRes & {
+    movie_id?: string
+    actors?: string[]
+    director?: string[]
+    genres?: string[]
+    summary?: string
+    tmdb_avg_rating?: number
+    tmdb_popularity?: number
+    tmdb_vote_count?: number
+}
