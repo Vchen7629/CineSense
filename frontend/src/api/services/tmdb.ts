@@ -10,7 +10,7 @@ export const TMDBServices = {
         pageNumber
     }: FetchTMDBMovies) => {
         try {
-            const apiRes = await tmdb_api.get(`search/movie?query=${query}&include_adult=true&language=en-US&page=${pageNumber}`, {
+            const apiRes = await tmdb_api.get(`search/movie?query=${query}&include_adult=false&language=en-US&page=${pageNumber}`, {
                 headers: {
                     'Authorization': `Bearer ${apiKey}`,
                     'accept': 'application/json' 
