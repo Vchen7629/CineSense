@@ -1,36 +1,69 @@
 import { Skeleton } from "@/shared/components/shadcn/skeleton"
+import { Dot } from "lucide-react"
+import { useEffect } from "react";
 
-const LoadingMovieRecommendationsSkeleton = () => {
+const LoadingMovieRecommendationsSkeleton = ({ isLoadingState, showContent, setShowSkeleton }: any) => {
+    // Show skeleton only if loading takes longer than 500ms
+    useEffect(() => {
+        if (isLoadingState) {
+            const skeletonTimer = setTimeout(() => setShowSkeleton(true), 1000);
+            return () => clearTimeout(skeletonTimer);
+        } else {
+            setShowSkeleton(false);
+        }
+    }, [isLoadingState]);
 
     return (
         <>
-            <section className="flex flex-col justify-between relative items-center pt-[2.5vh] h-[32.5rem] w-[30rem] bg-[#394B51] shadow-md shadow-black rounded-xl">
-                <Skeleton className="w-[55%] h-[7.5%]" />
-                <div className="flex justify-center items-center space-x-4 h-[10%] w-full mb-4">
-                    <Skeleton className="w-[40%] h-[55%]"/>
-                    <Skeleton className="w-[15%] h-[70%] rounded-xl" />
+            <div className={`absolute inset-0 flex flex-col space-y-[1vh] px-[0.5vw] py-[2.5vh] transition-opacity duration-300 ${isLoadingState || !showContent ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+                <div className="flex items-center justify-between w-[96%]">
+                    <Skeleton className="w-[25%] h-10 ml-[1vw]" />
+                    <div className="flex space-x-2 items-center">
+                        <Skeleton className="w-32 h-5 rounded-full" />
+                        <Skeleton className="w-28 h-5 rounded-full" />
+                    </div>
                 </div>
-            </section>
-
-            <section className="flex flex-col relative bg-[#394B51] h-[32.5rem] w-[50.5rem] px-[0.5vw] py-[2.5vh] rounded-xl shadow-md shadow-black rounded-xl">
-                <div className="flex ml-[12px] space-x-[2.75%] items-center">
-                    <Skeleton className="w-[15.5%] h-10"/>
-                    <Skeleton className="w-[16%] h-9 rounded-xl"/>
-                    <Skeleton className="w-[16%] h-9 rounded-xl"/>
+                <div className="flex space-x-2 ml-[2vw] mt-2">
+                    <Skeleton className="w-[22.5%] h-7"/>
+                    <Skeleton className="w-[10%] h-9 rounded-xl"/>
                 </div>
-                <div className="flex ml-[12px] space-x-[2.75%] mt-[20px]">
-                    <Skeleton className="w-[12.5%] h-10 mr-11"/>
-                    <Skeleton className="w-[16%] h-9 rounded-xl"/>
-                    <Skeleton className="w-[16%] h-9 rounded-xl"/>
-                    <Skeleton className="w-[16%] h-9 rounded-xl"/>                   
+                <div className="flex items-center ml-[2vw]">
+                    <Skeleton className="w-[7.5%] h-5 rounded-full" />
+                    <Dot size={28}/>
+                    <Skeleton className="w-[7.5%] h-5 rounded-full" />
+                    <Dot size={28}/>
+                    <div className="flex space-x-2 w-[40%]">
+                        <Skeleton className="w-[17.5%] h-5 rounded-full" />
+                        <Skeleton className="w-[17.5%] h-5 rounded-full" />
+                    </div>
                 </div>
-                <Skeleton className="h-[19.7rem] mt-[20px] w-[97%] rounded-[15px] ml-[8px]"/>
-                <div className="flex w-full items-center mt-[20px] px-4 justify-between">
-                    <Skeleton className="ml-[-9px] h-[2.6rem] w-[15%] rounded-[15px]"/>
-                    <Skeleton className="h-[2.6rem] py-1 w-[40%] rounded-[15px]"/>
-                    <Skeleton  className="h-[2.6rem] w-[20%] rounded-[15px] "/>
+                <div className="flex flex-col ml-[2vw]">
+                    <Skeleton className="w-[12.5%] h-6 rounded-xl"/>
+                    <div className="flex space-x-2 mt-2">
+                        <Skeleton className="w-[16.5%] h-8 rounded-full" />
+                        <Skeleton className="w-[16.5%] h-8 rounded-full" />
+                        <Skeleton className="w-[16.5%] h-8 rounded-full" />
+                    </div>
                 </div>
-            </section>
+                <div className="flex flex-col ml-[2vw]">
+                    <Skeleton className="w-[12.5%] h-6 rounded-xl"/>
+                    <div className="flex space-x-2 mt-2">
+                        <Skeleton className="w-[16.5%] h-8 rounded-full" />
+                        <Skeleton className="w-[16.5%] h-8 rounded-full" />
+                        <Skeleton className="w-[16.5%] h-8 rounded-full" />
+                        <Skeleton className="w-[16.5%] h-8 rounded-full" />
+                        <Skeleton className="w-[16.5%] h-8 rounded-full" />
+                    </div>
+                </div>
+                <div className="bg-[#375367] h-[11.7rem] px-4 py-2 mt-[20px] w-[92.5%] rounded-[15px] ml-[2vw] border-[0.1rem] border-[#20363e]">
+                    <div className="space-y-2">
+                        <Skeleton className="w-full h-4" />
+                        <Skeleton className="w-full h-4" />
+                        <Skeleton className="w-full h-4" />
+                        <Skeleton className="w-3/4 h-4" />
+                    </div>
+                </div>
+            </div>
         </>
     )
 }
