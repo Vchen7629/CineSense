@@ -39,15 +39,21 @@ export function useGetRecommendations(user_id: string) {
         staleTime: Infinity, // data is fresh indefinitely, since we manually refetch
         refetchOnWindowFocus: false, 
         refetchOnReconnect: false,
-        refetchOnMount: true,
+        refetchOnMount: 'always',
         // show old data while refetching to prevent flickering issue
         placeholderData: (previousData) => previousData
     })
+
+    const refetchRecommendations = async () => {
+        // Clear localstorage cache to force fresh fetch
+        localStorage.removeItem(`${RECOMMENDATIONS_STORAGE_KEY}_${user_id}`)
+        return await refetch()
+    }
 
     return {
         recommendations: data,
         isAuthenticated: !!data && !isError,
         isLoading,
-        refetchRecommendations: refetch
+        refetchRecommendations: refetchRecommendations
     }
 }

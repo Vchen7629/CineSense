@@ -11,32 +11,36 @@ export default function RecommendationPage() {
     {/*I probebly don't have to do this? But I'm going to do it for now. Change this if its not needed*/}
     const [ rating, setRating ] = useState(0);
     const { user, isLoading: authLoading } = useAuth()
+    const [ isRefetching, setIsRefetching ] = useState<boolean>(false)
     const { recommendations = [], isLoading, refetchRecommendations } = useGetRecommendations(user?.user_id || '')
     const { currentIndex, nextMovie, resetIndex } = useRecommendationIndex(user?.user_id)
     const { rateMovie, isLoading: isRating, isError: ratingError, isSuccess: ratingSuccess } = useRateMovie()
 
     const currentMovie = recommendations[currentIndex]
-    console.log("hi", currentMovie)
 
     // handle user rating movies
     async function handleMovieRated() {
-        // check if this was the last movie in batch
-        if (currentIndex + 1 >= recommendations.length) {
-            resetIndex() // reset to 0
-            await refetchRecommendations() // refetch new batch of 10 movies
-        } else {
-            try {
-                await rateMovie(user.user_id, currentMovie, rating)
-                setRating(0)
+        try {
+            await rateMovie(true, user.user_id, currentMovie, rating)
+            setRating(0)
+            
+            // check if this was the last movie in batch
+            if (currentIndex + 1 >= recommendations.length) {
+                setIsRefetching(true)
+                resetIndex() // reset to 0
+                await refetchRecommendations() // refetch new batch of 10 movies
+                setIsRefetching(false)
+            } else {
                 nextMovie()
-            } catch (error: any) {
-                console.log("hi")
             }
+        } catch (error: any) {
+            console.error("Failed to rate movie:", error)
+            setIsRefetching(false)
         }
     }
 
     // Show loading state
-    if (authLoading || isLoading) {
+    if (authLoading || isLoading || isRefetching) {
         return (
             <main>
                 <Header/>
@@ -64,8 +68,8 @@ export default function RecommendationPage() {
             <Header/>
                 <div className="flex h-[90vh] space-x-[5%] px-[5%] w-full left-center items-center text-center ">
                     {/*This will be the movies name and the body of the actual movie image*/}
-                    <section className="flex flex-col relative items-center h-[32.5rem] w-[30rem] bg-[#394B51] shadow-md shadow-black rounded-xl">
-                        <span className="bold text-white text-3xl absolute -top-12 transform font-semibold">
+                    <section className="flex flex-col relative items-center pt-[2.5vh] h-[32.5rem] w-[30rem] bg-[#394B51] shadow-md shadow-black rounded-xl">
+                        <span className="bold text-white text-3xl font-semibold">
                             {currentMovie.title}
                         </span>
                         <div className="flex space-x-2 absolute bottom-6">
@@ -81,7 +85,7 @@ export default function RecommendationPage() {
                     </section>
 
                     {/*background flavor-image for description (Don't touch)*/}
-                    <section className="flex flex-col relative bg-[#394B51] h-[32.5rem] w-[50.5rem] p-[1vh] rounded-xl shadow-md shadow-black rounded-xl">
+                    <section className="flex flex-col relative bg-[#394B51] h-[32.5rem] w-[50.5rem] px-[0.5vw] py-[2.5vh] rounded-xl shadow-md shadow-black rounded-xl">
                         {/*Publisher - who made the movie here.*/}
                         <div className="flex ml-[12px] space-x-[20px]">
                             <span className="text-white  text-3xl text-[25px]"> Directors: </span>
@@ -125,8 +129,8 @@ export default function RecommendationPage() {
 
                         <div className="flex w-full items-center mt-[20px] px-4 justify-between">
                             {/*Date - when was it made*/}
-                            <div className="flex items-center justify-center bg-[#375367] h-[2.6rem] px-4 rounded-[15px] border-[0.1rem] border-[#20363e]">
-                                <p className="bg-teal-500/20 text-teal-200 shadow-inner text-3xl text-sm rounded-xl border-teal-400 border-[0.1rem] px-3 py-1">{currentMovie.release_date}</p>
+                            <div className="flex items-center justify-center ml-[-9px] bg-[#375367] h-[2.6rem] px-4 rounded-[15px] border-[0.1rem] border-[#20363e]">
+                                <p className="text-teal-200 shadow-inner text-lg rounded-xl border-teal-400  px-3 py-1">{currentMovie.release_date}</p>
                             </div>
                             {/*Genere*/}
                             <div className="flex space-x-4 px-4 bg-[#375367] h-[2.6rem] py-1 w-fit rounded-[15px] border-[0.1rem] border-[#20363e]">
@@ -138,9 +142,6 @@ export default function RecommendationPage() {
                                         {genre}
                                     </div>
                                 ))}
-                                
-                                {/*<p className="bg-teal-500/20 text-teal-200 shadow-inner hover:bg-teal-800 absolute bottom-1/6 left-1/6 transform -translate-x-1/2 text-[15px] rounded-xl border-teal-400 px-3 py-0.8 border-[0.1rem]">Genera1</p>
-                                <p className="bg-teal-500/20 text-teal-200 shadow-inner hover:bg-teal-800 absolute bottom-1/6 left-5/6 transform -translate-x-1/2 text-[15px] rounded-xl border-teal-400 px-3 py-0.8 border-[0.1rem]">Genera3</p>*/}
                             </div>
                             {/*Languages*/}
                             <div className="flex items-center justify-center bg-[#375367] h-[2.6rem] w-[8rem] rounded-[15px] border-[0.1rem] border-[#20363e]">
