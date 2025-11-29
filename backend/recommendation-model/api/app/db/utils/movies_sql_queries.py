@@ -254,13 +254,18 @@ async def get_movies_metadata_by_movie_ids(
 
 # helper function for fetching cold start movies from db when users initially signs up,
 # we only have the user's top 3 selected genres as signal for recommendations
-async def get_cold_start_recommendations(session, user_embedding, top3_genre):
+async def get_cold_start_recommendations(session, user_id: str, user_embedding, top3_genre):
 
     # 80/20 split so that 80% of the movies returned initially match the user's
     # initial selected movies and 20% of movies arent so recommendations can recommend
     # new movies without being locked to those 3 genres
     query = text("""
-        WITH genre_matched AS (
+        WITH excluded_movies AS (
+            SELECT movie_id
+            FROM user_watchlist
+            WHERE :user_id = user_id
+        ),
+        genre_matched AS (
             SELECT
                 m.movie_id,
                 m.movie_name,
@@ -278,6 +283,7 @@ async def get_cold_start_recommendations(session, user_embedding, top3_genre):
             JOIN movie_embedding_coldstart e ON m.movie_id = e.movie_id
             JOIN movie_rating_stats mrs ON m.movie_id = mrs.movie_id
             WHERE m.genres && CAST(:user_genres AS text[])
+            AND m.movie_id NOT IN (SELECT movie_id FROM excluded_movies)
             ORDER BY distance
             LIMIT 8
         ),
@@ -298,6 +304,7 @@ async def get_cold_start_recommendations(session, user_embedding, top3_genre):
             FROM movie_metadata m
             JOIN movie_rating_stats mrs ON m.movie_id = mrs.movie_id
             WHERE NOT (m.genres && CAST(:user_genres AS text[]))
+            AND m.movie_id NOT IN (SELECT movie_id FROM excluded_movies)
             ORDER BY RANDOM()
             LIMIT 2
         )
@@ -312,6 +319,7 @@ async def get_cold_start_recommendations(session, user_embedding, top3_genre):
     result = await session.execute(
         query,
         {
+            "user_id": user_id,
             "user_embedding": str(user_embedding),
             "user_genres": top3_genre
         }
