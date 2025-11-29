@@ -5,16 +5,18 @@ from shared.path_config import path_helper
 
 # Extracts the User's top 3 preferred genres and creates npy file with an mlb embedding
 # this is only used during training for the cold start model
-def create_user_preferred_genres_embedding(large_dataset: bool = False) -> None:
+def create_user_preferred_genres_embedding(
+    positive_ratings_path: str,
+    large_dataset: bool = False
+) -> None:
     paths = path_helper(large_dataset=large_dataset)
 
     genre_output = paths.user_preferred_genres_path
-    pos_ratings_path = paths.pos_ratings_path
     movie_metadata_path = paths.movie_metadata_path
     user_genre_path = paths.top3_genres_path
     genre_mlb_path = paths.genre_mlb_path
 
-    user_df = pl.read_csv(pos_ratings_path)
+    user_df = pl.read_csv(positive_ratings_path)
     movie_df = pl.read_csv(movie_metadata_path)
     genre_mlb = joblib.load(genre_mlb_path)
     

@@ -24,7 +24,7 @@ async def get_recommendations(
     # fallback to cold start recommendations if not enough users
     if num_users < 50:
         top3_genre, genre_embedding = await get_user_genres(session, user_id)
-        recommendations = await get_cold_start_recommendations(session, genre_embedding, top3_genre)
+        recommendations = await get_cold_start_recommendations(session, user_id, genre_embedding, top3_genre)
         print("less than 50 users: cold start recos")
         return recommendations
     
@@ -33,7 +33,7 @@ async def get_recommendations(
     # # fallback to cold start recommendations if less than 10 rated movies
     if len(rated_movie_ids) < 10:
         top3_genre, genre_embedding = await get_user_genres(session, user_id)
-        recommendations = await get_cold_start_recommendations(session, genre_embedding, top3_genre)
+        recommendations = await get_cold_start_recommendations(session, user_id, genre_embedding, top3_genre)
         print("less than 50 users: cold start recos")
         return recommendations
 

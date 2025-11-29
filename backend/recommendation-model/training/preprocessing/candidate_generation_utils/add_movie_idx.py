@@ -3,11 +3,12 @@ from ..shared.extract_year import extract_title_without_year, extract_year_from_
 from shared.path_config import path_helper
 
 # prunes movie.csv to only unique movies and creates a idx mapping for user to movie dataset
-def add_movie_user_idx_mapping(large_dataset: bool = False):
+def add_movie_user_idx_mapping(
+    positive_ratings_path: str,
+    negative_ratings_path: str,
+    large_dataset: bool = False
+):
     paths = path_helper(large_dataset=large_dataset)
-
-    positive_ratings_path = paths.pos_ratings_path
-    negative_ratings_path = paths.neg_ratings_path
     input_movie_path = paths.movielens_movies_path
     pruned_movies_path = paths.pruned_movies_path
 

@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { TMDBServices } from '@/app/api_services/tmdb';
+import { TMDBServices } from '@/api/services/tmdb';
 
 interface MovieCredits {
     actors: string[];

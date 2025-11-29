@@ -1,13 +1,14 @@
 import Header from "@/features/navbar/components/Header";
+import { useAuth } from "@/shared/hooks/useAuth";
 
 export default function ProfilePage() {
-    
     // Colin Harris - UserProfilePage -
     // I labeled everything with comments so you know what each section is for.
 
     // List of important locations:
     // Favorites is under the favorites background flavor-image section.
     // Bio is under the bio background flavor-image section. Shares a similar name with favorites.
+    const { user } = useAuth() 
 
     return (
         <main>
@@ -40,7 +41,7 @@ export default function ProfilePage() {
 
             {/*This will be the username*/}
             <div className="flex h-[50vh] w-full left-center items-center">
-                <p className="text-white text-3xl absolute top-36 text-[36px] ml-[330px]"> User Name </p>
+                <p className="text-white text-3xl absolute top-36 text-[36px] ml-[330px]"> {user.username} </p>
             </div>
 
             {/*Edit User Name button*/}

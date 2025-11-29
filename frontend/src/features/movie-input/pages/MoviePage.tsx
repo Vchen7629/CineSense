@@ -8,7 +8,7 @@ import { genres, languages } from "../misc/filterItems";
 import YearFilterComponent from "../components/yearFilter";
 import { useSearchMovies } from "../hooks/useSearchMovies";
 import { Loader } from "lucide-react";
-import type { TMDBMovieApiRes } from "@/app/types/tmdb";
+import type { TMDBMovieApiRes } from "@/shared/types/tmdb";
 import MovieCard from "../components/movieCard";
 import LoadingMovieSkeleton from "../components/loadingMovieSkeleton";
 import { getGenreName } from "../utils/genreMap";

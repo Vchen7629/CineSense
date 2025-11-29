@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Integer, REAL, TIMESTAMP, ForeignKey, ARRAY, Text, Index
+from sqlalchemy import Column, String, Integer, REAL, TIMESTAMP, ForeignKey, DateTime, Text, Index
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.dialects.postgresql import ARRAY as PG_ARRAY
 from pgvector.sqlalchemy import Vector
@@ -10,10 +10,18 @@ class UserLogin(Base):
     __tablename__ = 'user_login'
 
     user_id = Column(Text, primary_key=True)
-    username = Column(Text, unique=True, nullable=False)
+    username = Column(Text, nullable=False)
     email = Column(Text, unique=True, nullable=False)
     password = Column(Text, nullable=False)
     created_at = Column(TIMESTAMP, server_default='NOW()')
+
+class Session(Base):
+    __tablename__ = "sessions"
+
+    user_id = Column(Text, ForeignKey("user_login.user_id", ondelete="CASCADE"), primary_key=True, unique=True, index=True)
+    session_token = Column(Text, index=True, nullable=False)
+    created_at = Column(DateTime(timezone = True), server_default='NOW()')
+    expire_at = Column(DateTime(timezone=True), nullable=False)
 
 class MovieMetadata(Base):
     __tablename__ = 'movie_metadata'
