@@ -84,22 +84,22 @@ class Paths(BaseSettings):
     def genre_mlb_path(self) -> str:
         return str(PROJECT_ROOT / self.local_model_dir / genre_mlb_joblib)
     
-    # api folder paths 
+    # api folder paths
     @property
     def user_tower_model_api_path(self) -> str:
-        return str(PROJECT_ROOT / self.api_model_dir / user_tower_model_name)
+        return str(self.api_model_dir / user_tower_model_name)
 
     @property
     def movie_tower_model_api_path(self) -> str:
-        return str(PROJECT_ROOT / self.api_model_dir / movie_tower_model_name)
+        return str(self.api_model_dir / movie_tower_model_name)
 
     @property
     def reranker_model_api_path(self) -> str:
-        return str(PROJECT_ROOT / self.api_model_dir / reranker_model_name)
+        return str(self.api_model_dir / reranker_model_name)
 
     @property
     def genre_mlb_api_path(self) -> str:
-        return str(PROJECT_ROOT / self.api_model_dir / genre_mlb_joblib)
+        return str(self.api_model_dir / genre_mlb_joblib)
     
     # output file paths
     @property
