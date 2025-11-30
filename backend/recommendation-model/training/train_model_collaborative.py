@@ -4,7 +4,7 @@ from info_nce import InfoNCE
 from torch.utils.data import DataLoader
 from utils.train_test_split import TrainTest
 from post_training.candidate_gen_model_evaluation import CandidateGenerationModelEval
-from post_training.save_model_local import SaveModel
+from post_training.save_model_files import SaveModel
 from post_training.generate_user_embeddings import GenerateUserEmbeddings
 import polars as pl
 import time
@@ -216,21 +216,13 @@ if __name__ == "__main__":
 
     end_time = time.perf_counter()
     print(f"Elapsed time: {time.perf_counter() - train_start_time:.4f} seconds")
-
-    config = {
-        "dbname": "example_db",
-        "user": "postgres",
-        "password": "password",
-        "host": "localhost",
-        "port": 5432
-    }
     
     SaveModel(
         user_tower=None, 
         movie_tower=train.movie_tower,
         num_movies=train.num_movies,
         personalized=True
-    ).save_all(save_to_db=True, db_config=config)
+    ).save_all(save_to_local_db=True)
 
     # create user embedding file for model evaluation
     user_embeddings = GenerateUserEmbeddings(movie_tower=train.movie_tower)

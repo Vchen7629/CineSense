@@ -6,7 +6,7 @@ from info_nce import InfoNCE
 from torch.utils.data import DataLoader
 from utils.train_test_split import TrainTest
 from post_training.cold_start_evaluation import ColdStartEval
-from post_training.save_model_local import SaveModel
+from post_training.save_model_files import SaveModel
 import polars as pl
 import time
 from shared.path_config import path_helper
@@ -220,7 +220,7 @@ if __name__ == "__main__":
         movie_tower=train.movie_tower,
         num_movies=train.num_movies,
         personalized=False
-    ).save_all(save_to_local_db=False)
+    ).save_all(save_to_local_db=True)
 
 
     
