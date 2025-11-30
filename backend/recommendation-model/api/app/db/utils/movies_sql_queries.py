@@ -115,6 +115,7 @@ async def update_movie_rating_stats(session, movie_id: str, tmdb_avg_rating: flo
                 CAST(AVG(user_rating) AS REAL) as avg
             FROM user_watchlist
             WHERE movie_id = :movie_id
+            AND user_rating > 0
         )
         INSERT INTO movie_rating_stats (
             movie_id,
@@ -166,6 +167,7 @@ async def get_movie_embeddings(session, user_id: str):
         FROM user_watchlist r
         JOIN movie_embedding_personalized e ON r.movie_id = e.movie_id
         WHERE r.user_id = :user_id
+        AND r.user_rating > 0
         ORDER BY r.updated_at DESC
     """)
 
@@ -204,6 +206,7 @@ async def get_movies_metadata_by_movie_ids(
             FROM user_watchlist
             WHERE user_id = ANY(:similar_user_ids)
             AND movie_id != ALL(:exclude_movie_ids)
+            AND user_rating > 0
             GROUP BY movie_id
             ORDER BY frequency DESC
             LIMIT :limit
@@ -264,6 +267,7 @@ async def get_cold_start_recommendations(session, user_id: str, user_embedding, 
             SELECT movie_id
             FROM user_watchlist
             WHERE :user_id = user_id
+            AND user_rating > 0
         ),
         genre_matched AS (
             SELECT
@@ -345,3 +349,19 @@ async def get_cold_start_recommendations(session, user_id: str, user_embedding, 
     ]
 
     return recommendations
+
+async def check_if_movie_rated(session, user_id: str, movie_id: str):
+    query = text("""
+        SELECT user_rating
+        FROM user_watchlist
+        WHERE user_id = :user_id
+        AND movie_id = :movie_id
+    """)
+
+    result = await session.execute(query, {"user_id": user_id, "movie_id": movie_id})
+    row = result.first()
+
+    if not row:
+        raise HTTPException(status_code=404, detail="Movie not in watchlist")
+    
+    return row

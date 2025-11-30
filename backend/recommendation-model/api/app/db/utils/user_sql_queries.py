@@ -27,6 +27,24 @@ async def get_user_genres(session, user_id: str):
 
     return top_3_genres, genre_embedding
 
+async def get_user_watchlist(session, user_id: str):
+    query = text("""
+        SELECT 
+            w.user_id, 
+            w.user_rating,
+            w.movie_id,
+            m.movie_name,
+            m.poster_path
+        FROM user_watchlist w
+        JOIN movie_metadata m ON w.movie_id = m.movie_id
+        WHERE user_id = :user_id
+    """)
+
+    result = await session.execute(query, {"user_id": str(user_id)})
+
+    watchlist = [dict(row) for row in result.mappings().all()]
+    return watchlist
+
 # create a new user embedding using the 3 genres selected during signup
 async def new_user_genre_embedding(session, user_id: str, genre_embedding: str, top3_genres: List[str]):
     query = text("""
@@ -89,7 +107,8 @@ async def regenerate_user_movie_embedding(session, user_id: str, user_emb: np.nd
 async def get_user_with_ratings_count(session):
     query = text("""
         SELECT COUNT(DISTINCT user_id)
-        FROM user_watchlist;
+        FROM user_watchlist
+        WHERE user_rating > 0;
     """)
 
     result = await session.execute(query)
@@ -167,6 +186,7 @@ async def get_user_rated_movie_ids(session, user_id: str):
         SELECT movie_id
         FROM user_watchlist
         WHERE user_id = :user_id
+        AND user_rating > 0
     """)
 
     result = await session.execute(query, {"user_id": user_id})
@@ -184,6 +204,7 @@ async def update_user_ratings_stats(session, user_id: str):
             FROM user_watchlist uw
             JOIN movie_metadata m on uw.movie_id = m.movie_id
             WHERE uw.user_id = :user_id
+            AND user_rating > 0
         ),
         user_stats AS (
             SELECT
@@ -191,6 +212,7 @@ async def update_user_ratings_stats(session, user_id: str):
                 CAST(AVG(user_rating) AS REAL) as avg
             FROM user_watchlist
             WHERE user_id = :user_id
+            AND user_rating > 0
         ),
         top_genres AS (
             SELECT genre
@@ -257,3 +279,14 @@ async def update_user_ratings_stats(session, user_id: str):
 
     if not result:
         raise HTTPException(status_code=500, detail="error updating user rating stats")
+    
+async def delete_from_watchlist(session, user_id: str, movie_id: str):
+    query = text("""
+        DELETE FROM user_watchlist
+        WHERE user_id = :user_id
+        AND movie_id = :movie_id
+    """)
+
+    await session.execute(query, {"user_id": user_id, "movie_id": movie_id})
+
+    # Todo: handle delete failure
