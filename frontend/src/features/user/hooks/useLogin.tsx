@@ -9,8 +9,10 @@ export function useLogin() {
     const mutation = useMutation({
         mutationFn: UserService.login,
         retry: false,
-        onSuccess: (data) => {
-            queryClient.setQueryData(['auth'], data);
+        onSuccess: async () => {
+            // Fetch actual user data after login
+            const userData = await UserService.auth()
+            queryClient.setQueryData(['auth'], userData);
         },
         onError: (error: unknown) => {
             if (error instanceof AxiosError) {

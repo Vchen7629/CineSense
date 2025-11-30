@@ -1,5 +1,5 @@
 import { Switch } from "@/features/navbar/components/darkLightModeSwitch"
-import { Link, useNavigate, useLocation } from "react-router"
+import { Link, useLocation } from "react-router"
 import { useAuth } from "../../../shared/hooks/useAuth"
 import { useLogout } from "../hooks/useLogout"
 import { LogOut } from "lucide-react"
@@ -13,12 +13,10 @@ const Header = () => {
 
     const { isAuthenticated, user } = useAuth({ enabled: !shouldSkipAuth})
     const logout = useLogout()
-    const navigate = useNavigate()
-
+    
     async function handleLogout() {
         try {
             await logout()
-            navigate("/")
         } catch (error: any) {
             console.log(error)
             return

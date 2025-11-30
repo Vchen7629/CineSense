@@ -32,7 +32,7 @@ const LoginForm = () => {
     async function onSubmit (values: z.infer<typeof formSchema>) {
         try {
             await login(values.email, values.password)
-
+            // Watchlist will auto-fetch when profile page mounts
             navigate("/profile")
         } catch (error: any) {
             if (error.response?.data?.detail == "invalid email or password") {

@@ -9,14 +9,17 @@ export function useAuth(options?: { enabled?: boolean }) {
     const { data, isLoading, isError } = useQuery({
         queryKey: ['auth'],
         queryFn: UserService.auth,
-        enabled, // only run query if enabled is true
+        enabled: (query) => {
+            // Allow initial fetch (dataUpdateCount === 0 means never fetched) only if enabled
+            if (query.state.dataUpdateCount === 0) return enabled
+            // Don't fetch if explicitly logged out (data set to undefined after initial fetch)
+            return query.state.data !== undefined
+        },
         retry: false,
         staleTime: 5 * 60 * 1000 * 60, // 1 hour
-        refetchOnWindowFocus: true, // recheck
-        refetchOnReconnect: true, // recheck when user reconnects
-        refetchOnMount: 'always',
-        // show old data while refetching to prevent flickering issue 
-        placeholderData: (previousData) => previousData
+        refetchOnWindowFocus: (query) => enabled && query.state.data !== undefined,
+        refetchOnReconnect: (query) => enabled && query.state.data !== undefined,
+        refetchOnMount: (query) => enabled && query.state.data !== undefined,
     })
 
     return {
