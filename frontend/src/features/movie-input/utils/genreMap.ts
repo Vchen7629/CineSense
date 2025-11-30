@@ -15,7 +15,7 @@ export const GENRE_MAP: Record<number, string> = {
     10402: "Music",
     9648: "Mystery",
     10749: "Romance",
-    878: "Science Fiction",
+    878: "Sci-Fi",
     10770: "TV-Film",
     53: "Thriller",
     10752: "War",
