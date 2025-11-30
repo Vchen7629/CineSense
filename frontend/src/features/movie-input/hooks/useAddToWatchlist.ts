@@ -58,7 +58,7 @@ export function useAddToWatchlist() {
                 user_id: user_id,
                 title: item.title,
                 genres: getGenreNames(item.genre_ids),
-                release_date: item.release_date,
+                release_date: "2000",
                 summary: item.overview,
                 actors: [],
                 director: [],
