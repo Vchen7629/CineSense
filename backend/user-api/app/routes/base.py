@@ -12,6 +12,6 @@ async def home() -> Dict[str, str]:
 
 
 # Health endpoint used to check system health
-@router.get("/apihealth")
+@router.get("/health")
 async def health() -> Dict[str, str]:
     return {"status": "ok"}
