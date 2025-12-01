@@ -3,8 +3,8 @@ from fastapi import FastAPI
 from contextlib import asynccontextmanager
 from sqlalchemy import inspect
 import uvicorn
-from db.config.conn import engine, async_session
-from routes import status, auth
+from db.config.conn import engine
+from routes import base, auth
 from utils.env_config import settings
 from middleware.cors import add_cors
 import logging
@@ -41,7 +41,7 @@ app = FastAPI(lifespan=lifespan)
 add_cors(app)
 
 # Including routes from routes folder.
-app.include_router(status.router, prefix="", tags=["status"])
+app.include_router(base.router, prefix="", tags=["status"])
 app.include_router(auth.router)
 
 if __name__ == "__main__":
