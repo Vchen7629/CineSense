@@ -111,6 +111,7 @@ export function useRateMovie() {
         isLoading: mutation.isPending,
         isError: mutation.isError,
         isSuccess: mutation.isSuccess,
-        error: mutation.error
+        error: mutation.error,
+        reset: mutation.reset
     };
 }

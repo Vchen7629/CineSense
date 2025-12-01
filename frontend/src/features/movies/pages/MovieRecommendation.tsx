@@ -24,7 +24,7 @@ const RecommendationPage = () => {
     const [ isRefetching, setIsRefetching ] = useState<boolean>(false)
     const { recommendations = [], isLoading, refetchRecommendations } = useGetRecommendations(user?.user_id || '')
     const { currentIndex, nextMovie, resetIndex } = useRecommendationIndex(user?.user_id)
-    const { rateMovie, isLoading: isRating, isError: ratingError, isSuccess: ratingSuccess } = useRateMovie()
+    const { rateMovie, isLoading: isRating, isError: ratingError, isSuccess: ratingSuccess, reset } = useRateMovie()
 
     const currentMovie = recommendations[currentIndex]
     const isLoadingState = authLoading || isLoading || isRefetching
@@ -64,8 +64,10 @@ const RecommendationPage = () => {
                 resetIndex() // reset to 0
                 await refetchRecommendations() // refetch new batch of 10 movies
                 setIsRefetching(false)
+                reset()
             } else {
                 nextMovie()
+                reset()
             }
         } catch (error: any) {
             console.error("Failed to rate movie:", error)
