@@ -39,3 +39,17 @@ resource "aws_ecr_repository" "migration_repo" {
         Name                = "cinesense-migration-repo"
     }
 }
+
+# for database update docker image to update database movie tables
+resource "aws_ecr_repository" "database_movie_tables_update_repo" {
+    name                    = "cinesense-database-update"
+    image_tag_mutability    = "MUTABLE"
+
+    image_scanning_configuration {
+        scan_on_push        = true
+    }
+
+    tags = {
+        Name                = "cinesense-database-update"
+    }
+}

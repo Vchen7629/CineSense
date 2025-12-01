@@ -3,7 +3,7 @@ import asyncio
 import aiohttp
 import polars as pl
 from dotenv import load_dotenv
-from shared.extract_year import extract_title_without_year, extract_year_from_title
+from ..shared.extract_year import extract_title_without_year, extract_year_from_title
 
 current_dir = os.path.dirname(__file__)
 
@@ -199,7 +199,19 @@ async def lookup_all_imdb_ids(movies_df: pl.DataFrame, max_concurrent: int = 40)
 
         print(f"Completed lookup for {len(results)} IMDB IDs")
 
-    return pl.DataFrame(results)
+    # Define schema explicitly to handle None/null values properly
+    schema = {
+        'movieId': pl.Int64,
+        'imdbId': pl.Utf8,
+        'tmdbId': pl.Int64,
+        'movielens_title': pl.Utf8,
+        'movielens_year': pl.Int64,
+        'api_title': pl.Utf8,
+        'api_year': pl.Int64,
+        'issue': pl.Utf8
+    }
+
+    return pl.DataFrame(results, schema=schema, infer_schema_length=None)
 
 def update_tmdb_id(movies_path: str, links_path: str, mismatches_path: str):
     """

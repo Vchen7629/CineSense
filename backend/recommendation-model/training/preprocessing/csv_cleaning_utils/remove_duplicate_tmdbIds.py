@@ -168,9 +168,10 @@ def remove_duplicate_tmdb_ids(links_path: str, movies_path: str, ratings_path: s
     movies_df = pl.read_csv(movies_path)
     ratings_df = pl.read_csv(ratings_path)
 
-    # Find duplicate TMDB IDs
+    # Find duplicate TMDB IDs (excluding null - they're handled by fill_missing_tmdb_ids)
     tmdb_duplicates_df = (
         links_df
+            .filter(pl.col("tmdbId").is_not_null())
             .group_by("tmdbId")
             .agg([
                 pl.count("movieId").alias("count"),
@@ -182,7 +183,7 @@ def remove_duplicate_tmdb_ids(links_path: str, movies_path: str, ratings_path: s
     )
 
     if len(tmdb_duplicates_df) == 0:
-        print("No duplicate TMDB IDs found!")
+        print("\nNo duplicate TMDB IDs found!")
         return
 
     print(f"\nFound {len(tmdb_duplicates_df)} duplicate TMDB IDs")
@@ -190,7 +191,7 @@ def remove_duplicate_tmdb_ids(links_path: str, movies_path: str, ratings_path: s
     print("\nTop duplicates:")
     print(tmdb_duplicates_df.head(10))
 
-    # Save only TV show entries
+    # Save duplicate entries
     tmdb_duplicates_df.write_csv(duplicate_ids_path)
 
     print(f"\n{'='*60}")

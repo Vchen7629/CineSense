@@ -53,7 +53,7 @@ async def add_movie_metadata(
 async def add_new_movie_embedding(session, movie_id: str, movie_embedding: List[np.ndarray]):
 
     query = text("""
-        INSERT INTO movie_embedding_personalized (movie_id, embedding)
+        INSERT INTO movie_embedding_personalized_prod (movie_id, embedding)
         VALUES (:movie_id, :embedding)
         ON CONFLICT (movie_id) DO NOTHING
     """)
@@ -115,6 +115,7 @@ async def update_movie_rating_stats(session, movie_id: str, tmdb_avg_rating: flo
                 CAST(AVG(user_rating) AS REAL) as avg
             FROM user_watchlist
             WHERE movie_id = :movie_id
+            AND user_rating > 0
         )
         INSERT INTO movie_rating_stats (
             movie_id,
@@ -164,8 +165,9 @@ async def get_movie_embeddings(session, user_id: str):
     query = text("""
         SELECT e.embedding
         FROM user_watchlist r
-        JOIN movie_embedding_personalized e ON r.movie_id = e.movie_id
+        JOIN movie_embedding_personalized_prod e ON r.movie_id = e.movie_id
         WHERE r.user_id = :user_id
+        AND r.user_rating > 0
         ORDER BY r.updated_at DESC
     """)
 
@@ -180,7 +182,7 @@ async def get_movie_embeddings_by_movie_ids(
 ) -> List[tuple[str, np.ndarray]]:
     query = text("""
         SELECT movie_id, embedding
-        FROM movie_embedding_personalized
+        FROM movie_embedding_personalized_prod
         WHERE movie_id = ANY(:movie_id)
         ORDER BY array_position(:movie_ids::text[], movie_id)
     """)
@@ -204,6 +206,7 @@ async def get_movies_metadata_by_movie_ids(
             FROM user_watchlist
             WHERE user_id = ANY(:similar_user_ids)
             AND movie_id != ALL(:exclude_movie_ids)
+            AND user_rating > 0
             GROUP BY movie_id
             ORDER BY frequency DESC
             LIMIT :limit
@@ -216,7 +219,7 @@ async def get_movies_metadata_by_movie_ids(
         FROM candidate_movies c
         JOIN movie_metadata m ON c.movie_id = m.movie_id
         JOIN movie_rating_stats mrs on c.movie_id = mrs.movie_id
-        JOIN movie_embedding_personalized emb ON c.movie_id = emb.movie_id
+        JOIN movie_embedding_personalized_prod emb ON c.movie_id = emb.movie_id
         ORDER BY c.frequency DESC
     """)
 
@@ -254,26 +257,37 @@ async def get_movies_metadata_by_movie_ids(
 
 # helper function for fetching cold start movies from db when users initially signs up,
 # we only have the user's top 3 selected genres as signal for recommendations
-async def get_cold_start_recommendations(session, user_embedding, top3_genre):
+async def get_cold_start_recommendations(session, user_id: str, user_embedding, top3_genre):
 
     # 80/20 split so that 80% of the movies returned initially match the user's
     # initial selected movies and 20% of movies arent so recommendations can recommend
     # new movies without being locked to those 3 genres
     query = text("""
-        WITH genre_matched AS (
+        WITH excluded_movies AS (
+            SELECT movie_id
+            FROM user_watchlist
+            WHERE :user_id = user_id
+            AND user_rating > 0
+        ),
+        genre_matched AS (
             SELECT
                 m.movie_id,
                 m.movie_name,
                 m.genres,
-                m.release_date, 
-                m.summary, 
-                m.actors, 
-                m.director, 
+                m.release_date,
+                m.summary,
+                m.actors,
+                m.director,
                 m.poster_path,
+                mrs.tmdb_avg_rating,
+                mrs.tmdb_vote_log,
+                mrs.tmdb_popularity,
                 (e.embedding <=> CAST(:user_embedding AS vector)) as distance
             FROM movie_metadata m
-            JOIN movie_embedding_coldstart e ON m.movie_id = e.movie_id
+            JOIN movie_embedding_coldstart_prod e ON m.movie_id = e.movie_id
+            JOIN movie_rating_stats mrs ON m.movie_id = mrs.movie_id
             WHERE m.genres && CAST(:user_genres AS text[])
+            AND m.movie_id NOT IN (SELECT movie_id FROM excluded_movies)
             ORDER BY distance
             LIMIT 8
         ),
@@ -282,21 +296,26 @@ async def get_cold_start_recommendations(session, user_embedding, top3_genre):
                 m.movie_id,
                 m.movie_name,
                 m.genres,
-                m.release_date, 
-                m.summary, 
-                m.actors, 
-                m.director, 
+                m.release_date,
+                m.summary,
+                m.actors,
+                m.director,
                 m.poster_path,
+                mrs.tmdb_avg_rating,
+                mrs.tmdb_vote_log,
+                mrs.tmdb_popularity,
                 999 as distance
             FROM movie_metadata m
+            JOIN movie_rating_stats mrs ON m.movie_id = mrs.movie_id
             WHERE NOT (m.genres && CAST(:user_genres AS text[]))
+            AND m.movie_id NOT IN (SELECT movie_id FROM excluded_movies)
             ORDER BY RANDOM()
             LIMIT 2
         )
-        SELECT movie_id, movie_name, genres, release_date, summary, actors, director, poster_path, distance
+        SELECT movie_id, movie_name, genres, release_date, summary, actors, director, poster_path, tmdb_avg_rating, tmdb_vote_log, tmdb_popularity, distance
         FROM genre_matched
         UNION ALL
-        SELECT movie_id, movie_name, genres, release_date, summary, actors, director, poster_path, distance
+        SELECT movie_id, movie_name, genres, release_date, summary, actors, director, poster_path, tmdb_avg_rating, tmdb_vote_log, tmdb_popularity, distance
         FROM random_other
         ORDER BY distance;
     """)
@@ -304,6 +323,7 @@ async def get_cold_start_recommendations(session, user_embedding, top3_genre):
     result = await session.execute(
         query,
         {
+            "user_id": user_id,
             "user_embedding": str(user_embedding),
             "user_genres": top3_genre
         }
@@ -320,9 +340,28 @@ async def get_cold_start_recommendations(session, user_embedding, top3_genre):
             "summary": row.summary,
             "actors": row.actors,
             "director": row.director,
-            "poster_path": row.poster_path
+            "poster_path": row.poster_path,
+            "tmdb_avg_rating": row.tmdb_avg_rating,
+            "tmdb_vote_count": int(np.exp(row.tmdb_vote_log) - 1),
+            "tmdb_popularity": row.tmdb_popularity
         }
         for row in movies
     ]
 
     return recommendations
+
+async def check_if_movie_rated(session, user_id: str, movie_id: str):
+    query = text("""
+        SELECT user_rating
+        FROM user_watchlist
+        WHERE user_id = :user_id
+        AND movie_id = :movie_id
+    """)
+
+    result = await session.execute(query, {"user_id": user_id, "movie_id": movie_id})
+    row = result.first()
+
+    if not row:
+        raise HTTPException(status_code=404, detail="Movie not in watchlist")
+    
+    return row

@@ -2,17 +2,19 @@ import polars as pl
 from shared.path_config import path_helper
 
 # creates a new movie-metadata.csv containing movie metadata
-def create_movies_metadata(large_dataset: bool = False):
+def create_movies_metadata(
+    missing_metadata_path: str,
+    movielens_links_path: str, 
+    large_dataset: bool = False
+):
     paths = path_helper(large_dataset=large_dataset)
 
-    input_links_path = paths.movielens_links_path
-    missing_metadata_output_path = paths.missing_movie_metadata_path
     pruned_movies_path = paths.pruned_movies_path
     movie_metadata_path = paths.movie_metadata_path
     input_movies_metadata = paths.tmdb_all_movies_cleaned_path
 
     movie_df = pl.read_csv(pruned_movies_path)
-    links_df = pl.read_csv(input_links_path, dtypes={"imdbId": pl.Utf8})
+    links_df = pl.read_csv(movielens_links_path, dtypes={"imdbId": pl.Utf8})
     metadata_df = pl.read_csv(input_movies_metadata)
 
     # create a dataframe with imdbid so we can filter with imdbId later
@@ -96,4 +98,4 @@ def create_movies_metadata(large_dataset: bool = False):
 
     joined_on_imdb.write_csv(movie_metadata_path)
 
-    missing_metadata.write_csv(missing_metadata_output_path)
+    missing_metadata.write_csv(missing_metadata_path)

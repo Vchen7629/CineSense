@@ -2,9 +2,12 @@ import polars as pl
 import numpy as np
 import time
 import csv
+import os
 from shared.path_config import path_helper
 
 def collaborative_filtering_negative_sampling(
+    positive_ratings_path: str,
+    negative_ratings_path: str,
     num_sets: int = 10, 
     num_negatives: int = 64, 
     hard_neg_ratio: float = 0.5,
@@ -13,8 +16,6 @@ def collaborative_filtering_negative_sampling(
     paths = path_helper(large_dataset=large_dataset)
 
     negative_output_path = paths.user_collaborative_negatives_path
-    positive_ratings_path = paths.pos_ratings_path
-    negative_ratings_path = paths.neg_ratings_path
 
     pos_df = pl.read_csv(positive_ratings_path)
     neg_df = pl.read_csv(negative_ratings_path)

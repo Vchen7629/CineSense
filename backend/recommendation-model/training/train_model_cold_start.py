@@ -6,7 +6,8 @@ from info_nce import InfoNCE
 from torch.utils.data import DataLoader
 from utils.train_test_split import TrainTest
 from post_training.cold_start_evaluation import ColdStartEval
-from post_training.save_model_local import SaveModel
+from post_training.save_model_files import SaveModel
+from post_training.save_model_production import SaveModelProd
 import polars as pl
 import time
 from shared.path_config import path_helper
@@ -213,14 +214,21 @@ if __name__ == "__main__":
     print(f"hitrate: {hitrate}")
     print(f"Eval took: {time.perf_counter() - eval_start_time:.4f} seconds")
 
-    # save models after training
-
-    SaveModel(
+    # save models local
+    SaveModel( 
         user_tower=train.user_tower, 
         movie_tower=train.movie_tower,
         num_movies=train.num_movies,
         personalized=False
     ).save_all(save_to_local_db=False)
 
-
-    
+    # save models to s3 for use in production
+    SaveModelProd(
+        model_version="v2",
+        collaborative=False,
+        cold_start=True,
+        reranker=False,
+        movie_tower=train.movie_tower,
+        num_movies=train.num_movies,
+        large_dataset=False
+    ).save_all()

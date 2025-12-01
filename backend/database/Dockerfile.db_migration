@@ -1,0 +1,23 @@
+FROM public.ecr.aws/lambda/python:3.12
+
+WORKDIR ${LAMBDA_TASK_ROOT}
+
+# install uv
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
+# install dependencies
+COPY pyproject.toml uv.lock ./
+RUN uv sync --frozen --no-dev
+
+# Copy alembic files
+COPY alembic.ini .
+COPY alembic/ ./alembic/
+COPY models/ ./models/
+
+# Copy required util functions
+COPY utils/__init__.py ./utils/
+COPY utils/get_aws_rds_credentials.py ./utils/
+
+COPY db_migration_lambda_handler.py .
+
+CMD ["db_migration_lambda_handler.handler"]

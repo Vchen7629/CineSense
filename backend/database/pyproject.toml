@@ -8,6 +8,7 @@ dependencies = [
     "alembic>=1.17.2",
     "boto3>=1.35.0",
     "pgvector>=0.4.1",
+    "polars>=1.35.2",
     "psycopg2-binary>=2.9.11",
     "sqlalchemy>=2.0.44",
 ]

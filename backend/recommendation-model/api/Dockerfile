@@ -19,6 +19,7 @@ COPY app/db ./db
 COPY app/model ./model
 COPY app/routes ./routes
 COPY app/middleware ./middleware
+COPY app/schemas ./schemas
 COPY app/utils ./utils
 
 # Create models directory

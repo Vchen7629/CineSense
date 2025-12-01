@@ -4,6 +4,7 @@ import numpy as np
 from utils.cross_validation import tune_hyperparamaters_cv
 from utils.extract_features import extract_reranker_features_batch
 from post_training.reranker_model_evaluation import RerankerModelEval
+from post_training.save_model_production import SaveModelProd
 from shared.path_config import path_helper
 
 class Reranker:
@@ -163,5 +164,16 @@ if __name__ == "__main__":
     # save model (txt)
     model.save_model(reranker.save_model_api_path)
     model.save_model(reranker.save_model_local_path)
+
+    # save model files to s3
+    SaveModelProd(
+        model_version="v2",
+        collaborative=False,
+        cold_start=False,
+        reranker=True,
+        movie_tower=None,
+        num_movies=None,
+        large_dataset=False
+    ).save_all()
 
     print("done")

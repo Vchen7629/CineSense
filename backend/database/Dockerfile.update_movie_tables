@@ -1,0 +1,25 @@
+FROM public.ecr.aws/lambda/python:3.12
+
+WORKDIR ${LAMBDA_TASK_ROOT}
+
+# install uv
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
+# install dependencies
+COPY pyproject.toml uv.lock ./
+RUN uv sync --frozen --no-dev
+
+# Set Python path to include venv packages
+ENV PYTHONPATH="${LAMBDA_TASK_ROOT}/.venv/lib/python3.12/site-packages"
+
+# Copy required util functions
+COPY utils/__init__.py ./utils/
+COPY utils/get_aws_rds_credentials.py ./utils/
+COPY utils/load_embeddings_to_staging.py ./utils/
+COPY utils/swap_tables.py ./utils/
+COPY utils/upsert_movie_metadata_table.py ./utils/
+COPY utils/upsert_movie_rating_stats.py ./utils/
+
+COPY update_movie_table_lambda_handler.py .
+
+CMD ["update_movie_table_lambda_handler.handler"]

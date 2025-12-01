@@ -59,16 +59,16 @@ app = FastAPI(lifespan=lifespan)
 add_cors(app)
 
 logger.info("Registering routes")
-app.include_router(recommendation_router)
-app.include_router(user_router)
-app.include_router(movie_router)
+app.include_router(recommendation_router, prefix="/api")
+app.include_router(user_router, prefix="/api")
+app.include_router(movie_router, prefix="/api")
 logger.info("Routes registered Successfully!")
 
-@app.get("/")
+@app.get("/api")
 async def base():
     return {"message": "welcome to user recommendations api"}
 
-@app.get("/health")
+@app.get("/api/health")
 async def health():
     return {"status": "healthy!"}
 

@@ -11,8 +11,6 @@ interface PaginationProps {
   currentPage: number;
   setCurrentPage: React.Dispatch<React.SetStateAction<number>>;
   totalPage: number;
-  listView: boolean;
-  gridView: boolean;
 }
 
 // Component for pagination ui elements
@@ -20,11 +18,9 @@ const PaginationComponent = ({
   currentPage,
   setCurrentPage,
   totalPage,
-  listView,
-  gridView
 }: PaginationProps) => {
   return (
-    <main className={`flex ${listView && "w-full justify-center items-center h-[5%]"} ${gridView && "h-full"} space-x-2`}>
+    <main className="flex w-full justify-center items-center h-[5%] space-x-2">
       <button
         className="flex items-center justify-center h-7 w-7 hover:bg-teal-800 bg-teal-600 rounded-md shadow-sm shadow-black transition-colors duration-250"
         onClick={() =>

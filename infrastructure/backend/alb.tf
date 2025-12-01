@@ -34,8 +34,8 @@ resource "aws_lb_target_group" "recommendation" {
 }
 
 resource "aws_lb_target_group" "auth" {
-    name                        = "cinesense-auth-tg"
-    port                        = 8000
+    name_prefix                 = "auth-"
+    port                        = 8001
     protocol                    = "HTTP"
     vpc_id                      = aws_vpc.main.id
     target_type                 = "ip"
@@ -46,8 +46,12 @@ resource "aws_lb_target_group" "auth" {
         unhealthy_threshold     = 3
         timeout                 = 5
         interval                = 30
-        matcher                 = "200" 
-    } 
+        matcher                 = "200"
+    }
+
+    lifecycle {
+        create_before_destroy = true
+    }
 
     tags = {
         Name = "cinesense-auth-tg"

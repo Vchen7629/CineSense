@@ -12,11 +12,11 @@ interface gridListViewProps {
 const GridListViewComponent = ({ gridView, setGridView, listView, setListView, setItemsPerPage }: gridListViewProps) => {
 
     return (
-        <div className="flex w-[12.5vw] h-[65%] p-1 space-x-2 bg-black rounded-lg bg-transparent border border-[#879B9E]">
+        <div className="flex w-[12.5vw] h-[65%] p-1 space-x-2 bg-black rounded-4xl bg-transparent border border-[#879B9E]">
             <button 
                 onClick={() => {setListView(true); setGridView(false); setItemsPerPage(4)}}
                 className={
-                    `h-full w-[49%] rounded-md text-white font-bold
+                    `h-full w-[49%] rounded-xl text-white font-bold
                     ${listView ? "bg-teal-600 hover:bg-teal-400 transition-colors duration-200 hover:text-gray-600" : "bg-transparent"}`
                 }>
                 List View
@@ -24,7 +24,7 @@ const GridListViewComponent = ({ gridView, setGridView, listView, setListView, s
             <button 
                 onClick={() => {setListView(false); setGridView(true); setItemsPerPage(6)}}
                 className={
-                    `h-full w-[49%] rounded-md text-white font-bold
+                    `h-full w-[49%] rounded-xl text-white font-bold
                     ${gridView ? "bg-teal-600 hover:bg-teal-400 transition-colors duration-200 hover:text-gray-600" : "bg-transparent hover:text-blue-200"} `
                     }>
                 Grid View

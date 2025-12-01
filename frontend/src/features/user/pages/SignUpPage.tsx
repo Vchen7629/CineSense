@@ -1,9 +1,15 @@
 import Header from "@/features/navbar/components/Header";
 import { PencilIcon } from "lucide-react";
-import { Link } from "react-router";
 import SignUpForm from "../components/SignupForm";
+import { useNavigate } from 'react-router';
 
 const SignUpPage = () => {
+  const navigate = useNavigate()
+
+  const handleContinue = (formData: { username: string, email: string, password: string }) => {
+      navigate('/userpreferences', { state: formData });
+  };
+  
   return (
     <main className="bg-[#2E454D] min-h-screen">
       <Header />
@@ -28,13 +34,7 @@ const SignUpPage = () => {
               />
             </div>
           </div>
-          <SignUpForm />
-            <Link
-              to="/userpreferences"
-              className="bg-teal-600 w-full h-[10%] text-white font-medium border-2 border-black rounded-lg mt-8 flex items-center justify-center"
-            >
-              Continue
-          </Link>
+          <SignUpForm onContinue={handleContinue}/>
         </section>
       </section>
     </main>

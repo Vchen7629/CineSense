@@ -2,16 +2,18 @@ import polars as pl
 from shared.path_config import path_helper
 
 # creates a new csv (user-output.csv) with only ratings that are the positive (>3) in the user dataset
-def filter_positive_ratings(large_dataset: bool = False) -> None:
+def filter_positive_ratings(
+   positive_ratings_path: str, 
+   negative_ratings_path: str,
+   movielens_links_path: str,
+   large_dataset: bool = False
+) -> None:
     paths = path_helper(large_dataset=large_dataset)
 
     all_ratings_path = paths.movielens_ratings_path
-    movie_links_path = paths.movielens_links_path
-    positive_ratings_path = paths.pos_ratings_path
-    negative_ratings_path = paths.neg_ratings_path
 
     ratings_df = pl.read_csv(all_ratings_path)
-    links_df = pl.read_csv(movie_links_path)
+    links_df = pl.read_csv(movielens_links_path)
 
     # split into positive (>=4.0) and negative (<=3.5) ratings
     positive_df = ratings_df.filter(pl.col("rating") >= 4.0).drop("timestamp")

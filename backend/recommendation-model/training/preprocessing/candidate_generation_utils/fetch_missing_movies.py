@@ -45,22 +45,31 @@ class MovieMetaData:
     imdb_votes: Optional[int] = 0
     poster_path: Optional[str] = ""
 
-def handle_not_found(movie_id: str, imdbId: str, large_dataset: bool = False):
+def handle_not_found(movie_id: str, imdbId: str, reason: str = "Unknown", large_dataset: bool = False):
     output_path = paths.not_found_imdb_path
-    
-     # Convert all values to strings, replacing None with ''
-    row = [(str(movie_id), str(imdbId) if imdbId is not None else '')]
 
-    new_row = pl.DataFrame(row, schema=['movieId', 'imdbId'], orient='row')
+     # Convert all values to strings, replacing None with ''
+    row = [(str(movie_id), str(imdbId) if imdbId is not None else '', reason)]
+
+    new_row = pl.DataFrame(row, schema=['movieId', 'imdbId', 'reason'], orient='row')
 
     # Read CSV with truncate_ragged_lines to handle malformed rows
-    existing_df = pl.read_csv(output_path, truncate_ragged_lines=True)
+    try:
+        existing_df = pl.read_csv(output_path, truncate_ragged_lines=True)
 
-    # Select only needed columns and cast to string
-    existing_df = existing_df.select(['movieId', 'imdbId']).with_columns([
-        pl.col('movieId').cast(pl.Utf8),
-        pl.col('imdbId').cast(pl.Utf8),
-    ])
+        # If existing CSV doesn't have reason column, add it with empty values
+        if 'reason' not in existing_df.columns:
+            existing_df = existing_df.with_columns(pl.lit("").alias("reason"))
+
+        # Select only needed columns and cast to string
+        existing_df = existing_df.select(['movieId', 'imdbId', 'reason']).with_columns([
+            pl.col('movieId').cast(pl.Utf8),
+            pl.col('imdbId').cast(pl.Utf8),
+            pl.col('reason').cast(pl.Utf8),
+        ])
+    except Exception:
+        # If file doesn't exist or is empty, create empty dataframe with schema
+        existing_df = pl.DataFrame(schema={'movieId': pl.Utf8, 'imdbId': pl.Utf8, 'reason': pl.Utf8})
 
     combined_df = pl.concat([existing_df, new_row], how='vertical')
 
@@ -91,31 +100,31 @@ def titles_match(metadata_title: str, api_title: str) -> bool:
     return api_clean in metadata_clean or metadata_clean in api_clean
 
 # validate if api response matches the movie metadata
-def validate_match(movie_id: str, title: str, year: str, api_title: str, api_ori_title: str, api_date: str) -> bool:
+def validate_match(movie_id: str, title: str, year: str, api_title: str, api_ori_title: str, api_date: str) -> tuple[bool, str]:
     if not api_date:
-        return None
-    
+        return False, "Missing release date in API response"
+
     # extract year from API Date (YYYY-MM-DD -> YYYY)
     api_year = api_date.replace('–', '-').split('-')[0].strip()
 
     # normalize year to string for comparison
     if not year:
-        return None
+        return False, "Missing year in metadata"
 
     year_str = str(year)
 
     # check if titles match (either title or original_title)
     if not (titles_match(title, api_title) or titles_match(title, api_ori_title)):
         print(f"Title mismatch for {movie_id}: '{title}' vs '{api_title}' / '{api_ori_title}'")
-        return False
+        return False, "Title mismatch"
 
     # check if years match (convert both to string for comparison)
     if year_str and api_year and year_str != api_year:
         print(f'Year mismatch for {movie_id}: {year_str} vs {api_year} (types: {type(year_str)}, {type(api_year)})')
-        return False
+        return False, "Year mismatch"
 
     #print(f'Match for {movie_id}: {api_title} ({api_year})')
-    return True
+    return True, ""
 
 # handler function for http error handling
 async def try_fetch_url(session, url: str, headers: dict) -> Optional[dict]:
@@ -137,32 +146,33 @@ async def try_fetch_url(session, url: str, headers: dict) -> Optional[dict]:
         return None
 
 # async function for fetching tmdb id along with other movie info using TMDB api
+# Returns: (success: bool, reason: str, data: tuple | None)
 async def find_by_id(session, imdbId: str):
     fetch_tmdb_id_url = f'https://api.themoviedb.org/3/find/{imdbId}?external_source=imdb_id'
 
     json_res = await try_fetch_url(session, fetch_tmdb_id_url, headers)
 
     # check movies
-    if json_res.get('movie_results'):
+    if json_res and json_res.get('movie_results'):
         movie_details = json_res['movie_results'][0]
         # skip collections, only use actual movies
         if movie_details.get('media_type') == 'collection':
             print(f"Skipping collection for imdbId: {imdbId}")
-            return None
+            return False, "Collection (not a movie)", None
         # early return if genres arent found for movie
         if not movie_details.get("genre_ids"):
             print(f"Imdb id found but no genre found for: {imdbId}")
-            return None
-        
+            return False, "No genres found", None
+
         tmdb_id = movie_details['id']
         api_title = movie_details['title']
         original_title = movie_details['original_title']
         release_date = movie_details['release_date']
+
+        return True, "", (tmdb_id, api_title, original_title, release_date)
     else:
         print(f"imdbId not found using tmdb api for: {imdbId}")
-        return None
-    
-    return tmdb_id, api_title, original_title, release_date
+        return False, "TMDB ID not found", None
 
 # normalize a field that can be a list or str in the api res
 def normalize_details_fields(json_data, possible_keys: List[str], list_key_name: str, fallback: str):
@@ -322,20 +332,20 @@ async def fetch_tmdb_credits_json(session, tmdb_id: str) -> dict:
 async def fetch_complete_movie_metadata(session, movieId: str, imdb_id: str, title: str, year: str) -> Optional[MovieMetaData]:
     try:
         # find the movie/tvshow with tmdb api with imdbId
-        result = await find_by_id(session, imdb_id)
-        if not result:
-            handle_not_found(movieId, imdb_id)
-            print(f"TMDB ID not found for movie: {movieId} with imdb_id: {imdb_id}")
+        success, reason, result = await find_by_id(session, imdb_id)
+        if not success:
+            handle_not_found(movieId, imdb_id, reason)
+            print(f"Failed to fetch movie: {movieId} with imdb_id: {imdb_id} - {reason}")
             return None
 
         # tmdb api does return value
         tmdb_id, api_title, original_title, release_date = result
 
         # validate that the movie/tvshow returned by api matches the one we are updating for
-        matches = validate_match(movieId, title, year, api_title, original_title, release_date)
-        if not matches:
-            print(f"movie: {movieId} with imdb_id: {imdb_id} doesnt match")
-            handle_not_found(movieId, imdb_id)
+        is_match, reason = validate_match(movieId, title, year, api_title, original_title, release_date)
+        if not is_match:
+            print(f"movie: {movieId} with imdb_id: {imdb_id} doesnt match - {reason}")
+            handle_not_found(movieId, imdb_id, reason)
             return None
 
         # fetch the json containing all of the details for tvshows/movies

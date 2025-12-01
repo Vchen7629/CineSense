@@ -82,3 +82,43 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "terraform_state_f
       }
     }
 }
+
+# S3 Event notification to trigger Lambda when metadata CSV uploaded
+resource "aws_s3_bucket_notification" "model_files_notification" {
+  bucket = aws_s3_bucket.model_files.id
+
+  lambda_function {
+    id                  = "movie-metadata-trigger"
+    lambda_function_arn = aws_lambda_function.update_movie_data_tables.arn
+    events              = ["s3:ObjectCreated:*"]
+    filter_prefix       = "movie_metadata/production/"
+    filter_suffix       = ".csv"
+  }
+
+  lambda_function {
+    id                  = "rating-stats-trigger"
+    lambda_function_arn = aws_lambda_function.update_movie_data_tables.arn
+    events              = ["s3:ObjectCreated:*"]
+    filter_prefix       = "movie_ratings/production/"
+    filter_suffix       = ".csv"
+  }
+
+  lambda_function {
+    id                  = "cold-start-embeddings-trigger"
+    lambda_function_arn = aws_lambda_function.update_movie_data_tables.arn
+    events              = ["s3:ObjectCreated:*"]
+    filter_prefix       = "movie_embeddings/cold_start/production/"
+    filter_suffix       = ".npy"
+  }
+
+  lambda_function {
+    id                  = "collaborative-embeddings-trigger"
+    lambda_function_arn = aws_lambda_function.update_movie_data_tables.arn
+    events              = ["s3:ObjectCreated:*"]
+    filter_prefix       = "movie_embeddings/collaborative/production/"
+    filter_suffix       = ".npy"
+  }
+
+
+  depends_on = [aws_lambda_permission.allow_s3_invoke]
+}
