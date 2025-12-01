@@ -10,6 +10,8 @@ import { Skeleton } from "@/shared/components/shadcn/skeleton";
 import { ChevronRight, Dot } from "lucide-react";
 import LoadingMovieRecommendationsSkeleton from "../components/loadingMovieSkeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/shared/components/shadcn/dialog";
+import MovieNotSeenButton from "../components/movieNotSeenButton";
+import { Toaster } from "sonner";
 
 
 const RecommendationPage = () => {
@@ -74,7 +76,12 @@ const RecommendationPage = () => {
     return (
         <main>
             <Header/>
-            <section className="flex h-[90vh] space-x-[5%] px-[5%] w-full items-center justify-center">
+            <Toaster position="bottom-right" expand visibleToasts={3} closeButton/>
+            <section className="absolute flex flex-col space-y-2 px-[20vw] mt-[5vh]">
+                <span className="text-4xl font-bold">Your Movie Recommendations</span>
+                <span className="text-2xl text-gray-400">Recommendations based on similar user's tastes and your preferences</span>
+            </section>
+            <section className="flex h-[90vh] space-x-[5%] px-[5%] w-full items-center justify-center mt-[3vh]">
                 {!displayedMovie && !isLoadingState ? (
                     <div className="flex h-[90vh] w-full justify-center items-center">
                         <p className="text-white text-3xl">No recommendations available</p>
@@ -149,6 +156,16 @@ const RecommendationPage = () => {
                                     </div>
                                 </div>
                                 <div className="flex space-x-2 ml-[1vw] mt-2">
+                                    <MovieNotSeenButton 
+                                        movie_id={String(displayedMovie.movie_id)}
+                                        setRating={setRating} 
+                                        currentIndex={currentIndex} 
+                                        recommendations={recommendations}
+                                        setIsRefetching={setIsRefetching}
+                                        resetIndex={resetIndex}
+                                        refetchRecommendations={refetchRecommendations}
+                                        nextMovie={nextMovie} 
+                                    />
                                     <RateMovieStars rating={rating} setRating={setRating} />
                                     <RateMovieButton
                                         onClick={handleMovieRated}
