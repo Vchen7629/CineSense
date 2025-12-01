@@ -92,17 +92,29 @@ def handler(event, context):
         cursor = conn.cursor()
         print("Connected to database")
 
+        print(f"DEBUG: file_type={file_type}, bucket={bucket}, key={key}")
+
         # Process based on file type
         if file_type == 'metadata':
+            print("Downloading metadata CSV from S3...")
             metadata_df = load_csv_from_s3(s3_client, bucket, key)
+            print("Downloaded metadata CSV from S3!")
+            print("Updating movie metadata...")
             upsert_movie_metadata(cursor, metadata_df)
+            print("Updated movie metadata!")
 
         elif file_type == 'ratings':
+            print("Downloading ratings CSV from S3...")
             rating_stats_df = load_csv_from_s3(s3_client, bucket, key)
+            print("Downloaded ratings CSV from S3!")
+            print("Updating movie ratings...")
             upsert_movie_rating_stats(cursor, rating_stats_df)
+            print("Updated movie ratings!")
 
         elif file_type == 'embeddings':
+            print("Downloading embeddings npy from S3...")
             embeddings = load_npy_from_s3(s3_client, bucket, key)
+            print("Downloaded embeddings npy from S3!")
 
             if model_type == 'cold_start':
                 staging_table = "movie_embedding_coldstart_staging"
@@ -113,10 +125,16 @@ def handler(event, context):
 
             metadata_key = f"movie_metadata/production/{version}/movie_metadata.csv"
             # Download metadata to get movie_ids in correct order
+            print("Downloading metadata CSV from S3...")
             metadata_df = load_csv_from_s3(s3_client, bucket, metadata_key)
+            print("Downloaded metadata CSV from S3!")
 
+            print("loading embeddings to staging...")
             load_embeddings_to_staging(cursor, metadata_df , embeddings, staging_table)
+            print("loaded embeddings to staging!")
+            print("swapping tables...")
             swap_tables(cursor, staging_table, prod_table)
+            print("swapped tabled!")
         
         conn.commit()
 
