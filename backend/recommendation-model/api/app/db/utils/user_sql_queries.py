@@ -290,3 +290,33 @@ async def delete_from_watchlist(session, user_id: str, movie_id: str):
     await session.execute(query, {"user_id": user_id, "movie_id": movie_id})
 
     # Todo: handle delete failure
+
+async def check_user_rating_stats_stale(session, user_id: str):
+    query = text("""
+        SELECT is_stale
+        FROM user_rating_stats
+        WHERE user_id = :user_id
+    """)
+
+    result = await session.execute(query, {"user_id": user_id})
+    row = result.first()
+
+    return row
+
+async def set_user_rating_stats_stale(session, user_id: str):
+    query = text("""
+        UPDATE user_rating_stats
+        SET is_stale = true
+        WHERE user_id = :user_id
+    """)
+
+    await session.execute(query, {"user_id": user_id})
+
+async def set_user_rating_stats_fresh(session, user_id: str):
+    query = text("""
+        UPDATE user_rating_stats
+        SET is_stale = false
+        WHERE user_id = :user_id
+    """)
+
+    await session.execute(query, {"user_id": user_id})

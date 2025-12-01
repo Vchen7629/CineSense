@@ -1,15 +1,11 @@
 from fastapi import APIRouter, HTTPException, Depends
 from typing import List
 from model.utils.movie_tower import MovieTower
-from db.utils.user_sql_queries import (
-    regenerate_user_movie_embedding,
-    update_user_ratings_stats
-)
+from db.utils.user_sql_queries import set_user_rating_stats_stale
 from db.utils.movies_sql_queries import (
     add_new_movie_embedding, 
     add_new_movie_rating, 
-    add_movie_metadata, 
-    get_movie_embeddings,
+    add_movie_metadata,
     update_movie_rating_stats
 )
 from db.config.conn import get_session
@@ -76,29 +72,13 @@ async def new_rated_movie(
     await add_new_movie_embedding(session, imdb_id, movie_embedding)
 
     is_new_rating = await add_new_movie_rating(session, user_id, imdb_id, rating)
-    
-    # flush so new movie rating is visible to subsequent queries in this transaction
-    await session.flush()
-
-    movie_embeddings_rows = await get_movie_embeddings(session, user_id)
-
-    # parse pgvector string format to numpy arrays
-    movie_embeddings = []
-    for row in movie_embeddings_rows:
-        embedding_str = row[0].strip('[]')
-        embedding = np.fromstring(embedding_str, sep=',', dtype=np.float32)
-        movie_embeddings.append(embedding)
-
-    movie_embeddings = np.array(movie_embeddings, dtype=np.float32)
-
-    # average and normalize
-    user_emb = movie_embeddings.mean(axis=0) # [512]
-    user_emb = user_emb / np.linalg.norm(user_emb)
-
-    await regenerate_user_movie_embedding(session, user_id, user_emb)
 
     await update_movie_rating_stats(session, imdb_id, tmdb_vote_avg, tmdb_vote_log, tmdb_popularity)
-    await update_user_ratings_stats(session, user_id)
+
+    # set the user rating stats table is_stale to true so we don't have to recalculate
+    # the user embeddings each time a user rates a movie, we'll recalculate it in 
+    # the recommendations route
+    await set_user_rating_stats_stale(session, user_id)
     
     return {
         "message": "Rating added" if is_new_rating else "Rating updated",
