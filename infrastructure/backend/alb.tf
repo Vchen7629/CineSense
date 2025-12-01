@@ -35,7 +35,7 @@ resource "aws_lb_target_group" "recommendation" {
 
 resource "aws_lb_target_group" "auth" {
     name                        = "cinesense-auth-tg"
-    port                        = 8000
+    port                        = 8001
     protocol                    = "HTTP"
     vpc_id                      = aws_vpc.main.id
     target_type                 = "ip"

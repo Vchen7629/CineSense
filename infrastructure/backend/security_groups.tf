@@ -92,25 +92,35 @@ resource "aws_security_group_rule" "alb_ingress_https" {
     description                 = "Allow HTTPS from CloudFront"
 }
 
-resource "aws_security_group_rule" "alb_egress_ecs" {
+resource "aws_security_group_rule" "alb_egress_ecs_recommendation" {
     type                        = "egress"
     from_port                   = 8000
     to_port                     = 8000
     protocol                    = "tcp"
     source_security_group_id    = aws_security_group.ecs_tasks.id
     security_group_id           = aws_security_group.alb.id
-    description                 = "Allow traffic to ECS tasks only"
+    description                 = "Allow traffic to recommendation API on port 8000"
+}
+
+resource "aws_security_group_rule" "alb_egress_ecs_auth" {
+    type                        = "egress"
+    from_port                   = 8001
+    to_port                     = 8001
+    protocol                    = "tcp"
+    source_security_group_id    = aws_security_group.ecs_tasks.id
+    security_group_id           = aws_security_group.alb.id
+    description                 = "Allow traffic to auth API on port 8001"
 }
 
 # ecs tasks security group rules
-resource "aws_security_group_rule" "ecs_ingress_alb" {
+resource "aws_security_group_rule" "ecs_ingress_alb_recommendation" {
     type                        = "ingress"
     from_port                   = 8000
     to_port                     = 8000
     protocol                    = "tcp"
     source_security_group_id    = aws_security_group.alb.id
     security_group_id           = aws_security_group.ecs_tasks.id
-    description                 = "Allow traffic to ECS tasks only"
+    description                 = "Allow traffic from ALB to recommendation API on port 8000"
 }
 
 resource "aws_security_group_rule" "ecs_ingress_self" {
@@ -121,6 +131,17 @@ resource "aws_security_group_rule" "ecs_ingress_self" {
   self                          = true
   security_group_id             = aws_security_group.ecs_tasks.id
   description                   = "Allow inter-service communication on port 8000"
+}
+
+# Auth API port 8001 rules
+resource "aws_security_group_rule" "ecs_ingress_alb_auth" {
+    type                        = "ingress"
+    from_port                   = 8001
+    to_port                     = 8001
+    protocol                    = "tcp"
+    source_security_group_id    = aws_security_group.alb.id
+    security_group_id           = aws_security_group.ecs_tasks.id
+    description                 = "Allow traffic from ALB to auth API on port 8001"
 }
 
 resource "aws_security_group_rule" "ecs_egress_vpc_endpoints" {

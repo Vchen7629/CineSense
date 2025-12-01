@@ -121,8 +121,8 @@ resource "aws_ecs_task_definition" "user-auth" {
 
             portMappings = [
                 {
-                    containerPort = 8000
-                    hostPort      = 8000
+                    containerPort = 8001
+                    hostPort      = 8001
                     protocol      = "tcp"
                 }
             ]
@@ -135,6 +135,40 @@ resource "aws_ecs_task_definition" "user-auth" {
                     "awslogs-stream-prefix" = "ecs"
                 }
             }
+
+            secrets = [
+                {
+                    name        = "DB_USERNAME"
+                    valueFrom   = "${aws_secretsmanager_secret.db_credentials.arn}:username::"
+                },
+                {
+                    name      = "DB_PASSWORD"
+                    valueFrom = "${aws_secretsmanager_secret.db_credentials.arn}:password::"
+                },
+                {
+                    name      = "DB_HOST"
+                    valueFrom = "${aws_secretsmanager_secret.db_credentials.arn}:host::"
+                },
+                {
+                    name      = "DB_PORT"
+                    valueFrom = "${aws_secretsmanager_secret.db_credentials.arn}:port::"
+                },
+                {
+                    name      = "DB_NAME"
+                    valueFrom = "${aws_secretsmanager_secret.db_credentials.arn}:dbname::"
+                }
+            ]
+
+            environment = [
+                {
+                    name    = "log_level"
+                    value   = "INFO"
+                },
+                {
+                    name    = "cors_origins"
+                    value   = "[\"https://cinesense.tech\",\"https://www.cinesense.tech\"]"
+                }
+            ]
         }
     ])
 }
@@ -199,7 +233,7 @@ resource "aws_ecs_service" "user-auth" {
     load_balancer {
         target_group_arn    = aws_lb_target_group.auth.arn
         container_name      = "auth-api"
-        container_port      = 8000    
+        container_port      = 8001    
     }
 
     depends_on = [aws_lb_listener.http]
