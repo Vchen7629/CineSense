@@ -17,3 +17,6 @@ class RemoveFromWatchlistRequest(BaseModel):
 
 class NewUserRequest(BaseModel):
     genres: List[str]
+
+class NotSeenMovieRequest(BaseModel):
+    movie_id: str

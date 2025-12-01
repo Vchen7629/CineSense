@@ -266,8 +266,13 @@ async def get_cold_start_recommendations(session, user_id: str, user_embedding, 
         WITH excluded_movies AS (
             SELECT movie_id
             FROM user_watchlist
-            WHERE :user_id = user_id
+            WHERE user_id = :user_id
             AND user_rating > 0
+            UNION
+            SELECT movie_id
+            FROM user_not_seen_movie
+            WHERE user_id = :user_id
+            AND (dismissed_until IS NULL OR dismissed_until > NOW())
         ),
         genre_matched AS (
             SELECT

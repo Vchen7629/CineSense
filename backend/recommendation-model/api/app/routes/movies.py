@@ -87,8 +87,6 @@ async def new_rated_movie(
         "rating": rating
     }
 
-
-
     
     
     

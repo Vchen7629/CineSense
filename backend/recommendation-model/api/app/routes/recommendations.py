@@ -6,14 +6,15 @@ from db.utils.movies_sql_queries import (
     get_movie_embeddings,
 )
 from db.utils.user_sql_queries import (
-    get_user_genres, 
-    get_user_with_ratings_count, 
+    get_user_genres,
+    get_user_with_ratings_count,
     get_similar_users_and_user_metadata,
     get_user_rated_movie_ids,
     check_user_rating_stats_stale,
     update_user_ratings_stats,
     set_user_rating_stats_fresh,
-    regenerate_user_movie_embedding
+    regenerate_user_movie_embedding,
+    get_user_not_seen_movie_ids
 )
 from model.utils.reranker_model import Reranker
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -74,8 +75,15 @@ async def get_recommendations(
     # get user metadata for current user and similar users userIds
     user_metadata, similar_users = await get_similar_users_and_user_metadata(session, user_id, similar_user_count=50)
 
-    # get movie_ids of similar users
+    # get movie_ids user has rated
     excluded_movies_ids = [row[0] for row in rated_movie_ids]
+
+    # get movie_ids user has marked as not seen (dismissed)
+    not_seen_movie_ids = await get_user_not_seen_movie_ids(session, user_id)
+    not_seen_ids = [row[0] for row in not_seen_movie_ids]
+
+    # combine rated and not seen movies for exclusion
+    excluded_movies_ids.extend(not_seen_ids)
 
     # extract just the user_ids from similar_users rows
     similar_user_ids = [row.user_id for row in similar_users]

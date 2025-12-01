@@ -320,3 +320,38 @@ async def set_user_rating_stats_fresh(session, user_id: str):
     """)
 
     await session.execute(query, {"user_id": user_id})
+
+async def add_user_not_seen_movie(session, user_id: str, movie_id: str, timer: any):
+    query = text("""
+        INSERT INTO user_not_seen_movie (
+            user_id,
+            movie_id,
+            dismissed_at,
+            dismissed_until
+        )
+        VALUES (:user_id, :movie_id, NOW(), :dismissed_until)
+        ON CONFLICT (user_id, movie_id)
+        DO UPDATE SET
+            dismissed_at = EXCLUDED.dismissed_at,
+            dismissed_until = EXCLUDED.dismissed_until
+    """)
+
+    await session.execute(query, {
+        "user_id": user_id,
+        "movie_id": movie_id,
+        "dismissed_until": timer
+    })
+
+#Get movie IDs that user has marked as not seen and are still within the dismissal period
+async def get_user_not_seen_movie_ids(session, user_id: str):
+    query = text("""
+        SELECT movie_id
+        FROM user_not_seen_movie
+        WHERE user_id = :user_id
+        AND (dismissed_until IS NULL OR dismissed_until > NOW())
+    """)
+
+    result = await session.execute(query, {"user_id": user_id})
+    rows = result.fetchall()
+
+    return rows

@@ -4,7 +4,8 @@ from db.utils.user_sql_queries import (
     new_user_genre_embedding, 
     get_user_watchlist,
     delete_from_watchlist,
-    set_user_rating_stats_stale
+    set_user_rating_stats_stale,
+    add_user_not_seen_movie
 )
 from db.utils.movies_sql_queries import (
     add_new_movie_rating,
@@ -19,8 +20,11 @@ from utils.dependencies import get_cold_start_user_tower
 from schemas.user import (
     NewUserRequest, 
     AddToWatchlistRequest, 
-    RemoveFromWatchlistRequest
+    RemoveFromWatchlistRequest,
+    NotSeenMovieRequest
 )
+from datetime import datetime, timedelta, timezone
+
 
 router = APIRouter(prefix="/user", tags=["user"])
 
@@ -112,3 +116,21 @@ async def remove_from_watchlist(
     await set_user_rating_stats_stale(session, userId)
 
     return {"message": "Successfully removed movie from watchlist!"}
+
+@router.post("/not_seen_movie/{user_id}")
+async def not_seen_movie(
+    user_id: str, 
+    body: NotSeenMovieRequest,
+    session: AsyncSession = Depends(get_session),
+):  
+    movie_id = body.movie_id
+
+    if not user_id:
+        raise HTTPException(status_code=404, detail="No user_id provided")
+    
+    # dont show this movie for 2 weeks
+    timer = datetime.now(timezone.utc) + timedelta(days=14)
+    
+    await add_user_not_seen_movie(session, user_id, movie_id, timer)
+
+    return {"message": "successfully marked movie as not seen!"}
