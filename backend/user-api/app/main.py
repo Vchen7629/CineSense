@@ -41,8 +41,8 @@ app = FastAPI(lifespan=lifespan)
 add_cors(app)
 
 # Including routes from routes folder.
-app.include_router(base.router, prefix="", tags=["status"])
-app.include_router(auth.router)
+app.include_router(base.router, prefix="/api", tags=["status"])
+app.include_router(auth.router, prefix="/api")
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8001)
