@@ -14,7 +14,8 @@ jobs:
       frontend: ${{ steps.filter.outputs.frontend }}
       recommendation: ${{ steps.filter.outputs.recommendation }}
       auth: ${{ steps.filter.outputs.auth }}
-      database: ${{ steps.filter.outputs.database }}
+      database-migration: ${{ steps.filter.outputs.database-migration }}
+      movie-data-database-table-update: ${{ steps.filter.outputs.movie-data-database-table-update }}
     steps:
       - uses: actions/checkout@v4
       - uses: dorny/paths-filter@v3
