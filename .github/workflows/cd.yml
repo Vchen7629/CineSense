@@ -190,7 +190,7 @@ jobs:
       - name: Build and push database migration Docker Image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: cinesense-db-migration
+          ECR_REPOSITORY: cinesense-migration
           IMAGE_TAG: ${{ github.sha }}
         working-directory: backend/database
         run: |
@@ -203,9 +203,9 @@ jobs:
         run: |
           aws lambda update-function-code \
             --function-name cinesense-db-migration \
-            --image-uri ${{ steps.login-ecr.outputs.registry }}/cinesense-db-migration:${{ github.sha }} \
+            --image-uri ${{ steps.login-ecr.outputs.registry }}/cinesense-migration:${{ github.sha }} \
             --region us-west-1
-      
+
       - name: Invoke lambda to run migrations
         run: |
           aws lambda invoke \
