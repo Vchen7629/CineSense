@@ -53,7 +53,7 @@ async def add_movie_metadata(
 async def add_new_movie_embedding(session, movie_id: str, movie_embedding: List[np.ndarray]):
 
     query = text("""
-        INSERT INTO movie_embedding_personalized (movie_id, embedding)
+        INSERT INTO movie_embedding_personalized_prod (movie_id, embedding)
         VALUES (:movie_id, :embedding)
         ON CONFLICT (movie_id) DO NOTHING
     """)
@@ -165,7 +165,7 @@ async def get_movie_embeddings(session, user_id: str):
     query = text("""
         SELECT e.embedding
         FROM user_watchlist r
-        JOIN movie_embedding_personalized e ON r.movie_id = e.movie_id
+        JOIN movie_embedding_personalized_prod e ON r.movie_id = e.movie_id
         WHERE r.user_id = :user_id
         AND r.user_rating > 0
         ORDER BY r.updated_at DESC
@@ -182,7 +182,7 @@ async def get_movie_embeddings_by_movie_ids(
 ) -> List[tuple[str, np.ndarray]]:
     query = text("""
         SELECT movie_id, embedding
-        FROM movie_embedding_personalized
+        FROM movie_embedding_personalized_prod
         WHERE movie_id = ANY(:movie_id)
         ORDER BY array_position(:movie_ids::text[], movie_id)
     """)
@@ -219,7 +219,7 @@ async def get_movies_metadata_by_movie_ids(
         FROM candidate_movies c
         JOIN movie_metadata m ON c.movie_id = m.movie_id
         JOIN movie_rating_stats mrs on c.movie_id = mrs.movie_id
-        JOIN movie_embedding_personalized emb ON c.movie_id = emb.movie_id
+        JOIN movie_embedding_personalized_prod emb ON c.movie_id = emb.movie_id
         ORDER BY c.frequency DESC
     """)
 
@@ -284,7 +284,7 @@ async def get_cold_start_recommendations(session, user_id: str, user_embedding, 
                 mrs.tmdb_popularity,
                 (e.embedding <=> CAST(:user_embedding AS vector)) as distance
             FROM movie_metadata m
-            JOIN movie_embedding_coldstart e ON m.movie_id = e.movie_id
+            JOIN movie_embedding_coldstart_prod e ON m.movie_id = e.movie_id
             JOIN movie_rating_stats mrs ON m.movie_id = mrs.movie_id
             WHERE m.genres && CAST(:user_genres AS text[])
             AND m.movie_id NOT IN (SELECT movie_id FROM excluded_movies)
