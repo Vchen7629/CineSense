@@ -14,11 +14,11 @@ export function useAddToWatchlist() {
         },
         onError: (error: unknown) => {
             if (error instanceof AxiosError) {
-                console.error('Error rating movie:', error.response?.data || error.message);
+                console.error('Error adding to watchlist:', error.response?.data || error.message);
             } else if (error instanceof Error) {
-                console.error('Error rating movie:', error.message);
+                console.error('Error adding to watchlist:', error.message);
             } else {
-                console.error('Error rating movie:', error);
+                console.error('Error adding to watchlist:', error);
             }
         }
     });

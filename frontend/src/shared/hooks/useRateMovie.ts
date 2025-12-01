@@ -1,7 +1,7 @@
 import type { Movie } from "@/shared/types/tmdb";
 import { MovieService } from '../../api/services/movie';
 import { TMDBServices } from "@/api/services/tmdb";
-import { getGenreNames } from "../../features/movie-input/utils/genreMap";
+import { getGenreNames } from "../../features/movies/utils/genreMap";
 import { useMutation } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 

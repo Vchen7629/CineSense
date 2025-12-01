@@ -22,7 +22,7 @@ const GridListViewComponent = ({ gridView, setGridView, listView, setListView, s
                 List View
             </button>
             <button 
-                onClick={() => {setListView(false); setGridView(true); setItemsPerPage(6)}}
+                onClick={() => {setListView(false); setGridView(true); setItemsPerPage(12)}}
                 className={
                     `h-full w-[49%] rounded-xl text-white font-bold
                     ${gridView ? "bg-teal-600 hover:bg-teal-400 transition-colors duration-200 hover:text-gray-600" : "bg-transparent hover:text-blue-200"} `
