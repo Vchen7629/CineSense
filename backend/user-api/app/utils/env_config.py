@@ -7,7 +7,6 @@ PROJECT_ROOT = Path(__file__).parent.parent.parent
 ENV_FILE = PROJECT_ROOT / ".env"
 
 class Settings(BaseSettings):
-    production: bool = False
     debug: bool = False
 
     db_username: str
