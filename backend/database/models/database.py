@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Integer, REAL, TIMESTAMP, ForeignKey, DateTime, Text, Index
+from sqlalchemy import Column, Integer, REAL, TIMESTAMP, ForeignKey, DateTime, Text, Index, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.dialects.postgresql import ARRAY as PG_ARRAY
 from pgvector.sqlalchemy import Vector
@@ -71,6 +71,7 @@ class UserRatingStats(Base):
     top_50_actors = Column(PG_ARRAY(Text), server_default='{}')
     top_10_directors = Column(PG_ARRAY(Text), server_default='{}')
     last_updated = Column(TIMESTAMP, server_default='NOW()')
+    is_stale = Column(Boolean, server_default="false")
 
 class MovieEmbeddingColdstartProd(Base):
     __tablename__ = 'movie_embedding_coldstart_prod'
