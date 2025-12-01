@@ -20,7 +20,7 @@ resource "aws_lb_target_group" "recommendation" {
     target_type                 = "ip"
 
     health_check {
-        path                    = "/health"
+        path                    = "/api/health"
         healthy_threshold       = 2
         unhealthy_threshold     = 10
         timeout                 = 10
@@ -41,7 +41,7 @@ resource "aws_lb_target_group" "auth" {
     target_type                 = "ip"
 
     health_check {
-        path                    = "/health"
+        path                    = "/api/health"
         healthy_threshold       = 2
         unhealthy_threshold     = 3
         timeout                 = 5
