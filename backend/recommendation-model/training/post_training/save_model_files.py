@@ -4,11 +4,6 @@ import numpy as np
 import psycopg2
 import polars as pl
 from shared.path_config import path_helper
-import boto3
-import os
-from datetime import datetime
-from utils.env_config import settings
-from io import BytesIO
 
 class SaveModel:
     def __init__(self, user_tower, movie_tower, num_movies: int, large_dataset: bool = False, personalized: bool = True):
@@ -62,37 +57,6 @@ class SaveModel:
             movie_embeddings = f.normalize(movie_embeddings, dim=1)
 
         return movie_embeddings
-    
-    def _save_movie_embeddings_s3(self, model_version: str, embeddings):
-        # Create S3 client with credentials
-        s3_client = boto3.client(
-            's3',
-            region_name=settings.aws_region,
-            aws_access_key_id=settings.aws_access_key,
-            aws_secret_access_key=settings.aws_secret_access_key
-        )
-
-        # Generate version tag if not provided
-        if model_version is None:
-            model_version = datetime.now().strftime('%Y%m%d-%H%M%S')
-
-        # S3 bucket and prefix
-        s3_bucket = settings.s3_bucket_name or 'cinesense-ml-artifacts-prod'
-        s3_prefix = f"movie_embeddings/production/{model_version}"
-
-        # create in-memory buffer
-        buffer = BytesIO()
-        np.save(buffer, embeddings.cpu())
-        buffer.seek(0) 
-
-        s3_key = f"{s3_prefix}/movie_embeddings_{'personalized' if self.personalized else 'coldstart'}.npy"
-        s3_client.upload_fileobj(
-            buffer,
-            s3_bucket,
-            s3_key
-        )
-
-        print(f"Uploaded to s3://{s3_bucket}/{s3_key}")
     
     # save the embeddings into the postgres
     def _save_movie_embeddings_local_postgres(self, embeddings):

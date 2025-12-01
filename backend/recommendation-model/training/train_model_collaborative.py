@@ -5,6 +5,7 @@ from torch.utils.data import DataLoader
 from utils.train_test_split import TrainTest
 from post_training.candidate_gen_model_evaluation import CandidateGenerationModelEval
 from post_training.save_model_files import SaveModel
+from post_training.save_model_production import SaveModelProd
 from post_training.generate_user_embeddings import GenerateUserEmbeddings
 import polars as pl
 import time
@@ -222,7 +223,7 @@ if __name__ == "__main__":
         movie_tower=train.movie_tower,
         num_movies=train.num_movies,
         personalized=True
-    ).save_all(save_to_local_db=True)
+    ).save_all(save_to_local_db=False)
 
     # create user embedding file for model evaluation
     user_embeddings = GenerateUserEmbeddings(movie_tower=train.movie_tower)
@@ -248,6 +249,16 @@ if __name__ == "__main__":
         )
 
         print(f"User-user approach: {hitrate_user_user:.4f} ({hitrate_user_user*100:.2f}%)")
+
+    SaveModelProd(
+        model_version="v2",
+        collaborative=True,
+        cold_start=False,
+        reranker=False,
+        movie_tower=train.movie_tower,
+        num_movies=train.num_movies,
+        large_dataset=False
+    ).save_all()
 
 
 
