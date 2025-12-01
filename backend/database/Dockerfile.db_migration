@@ -14,6 +14,10 @@ COPY alembic.ini .
 COPY alembic/ ./alembic/
 COPY models/ ./models/
 
-COPY lambda_handler.py .
+# Copy required util functions
+COPY utils/__init__.py ./utils/
+COPY utils/get_aws_rds_credentials.py ./utils/
 
-CMD ["lambda_handler.handler"]
+COPY db_migration_lambda_handler.py .
+
+CMD ["db_migration_lambda_handler.handler"]
