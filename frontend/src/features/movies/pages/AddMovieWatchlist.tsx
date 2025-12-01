@@ -10,7 +10,7 @@ import { getGenreName } from "../utils/genreMap";
 import { getLanguageName } from "../utils/languageMap";
 import { Toaster } from "sonner";
 
-export default function MovieInputPage() {
+const AddMovieWatchlistPage = () => {
     const [currentPage, setCurrentPage] = useState<number>(1)
     const [apiQuery, setApiQuery] = useState<string>("")
     const [searchQuery, setSearchQuery] = useState<string>("") // Only updates on button click
@@ -165,3 +165,5 @@ export default function MovieInputPage() {
         </>
     )
 }
+
+export default AddMovieWatchlistPage

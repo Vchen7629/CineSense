@@ -8,7 +8,7 @@ const SearchBar = ({ query, setQuery }: SearchProps) => {
     return (
         <input 
             onChange={(e) => setQuery(e.target.value)}
-            className="bg-[#879B9E] border-2 text-xl text-white border-[#3A5A7A] focus:outline-none px-[1%] rounded-2xl px-[5%] h-[100%] w-full"
+            className="flex-1 min-h-[2.5rem] bg-[#5C7A85] border-1 text-md text-white border-[#3A5A7A] focus:outline-none px-[1%] rounded-md px-[5%] w-full"
             value={query}
             placeholder="enter a movie name... "
         />

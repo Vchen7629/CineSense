@@ -5,8 +5,8 @@ resource "aws_apigatewayv2_api" "main" {
 
     cors_configuration {
         allow_origins   = ["https://cinesense.tech", "https://www.cinesense.tech"]
-        allow_methods   = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
-        allow_headers   = ["*"]
+        allow_methods   = ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"]
+        allow_headers   = ["content-type", "authorization", "x-requested-with", "accept", "origin", "access-control-request-method", "access-control-request-headers"]
         expose_headers  = ["*"]
         allow_credentials = true
         max_age         = 300

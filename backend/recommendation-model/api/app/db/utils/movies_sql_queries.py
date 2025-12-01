@@ -266,8 +266,13 @@ async def get_cold_start_recommendations(session, user_id: str, user_embedding, 
         WITH excluded_movies AS (
             SELECT movie_id
             FROM user_watchlist
-            WHERE :user_id = user_id
+            WHERE user_id = :user_id
             AND user_rating > 0
+            UNION
+            SELECT movie_id
+            FROM user_not_seen_movie
+            WHERE user_id = :user_id
+            AND (dismissed_until IS NULL OR dismissed_until > NOW())
         ),
         genre_matched AS (
             SELECT
@@ -363,5 +368,21 @@ async def check_if_movie_rated(session, user_id: str, movie_id: str):
 
     if not row:
         raise HTTPException(status_code=404, detail="Movie not in watchlist")
-    
+
     return row
+
+async def get_movie_tmdb_stats(session, movie_id: str):
+    query = text("""
+        SELECT tmdb_avg_rating, tmdb_vote_log, tmdb_popularity
+        FROM movie_rating_stats
+        WHERE movie_id = :movie_id
+    """)
+
+    result = await session.execute(query, {"movie_id": movie_id})
+    row = result.first()
+
+    if not row:
+        # If movie has no stats yet, return defaults
+        return 0.0, 0.0, 0.0
+
+    return row.tmdb_avg_rating, row.tmdb_vote_log, row.tmdb_popularity

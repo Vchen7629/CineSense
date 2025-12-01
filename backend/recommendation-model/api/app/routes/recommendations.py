@@ -1,15 +1,25 @@
 from fastapi import APIRouter, Depends
 from db.config.conn import get_session
-from db.utils.movies_sql_queries import get_movies_metadata_by_movie_ids, get_cold_start_recommendations
+from db.utils.movies_sql_queries import (
+    get_movies_metadata_by_movie_ids, 
+    get_cold_start_recommendations,
+    get_movie_embeddings,
+)
 from db.utils.user_sql_queries import (
-    get_user_genres, 
-    get_user_with_ratings_count, 
+    get_user_genres,
+    get_user_with_ratings_count,
     get_similar_users_and_user_metadata,
     get_user_rated_movie_ids,
+    check_user_rating_stats_stale,
+    update_user_ratings_stats,
+    set_user_rating_stats_fresh,
+    regenerate_user_movie_embedding,
+    get_user_not_seen_movie_ids
 )
 from model.utils.reranker_model import Reranker
 from sqlalchemy.ext.asyncio import AsyncSession
 from utils.dependencies import get_reranking_model
+import numpy as np
 
 router = APIRouter(prefix="/recommendations")
 
@@ -36,12 +46,44 @@ async def get_recommendations(
         recommendations = await get_cold_start_recommendations(session, user_id, genre_embedding, top3_genre)
         print("less than 50 users: cold start recos")
         return recommendations
+    
+    # check if the user rating stats table is stale for the user, if so we need to 
+    # recalculate the user embeddings
+    row = await check_user_rating_stats_stale(session, user_id)
+
+    if row and row.is_stale:
+        movie_embeddings_rows = await get_movie_embeddings(session, user_id)
+
+        # parse pgvector string format to numpy arrays
+        movie_embeddings = []
+        for row in movie_embeddings_rows:
+            embedding_str = row[0].strip('[]')
+            embedding = np.fromstring(embedding_str, sep=',', dtype=np.float32)
+            movie_embeddings.append(embedding)
+
+        movie_embeddings = np.array(movie_embeddings, dtype=np.float32)
+
+        # average and normalize
+        user_emb = movie_embeddings.mean(axis=0) # [512]
+        user_emb = user_emb / np.linalg.norm(user_emb)
+
+        await regenerate_user_movie_embedding(session, user_id, user_emb)
+        await update_user_ratings_stats(session, user_id)
+
+        await set_user_rating_stats_fresh(session, user_id)
 
     # get user metadata for current user and similar users userIds
     user_metadata, similar_users = await get_similar_users_and_user_metadata(session, user_id, similar_user_count=50)
 
-    # get movie_ids of similar users
+    # get movie_ids user has rated
     excluded_movies_ids = [row[0] for row in rated_movie_ids]
+
+    # get movie_ids user has marked as not seen (dismissed)
+    not_seen_movie_ids = await get_user_not_seen_movie_ids(session, user_id)
+    not_seen_ids = [row[0] for row in not_seen_movie_ids]
+
+    # combine rated and not seen movies for exclusion
+    excluded_movies_ids.extend(not_seen_ids)
 
     # extract just the user_ids from similar_users rows
     similar_user_ids = [row.user_id for row in similar_users]

@@ -4,14 +4,15 @@ from db.utils.user_sql_queries import (
     new_user_genre_embedding, 
     get_user_watchlist,
     delete_from_watchlist,
-    update_user_ratings_stats,
-    regenerate_user_movie_embedding
+    set_user_rating_stats_stale,
+    add_user_not_seen_movie
 )
 from db.utils.movies_sql_queries import (
-    add_new_movie_rating, 
-    add_movie_metadata, 
+    add_new_movie_rating,
+    add_movie_metadata,
     check_if_movie_rated,
-    update_movie_rating_stats
+    update_movie_rating_stats,
+    get_movie_tmdb_stats
 )
 from db.config.conn import get_session
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -19,9 +20,11 @@ from utils.dependencies import get_cold_start_user_tower
 from schemas.user import (
     NewUserRequest, 
     AddToWatchlistRequest, 
-    RemoveFromWatchlistRequest
+    RemoveFromWatchlistRequest,
+    NotSeenMovieRequest
 )
-import numpy as np
+from datetime import datetime, timedelta, timezone
+
 
 router = APIRouter(prefix="/user", tags=["user"])
 
@@ -96,19 +99,38 @@ async def remove_from_watchlist(
     if not userId:
         raise HTTPException(status_code=404, detail="No user_id provided")
 
-    rating = check_if_movie_rated(session, userId, movie_id)
-    
+    rating = await check_if_movie_rated(session, userId, movie_id)
     was_rated = rating.user_rating > 0
+
+    # get latest tmdb stats for that movie so we can also update the movie rating stats with the latest tmdb stats
+    tmdb_avg_rating, tmdb_vote_log, tmdb_popularity = await get_movie_tmdb_stats(session, movie_id)
 
     # delete first so if we recalculate the deleted movie wont be there
     await delete_from_watchlist(session, userId, movie_id)
     
     # recalculate stats if movie was rated
     if was_rated:
-        await update_user_ratings_stats(session, userId)
-        await update_movie_rating_stats(session, )
+        await update_movie_rating_stats(session, movie_id, tmdb_avg_rating, tmdb_vote_log, tmdb_popularity)
 
-    #await add_movie_metadata(session, movie_id, title, genres, release_year, summary, actors, director, poster_path)
-    #await add_new_movie_rating(session, userId, movie_id, rating)
+    # set the user rating stats to stale so we only need to recalculate user embeddings when showing recommendations
+    await set_user_rating_stats_stale(session, userId)
 
-    return {"message": "successfully added movie to watchlist!"}
+    return {"message": "Successfully removed movie from watchlist!"}
+
+@router.post("/not_seen_movie/{user_id}")
+async def not_seen_movie(
+    user_id: str, 
+    body: NotSeenMovieRequest,
+    session: AsyncSession = Depends(get_session),
+):  
+    movie_id = body.movie_id
+
+    if not user_id:
+        raise HTTPException(status_code=404, detail="No user_id provided")
+    
+    # dont show this movie for 2 weeks
+    timer = datetime.now(timezone.utc) + timedelta(days=14)
+    
+    await add_user_not_seen_movie(session, user_id, movie_id, timer)
+
+    return {"message": "successfully marked movie as not seen!"}

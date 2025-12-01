@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Integer, REAL, TIMESTAMP, ForeignKey, DateTime, Text, Index
+from sqlalchemy import Column, Integer, REAL, TIMESTAMP, ForeignKey, DateTime, Text, Index, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.dialects.postgresql import ARRAY as PG_ARRAY
 from pgvector.sqlalchemy import Vector
@@ -48,6 +48,14 @@ class UserWatchlist(Base):
     added_at = Column(TIMESTAMP, server_default='NOW()')
     updated_at = Column(TIMESTAMP, server_default='NOW()')
 
+class UserNotSeenMovies(Base):
+    __tablename__ = 'user_not_seen_movie'
+
+    user_id = Column(Text, ForeignKey('user_login.user_id', ondelete='CASCADE'), primary_key=True)
+    movie_id = Column(Text, ForeignKey('movie_metadata.movie_id', ondelete='CASCADE'), primary_key=True)
+    dismissed_at = Column(TIMESTAMP(timezone=True), server_default='NOW()')
+    dismissed_until = Column(TIMESTAMP(timezone=True), nullable=True)
+
 class MovieRatingStats(Base):
     __tablename__ = 'movie_rating_stats'
     
@@ -71,6 +79,7 @@ class UserRatingStats(Base):
     top_50_actors = Column(PG_ARRAY(Text), server_default='{}')
     top_10_directors = Column(PG_ARRAY(Text), server_default='{}')
     last_updated = Column(TIMESTAMP, server_default='NOW()')
+    is_stale = Column(Boolean, server_default="false")
 
 class MovieEmbeddingColdstartProd(Base):
     __tablename__ = 'movie_embedding_coldstart_prod'

@@ -119,5 +119,49 @@ export const MovieService = {
                 throw error;
             }
         }
+    },
+
+    removeFromWatchlist: async({ user_id, movie_id }: { user_id: string, movie_id: string }) => {
+        try {
+            const response = await recommendations_api.delete(`user/watchlist/remove/${user_id}`, {
+                data: {
+                    movie_id: movie_id
+                }
+            })
+
+            return response.data
+        } catch (error: unknown) {
+            if (error instanceof AxiosError) {
+                console.error(error.response?.data || error.message);
+                throw error;
+            } else if (error instanceof Error) {
+                console.error(error.message);
+                throw error;
+            } else {
+                console.error(error);
+                throw error;
+            }
+        }
+    },
+
+    markMovieAsNotSeen: async({ user_id, movie_id }: { user_id: string, movie_id: string }) => {
+        try {
+            const response = await recommendations_api.post(`user/not_seen_movie/${user_id}`, {
+                movie_id: movie_id
+            })
+
+            return response.data
+        } catch (error: unknown) {
+            if (error instanceof AxiosError) {
+                console.error(error.response?.data || error.message);
+                throw error;
+            } else if (error instanceof Error) {
+                console.error(error.message);
+                throw error;
+            } else {
+                console.error(error);
+                throw error;
+            }
+        }
     }
 }

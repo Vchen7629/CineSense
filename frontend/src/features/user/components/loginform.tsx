@@ -74,6 +74,7 @@ const LoginForm = () => {
                             <FormLabel className="text-white text-[1.5vh] sm:text-[1.75vh]">Password</FormLabel>
                             <FormControl>
                                 <input 
+                                    type="password"
                                     {...field}
                                     placeholder="enter password..."
                                     className="bg-[#2E454D] h-[5.5vh] w-full border-2 border-black rounded-lg flex items-center px-[1vw]"
