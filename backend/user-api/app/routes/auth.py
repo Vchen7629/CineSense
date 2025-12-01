@@ -92,7 +92,7 @@ async def logout(
         )
 
     # Delete session from database if it exists
-    delete_session(token, db)
+    await delete_session(token, db)
 
     # clear cookie on client side
     response.delete_cookie(
