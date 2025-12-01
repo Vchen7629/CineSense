@@ -48,6 +48,14 @@ class UserWatchlist(Base):
     added_at = Column(TIMESTAMP, server_default='NOW()')
     updated_at = Column(TIMESTAMP, server_default='NOW()')
 
+class UserNotSeenMovies(Base):
+    __tablename__ = 'user_not_seen_movie'
+
+    user_id = Column(Text, ForeignKey('user_login.user_id', ondelete='CASCADE'), primary_key=True)
+    movie_id = Column(Text, ForeignKey('movie_metadata.movie_id', ondelete='CASCADE'), primary_key=True)
+    dismissed_at = Column(TIMESTAMP(timezone=True), server_default='NOW()')
+    dismissed_until = Column(TIMESTAMP(timezone=True), nullable=True)
+
 class MovieRatingStats(Base):
     __tablename__ = 'movie_rating_stats'
     
