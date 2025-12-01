@@ -210,3 +210,9 @@ resource "aws_iam_role_policy_attachment" "lambda_secrets" {
     role       = aws_iam_role.lambda_migration_role.name
     policy_arn = aws_iam_policy.ecs_secrets_policy.arn
 }
+
+# Attach S3 read access to Lambda migration role (for reading model files from S3)
+resource "aws_iam_role_policy_attachment" "lambda_s3_read" {
+    role       = aws_iam_role.lambda_migration_role.name
+    policy_arn = aws_iam_policy.ecs_s3_policy.arn
+}
