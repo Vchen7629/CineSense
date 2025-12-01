@@ -86,6 +86,7 @@ const SignUpForm = ({ onContinue }: SignUpForm) => {
                             <FormControl>
                                 <input 
                                     {...field}
+                                    type="password"
                                     placeholder="enter password..."
                                     className="bg-[#2E454D] h-[5.5vh] w-full border-2 border-black rounded-lg flex items-center px-[1vw]"
                                 />
