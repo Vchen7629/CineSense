@@ -6,7 +6,7 @@ import { Toaster, toast } from "sonner";
 import { onError } from "../utils/formError";
 import { useLogin } from "../hooks/useLogin";
 import { useNavigate } from "react-router";
-import { Loader2 } from "lucide-react";
+import { Loader2, X } from "lucide-react";
 
 const formSchema = z.object({
     email: z.email({ pattern: z.regexes.html5Email }).min(4, {
@@ -18,7 +18,7 @@ const formSchema = z.object({
 })
 
 const LoginForm = () => {
-    const { login, isLoading, isError, } = useLogin()
+    const { login, isLoading, isError } = useLogin()
     const navigate = useNavigate()
 
     const form = useForm<z.infer<typeof formSchema>>({
@@ -88,7 +88,15 @@ const LoginForm = () => {
                     className="bg-teal-600 w-full h-[5.5vh] text-white font-medium border-2 border-black rounded-lg mt-8 flex items-center justify-center disabled:bg-teal-800 disabled:cursor-not-allowed transition-all"
                 >   
                     {isLoading ? (
-                        <Loader2 className="animate-spin" />
+                        <div className="flex space-x-2 items-center">
+                            <Loader2 className="animate-spin" />
+                            <span>Logging in...</span>
+                        </div>
+                    ) : isError ? (
+                        <div className="flex space-x-2 items-center">
+                            <X/>
+                            <span>Error logging in</span>
+                        </div>
                     ) : (
                         <span>Log In</span>
                     )}

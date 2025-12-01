@@ -2,6 +2,7 @@ import { useNavigate } from "react-router";
 import { useCreateGenreEmbeddings } from "../hooks/useCreateGenreEmbedding";
 import { useSignUpUserAccount } from "../hooks/useSignup";
 import { toast } from "sonner";
+import { Loader, X } from "lucide-react";
 
 
 interface SignUpConfirmButtonProps {
@@ -14,7 +15,7 @@ interface SignUpConfirmButtonProps {
 
 export const SignUpConfirmButton = ({ selectedGenres, canSignup, username, email, password }: SignUpConfirmButtonProps) => {
     const createGenreEmbeddings = useCreateGenreEmbeddings();
-    const { signup, isLoading, isError, } = useSignUpUserAccount()
+    const { signup, isLoading, isError} = useSignUpUserAccount()
     const navigate = useNavigate()
 
     async function handleCompleteSignUp() {
@@ -45,10 +46,24 @@ export const SignUpConfirmButton = ({ selectedGenres, canSignup, username, email
     return (
         <button
             disabled={!canSignup}
-            className={`${canSignup ? "bg-teal-600 hover:bg-teal-700" : "bg-gray-700"} w-28 px-4 py-2 rounded-md transition-colors duration-250`}
+            className={`${canSignup ? "bg-teal-600 hover:bg-teal-700" : "bg-gray-700"} w-fit rounded-md`}
             onClick={handleCompleteSignUp}
         >
-            Sign-up
+            {isLoading ? (
+                <div className="flex items-center space-x-2 px-4 py-2 bg-teal-600 hover:bg-teal-700 rounded-md transition-colors duration-250">  
+                    <Loader className="animate-spin"/>
+                    <span>Signing up...</span>
+                </div>
+            ) : isError ? (
+                <div className="flex items-center space-x-2 px-4 py-2 bg-red-700 hover:bg-red-800 rounded-md transition-colors duration-250">  
+                    <X />
+                    <span>Error</span>
+                </div>
+            ) : (
+                <div className="flex items-center space-x-2 px-4 py-2 bg-teal-600 hover:bg-teal-700 rounded-md transition-colors duration-250">
+                    <span>Sign-up</span>
+                </div>
+            )}  
         </button>
     )
 }
