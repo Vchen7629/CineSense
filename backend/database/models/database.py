@@ -72,27 +72,53 @@ class UserRatingStats(Base):
     top_10_directors = Column(PG_ARRAY(Text), server_default='{}')
     last_updated = Column(TIMESTAMP, server_default='NOW()')
 
-class MovieEmbeddingColdstart(Base):
-    __tablename__ = 'movie_embedding_coldstart'
+class MovieEmbeddingColdstartProd(Base):
+    __tablename__ = 'movie_embedding_coldstart_prod'
     
     movie_id = Column(Text, ForeignKey('movie_metadata.movie_id', ondelete='CASCADE'), primary_key=True)
     embedding = Column(Vector(512), nullable=False)
     
     __table_args__ = (
-        Index('idx_movie_embedding_coldstart_hnsw', 'embedding', 
+        Index('idx_movie_embedding_coldstart_prod_hnsw', 'embedding', 
               postgresql_using='hnsw',
               postgresql_with={'m': 16, 'ef_construction': 64},
               postgresql_ops={'embedding': 'vector_cosine_ops'}),
     )
 
-class MovieEmbeddingPersonalized(Base):
-    __tablename__ = 'movie_embedding_personalized'
+class MovieEmbeddingColdstartStaging(Base):
+    __tablename__ = 'movie_embedding_coldstart_staging'
     
     movie_id = Column(Text, ForeignKey('movie_metadata.movie_id', ondelete='CASCADE'), primary_key=True)
     embedding = Column(Vector(512), nullable=False)
     
     __table_args__ = (
-        Index('idx_movie_embedding_personalized_hnsw', 'embedding',
+        Index('idx_movie_embedding_coldstart_staging_hnsw', 'embedding', 
+              postgresql_using='hnsw',
+              postgresql_with={'m': 16, 'ef_construction': 64},
+              postgresql_ops={'embedding': 'vector_cosine_ops'}),
+    )
+
+class MovieEmbeddingPersonalizedProd(Base):
+    __tablename__ = 'movie_embedding_personalized_prod'
+    
+    movie_id = Column(Text, ForeignKey('movie_metadata.movie_id', ondelete='CASCADE'), primary_key=True)
+    embedding = Column(Vector(512), nullable=False)
+    
+    __table_args__ = (
+        Index('idx_movie_embedding_personalized_prod_hnsw', 'embedding',
+              postgresql_using='hnsw',
+              postgresql_with={'m': 16, 'ef_construction': 64},
+              postgresql_ops={'embedding': 'vector_cosine_ops'}),
+    )
+
+class MovieEmbeddingPersonalizedStaging(Base):
+    __tablename__ = 'movie_embedding_personalized_staging'
+    
+    movie_id = Column(Text, ForeignKey('movie_metadata.movie_id', ondelete='CASCADE'), primary_key=True)
+    embedding = Column(Vector(512), nullable=False)
+    
+    __table_args__ = (
+        Index('idx_movie_embedding_personalized_staging_hnsw', 'embedding',
               postgresql_using='hnsw',
               postgresql_with={'m': 16, 'ef_construction': 64},
               postgresql_ops={'embedding': 'vector_cosine_ops'}),
