@@ -1,7 +1,6 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/shared/components/shadcn/dialog"
 import { Check, Dot, Star } from "lucide-react"
 import { getGenreName } from "../utils/genreMap"
-import { languages } from "../misc/filterItems"
 import { useMemo, useState } from "react"
 import type { movieWatchlistItem } from "../types/watchlist"
 import AddToWatchlistButton from "./addToWatchlistButton"

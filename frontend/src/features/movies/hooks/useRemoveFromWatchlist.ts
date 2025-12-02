@@ -8,7 +8,7 @@ export function useRemoveFromWatchlist() {
     const mutation = useMutation({
         mutationFn: MovieService.removeFromWatchlist,
         retry: 1,
-        onSuccess: (data, variables) => {
+        onSuccess: (_, variables) => {
             console.log('Movie removed From WatchList successfully:')
 
             // Invalidate watchlist movies cache
