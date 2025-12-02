@@ -13,15 +13,16 @@ async def add_movie_metadata(
     release_date: int, 
     summary: str, 
     actors: List[str],
+    language: str,
     director: List[str],
     poster_path: str
 ):
     query = text("""
         INSERT INTO movie_metadata (
-            movie_id, movie_name, genres, release_date, summary, actors, director, poster_path
+            movie_id, movie_name, genres, release_date, summary, actors, director, language, poster_path
         )
         VALUES (
-            :movie_id, :movie_name, :genres, :release_date, :summary, :actors, :director, :poster_path
+            :movie_id, :movie_name, :genres, :release_date, :summary, :actors, :director, :language, :poster_path
         )
         ON CONFLICT (movie_id) DO NOTHING
     """)
@@ -37,6 +38,7 @@ async def add_movie_metadata(
                 "summary": summary,
                 "actors": actors,
                 "director": director,
+                "language": language,
                 "poster_path": poster_path
             }
         )
@@ -243,6 +245,7 @@ async def get_movies_metadata_by_movie_ids(
             "summary": row.summary,
             "actors": row.actors,
             "directors": row.director,
+            "language": row.language,
             "poster_path": row.poster_path,
             "movie_rating_log": row.rating_count_log,
             "movie_avg_rating": row.avg_rating,
@@ -283,6 +286,7 @@ async def get_cold_start_recommendations(session, user_id: str, user_embedding, 
                 m.summary,
                 m.actors,
                 m.director,
+                m.language,
                 m.poster_path,
                 mrs.tmdb_avg_rating,
                 mrs.tmdb_vote_log,
@@ -305,6 +309,7 @@ async def get_cold_start_recommendations(session, user_id: str, user_embedding, 
                 m.summary,
                 m.actors,
                 m.director,
+                m.language,
                 m.poster_path,
                 mrs.tmdb_avg_rating,
                 mrs.tmdb_vote_log,
@@ -317,10 +322,10 @@ async def get_cold_start_recommendations(session, user_id: str, user_embedding, 
             ORDER BY RANDOM()
             LIMIT 2
         )
-        SELECT movie_id, movie_name, genres, release_date, summary, actors, director, poster_path, tmdb_avg_rating, tmdb_vote_log, tmdb_popularity, distance
+        SELECT movie_id, movie_name, genres, release_date, summary, actors, director, language, poster_path, tmdb_avg_rating, tmdb_vote_log, tmdb_popularity, distance
         FROM genre_matched
         UNION ALL
-        SELECT movie_id, movie_name, genres, release_date, summary, actors, director, poster_path, tmdb_avg_rating, tmdb_vote_log, tmdb_popularity, distance
+        SELECT movie_id, movie_name, genres, release_date, summary, actors, director, language, poster_path, tmdb_avg_rating, tmdb_vote_log, tmdb_popularity, distance
         FROM random_other
         ORDER BY distance;
     """)
@@ -345,6 +350,7 @@ async def get_cold_start_recommendations(session, user_id: str, user_embedding, 
             "summary": row.summary,
             "actors": row.actors,
             "director": row.director,
+            "language": row.language,
             "poster_path": row.poster_path,
             "tmdb_avg_rating": row.tmdb_avg_rating,
             "tmdb_vote_count": int(np.exp(row.tmdb_vote_log) - 1),
@@ -386,3 +392,40 @@ async def get_movie_tmdb_stats(session, movie_id: str):
         return 0.0, 0.0, 0.0
 
     return row.tmdb_avg_rating, row.tmdb_vote_log, row.tmdb_popularity
+
+async def get_rated_movies(session, user_id: str):
+    query = text("""
+        SELECT 
+            w.movie_id, 
+            w.user_rating, 
+            w.added_at,
+            m.movie_name,
+            m.genres,
+            m.release_date,
+            m.language
+            m.poster_path,
+            
+        FROM user_watchlist w
+        JOIN movie_metadata m ON w.movie_id = m.movie_id
+        WHERE w.user_id = :user_id
+        AND w.user_rating > 0
+    """)
+
+    result = await session.execute(query, {"user_id": user_id})
+
+    movies = result.fetchall()
+
+    rated_movies = [
+        {
+            "movie_id": row.movie_id,
+            "title": row.movie_name,
+            "rating": row.user_rating,
+            "release_date": row.release_date,
+            "genres": row.genres,
+            "language": row.language,
+            "poster_path": row.poster_path
+        }
+        for row in movies
+    ]
+
+    return rated_movies
