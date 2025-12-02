@@ -1,6 +1,5 @@
 import json
 import boto3
-from botocore.exceptions import ClientError
 import psycopg2
 import numpy as np
 import polars as pl
