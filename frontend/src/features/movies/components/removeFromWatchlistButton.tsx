@@ -58,7 +58,7 @@ const RemoveFromWatchlistButton = ({ movie_id }: { movie_id: string }) => {
             ) : isError ? (
                 <>
                     <X size={16}/>
-                    <span className="text-sm">Error rating</span>
+                    <span className="text-sm">Error removing</span>
                 </>
             ) : (
                 <>
