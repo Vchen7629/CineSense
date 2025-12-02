@@ -44,7 +44,7 @@ export default function MovieCard({ item, listView, gridView }: MovieCardProps) 
             key={item.id}
             className={
                 `flex w-full relative text-xl font-semibold items-center px-2 shadow-md shadow-black bg-[#394B51] rounded-xl group
-                ${listView && "h-[20vh] "} ${gridView && "flex-col h-[35vh] pt-[1.5vh]"}`
+                ${listView && "min-h-[20vh] py-2"} ${gridView && "flex-col h-[35vh] pt-[1.5vh]"}`
             }
             role="listitem"
         >
@@ -52,11 +52,9 @@ export default function MovieCard({ item, listView, gridView }: MovieCardProps) 
                 <>
                     <img
                         src={`https://image.tmdb.org/t/p/w500${item.poster_path}`}
-                        className="w-[12.5%] h-[90%] bg-white object-cover object-top rounded-lg"
+                        className="min-w-[12.5%] h-[20vh] bg-white object-cover object-top rounded-lg"
                     />
-                    <section
-                        className="flex flex-col w-[70%] h-full space-y-2 px-[2%] py-2"
-                    >
+                    <section className="flex flex-col flex-grow min-w-0 min-h-[20vh] space-y-2 px-[2%]">
                         <Dialog>
                             <DialogTrigger asChild>
                                 <button className="text-left w-[90%] text-lg h-fit font-bold text-white truncate hover:text-teal-400 transition-colors">
@@ -108,7 +106,7 @@ export default function MovieCard({ item, listView, gridView }: MovieCardProps) 
                         </div>
                         <Dialog>
                             <DialogTrigger asChild>
-                                <button className="text-left text-sm bg-[#375367] border-[0.1rem] border-[#20363e] text-gray-400 h-[45%] w-full p-1 rounded-lg overflow-hidden hover:bg-[#2d4452] transition-colors flex items-start">
+                                <button className="flex-1 text-left text-sm bg-[#375367] border-[0.1rem] border-[#20363e] text-gray-400 w-full p-1 rounded-lg overflow-hidden hover:bg-[#2d4452] transition-colors flex items-start">
                                     <div className="line-clamp-3 w-full">
                                         {item.overview !== "" ? item.overview : "No overview"}
                                     </div>
@@ -131,7 +129,7 @@ export default function MovieCard({ item, listView, gridView }: MovieCardProps) 
                                     className="flex items-center space-x-1 px-3 py-1.5 bg-teal-500/20 border-teal-400 text-teal-200 shadow-inner hover:bg-teal-800 rounded-xl transition-colors duration-250"
                                 >
                                     <Check size={18} />
-                                    <span className="text-sm">In Watchlist</span>
+                                    <span className="text-sm truncate">In Watchlist</span>
                                 </button>
                                 <RateMovieStars
                                     rating={rating}
@@ -149,10 +147,8 @@ export default function MovieCard({ item, listView, gridView }: MovieCardProps) 
                             </div>
                         )}
                     </section>
-                    <section
-                        className="flex flex-col items-center h-[80%] space-y-[2vh] w-[25%]"
-                    >
-                        <div className="flex space-x-2 items-center">
+                    <section className="flex flex-col min-h-[20vh] py-[1vh] w-fit space-y-[2vh] flex-shrink-0 ml-auto pr-2">
+                        <div className="flex space-x-2 items-center w-fit">
                             <div className="inline-flex items-center h-5 bg-yellow-500/20 backdrop-blur-sm text-amber-100 text-xs font-semibold rounded-full px-2.5
                                 leading-none border border-amber-400/50 shadow-sm hover:bg-yellow-500/30 transition-colors">
                                 Avg rating: {item?.vote_average.toFixed(1)}
@@ -195,16 +191,27 @@ export default function MovieCard({ item, listView, gridView }: MovieCardProps) 
                 </>
             ) : gridView && (
                 <>
-                    <section className="relative w-[95%] h-[70%]">
+                    <section className="relative w-[95%] h-[70%] min-h-[150px]">
+                    {item.poster_path ? (
                         <img
                             src={`https://image.tmdb.org/t/p/w500${item.poster_path}`}
-                            className="w-full h-full bg-white object-cover object-top rounded-lg"
+                            className="w-full h-full object-cover object-top rounded-lg"
                         />
-                        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[#394B51] to-transparent pointer-events-none"></div>
-                    </section>
+                    ) : (
+                        <div className="w-full h-full rounded-lg bg-[#2f3f44] flex items-center justify-center 
+                                        text-gray-400 text-xs border border-white/10">
+                            No Image
+                        </div>
+                    )}
+
+                    {item.poster_path && (
+                        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t 
+                                        from-[#394B51] to-transparent pointer-events-none"></div>
+                    )}
+                </section>
                     <Dialog>
                         <DialogTrigger asChild>
-                            <span className="text-[16px] truncate w-[80%] hover:text-teal-400 transition-colors duration-250">{item.title}</span>
+                            <span className="text-[16px] truncate w-[80%] min-h-[1.5rem] hover:text-teal-400 transition-colors duration-250">{item.title}</span>
                         </DialogTrigger>
                         <DialogContent className="bg-[#2d4452]">
                             <DialogHeader>
@@ -212,7 +219,7 @@ export default function MovieCard({ item, listView, gridView }: MovieCardProps) 
                             </DialogHeader>
                         </DialogContent>
                     </Dialog> 
-                    <section className="flex w-[95%] items-center mt-2">
+                    <section className="flex w-[95%] h-fit items-center mt-2">
                         {item.release_date !== "" ? (
                             <span
                                 className="inline-block bg-sky-500/20 backdrop-blur-sm text-teal-200 text-[10px] font-semibold rounded-full px-2.5 py-0.5 border
@@ -236,17 +243,24 @@ export default function MovieCard({ item, listView, gridView }: MovieCardProps) 
                             </span>                        
                         </div>                    
                     </section>
-                    <div className="flex space-x-2 w-[95%] mt-2">
-                        {item.genre_ids.slice(0,2).map((genre: number, idx: number) => (
+                    <div className="flex space-x-2 w-[95%] h-fit my-2">
+                        {item.genre_ids && item.genre_ids.slice(0,2).map((genre: number, idx: number) => (
                             <div
                                 key={idx}
-                                className="inline-block bg-sky-500/20 backdrop-blur-sm text-teal-200 text-[10px] font-semibold rounded-full px-2.5 py-0.5 border
+                                className="inline-block bg-sky-500/20 truncate backdrop-blur-sm text-teal-200 text-[0.55rem] font-semibold rounded-full px-2.5 py-0.5 border
                                         border-teal-400/50 shadow-sm hover:bg-sky-500/30 transition-colors">
                                 {getGenreName(genre)}
                             </div>
                         ))}
+                        {item.genre_ids.length == 0 && (
+                            <div
+                                className="inline-block bg-sky-500/20 backdrop-blur-sm text-teal-200 text-[10px] font-semibold rounded-full px-2.5 py-0.5 border
+                                        border-teal-400/50 shadow-sm hover:bg-sky-500/30 transition-colors">
+                                no genres
+                            </div>
+                        )}
                         {item.genre_ids.length > 2 && (
-                            <button className="inline-block bg-sky-500/20 backdrop-blur-sm text-teal-200 text-[10px] font-semibold rounded-full px-1 py-0.5 border
+                            <button className="inline-block bg-sky-500/20 truncate backdrop-blur-sm text-teal-200 text-[10px] font-semibold rounded-full px-1 py-0.5 border
                                         border-teal-400/50 shadow-sm hover:bg-sky-500/30 transition-colors"
                             >
                                 +{item.genre_ids.length - 2} more
