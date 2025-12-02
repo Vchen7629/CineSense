@@ -7,7 +7,6 @@ from db.utils.movies_sql_queries import (
     add_new_movie_rating, 
     add_movie_metadata,
     update_movie_rating_stats,
-    get_watchlist_movies
 )
 from db.config.conn import get_session
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -89,12 +88,3 @@ async def new_rated_movie(
         "movie_id": imdb_id,
         "rating": rating
     }
-
-@router.get("/get_watchlist/{user_id}")
-async def get_user_watchlist_movies(user_id: str, session: AsyncSession = Depends(get_session)):
-    if not user_id:
-        raise HTTPException(status_code=404, detail="No user_id provided")
-    
-    watchlist_movies = await get_watchlist_movies(session, user_id)
-
-    return watchlist_movies
