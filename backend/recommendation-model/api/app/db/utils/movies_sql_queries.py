@@ -398,7 +398,7 @@ async def get_rated_movies(session, user_id: str):
         SELECT 
             w.movie_id, 
             w.user_rating, 
-            w.added_at,
+            DATE(w.added_at) as added_at,
             m.movie_name,
             m.genres,
             m.release_date,
@@ -419,6 +419,7 @@ async def get_rated_movies(session, user_id: str):
             "movie_id": row.movie_id,
             "title": row.movie_name,
             "rating": row.user_rating,
+            "added_at": row.added_at,
             "release_date": row.release_date,
             "genres": row.genres,
             "language": row.language,
