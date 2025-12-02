@@ -402,9 +402,8 @@ async def get_rated_movies(session, user_id: str):
             m.movie_name,
             m.genres,
             m.release_date,
-            m.language
-            m.poster_path,
-            
+            m.language,
+            m.poster_path
         FROM user_watchlist w
         JOIN movie_metadata m ON w.movie_id = m.movie_id
         WHERE w.user_id = :user_id
