@@ -3,16 +3,14 @@ import { useState, useMemo } from "react";
 import GridListViewComponent from "../components/gridListViewComponent";
 import { useSearchMovies } from "../hooks/useSearchMovies";
 import type { TMDBMovieApiRes } from "@/shared/types/tmdb";
-import MovieCard from "../components/movieCard";
 import LoadingMovieSkeleton from "../components/loadingMovieSkeleton";
 import MovieFilterCard from "../components/movieFilterCard";
-import { getGenreName } from "../utils/genreMap";
-import { getLanguageName } from "../utils/languageMap";
 import { Toaster } from "sonner";
 import { filterMovies } from "../utils/filterMovieResults";
 import ListViewMovieCardComponent from "../components/listViewMovieCardComponent";
-import { useWatchlist } from "@/shared/hooks/useWatchlist";
 import GridViewMovieCardComponent from "../components/gridViewMovieCardComponent";
+import { useGetWatchlistMovies } from "../hooks/useGetWatchlistMovies";
+import { useAuth } from "@/shared/hooks/useAuth";
 
 const SearchMoviesPage = () => {
     const [currentPage, setCurrentPage] = useState<number>(1)
@@ -24,7 +22,8 @@ const SearchMoviesPage = () => {
     const [genreFilterValue, setGenreFilterValue] = useState<string>("")
     const [languageFilterValue, setLanguageFilterValue] = useState<string>("")
     const [yearFilterValue, setYearFilterValue] = useState<string>("")
-    const { watchlist: watchlist = [] } = useWatchlist()
+    const { user } = useAuth()
+    const { data: watchlist = [] } = useGetWatchlistMovies(user.user_id)
 
     // React Query hook with loading state
     const { data: apiRes = [], isLoading, error } = useSearchMovies({
@@ -57,7 +56,8 @@ const SearchMoviesPage = () => {
                         <span className="text-3xl text-white font-bold">Add Movies to your Watchlist</span>
                         <span className="text-xl text-gray-400">Search movies from tmdb and add them to your watchlist!</span>
                     </div>
-                    <GridListViewComponent 
+                    <GridListViewComponent
+                        setCurrentPage={setCurrentPage} 
                         listViewAmount={4}
                         gridViewAmount={12}
                         listView={listView} 
@@ -89,7 +89,7 @@ const SearchMoviesPage = () => {
                                 <ul className="h-full w-full space-y-[2%]">
                                     {paginatedMovies.map((item: TMDBMovieApiRes) => {
                                         return (
-                                            <ListViewMovieCardComponent watchlist={watchlist} item={item} isSearchPage={true}/>
+                                            <ListViewMovieCardComponent watchlist={watchlist} item={item} isSearchPage={true} showRating={false}/>
                                         )
                                     })}
                                 </ul>

@@ -1,7 +1,7 @@
 
 import Header from "@/features/navbar/components/Header"
 import { Skeleton } from "@/shared/components/shadcn/skeleton"
-import { BookMarked, ChevronRight, Dot, Loader } from "lucide-react"
+import { BookMarked, ChevronRight, Dot } from "lucide-react"
 import { useAuth } from "@/shared/hooks/useAuth"
 import GridViewMovieCardComponent from "../components/gridViewMovieCardComponent"
 import { useGetWatchlistMovies } from "../hooks/useGetWatchlistMovies"
@@ -14,14 +14,13 @@ import { genres, languages } from "../misc/filterItems"
 import { filterMovies } from "../utils/filterMovieResults"
 import YearFilterComponent from "../components/yearFilter"
 import ListViewMovieCardComponent from "../components/listViewMovieCardComponent"
-import { useWatchlist } from "@/shared/hooks/useWatchlist"
 import { Link } from "react-router"
 import PaginationComponent from "../components/pagination"
 
 const ViewWatchlistPage = () => {
     const { user } = useAuth()
     const [currentPage, setCurrentPage] = useState<number>(1)
-    const { data = [], isLoading, isError, error, refetch } = useGetWatchlistMovies(user.user_id)
+    const { data: watchlist = [], isLoading, isError, } = useGetWatchlistMovies(user.user_id)
     const [itemsPerPage, setItemsPerPage] = useState<number>(15)
     const [listView, setListView] = useState<boolean>(false)
     const [gridView, setGridView] = useState<boolean>(true)
@@ -29,31 +28,31 @@ const ViewWatchlistPage = () => {
     const [genreFilterValue, setGenreFilterValue] = useState<string>("")
     const [languageFilterValue, setLanguageFilterValue] = useState<string>("")
     const [yearFilterValue, setYearFilterValue] = useState<string>("")
-    const { watchlist: watchlist = [] } = useWatchlist()
     
-
     // filtering logic
-    const filteredApiRes = useMemo(() => (
-        filterMovies(data, {
+    const filteredApiRes = useMemo(() => {
+        let filtered = filterMovies(watchlist, {
             genre: genreFilterValue,
             language: languageFilterValue,
             year: yearFilterValue
-        })
-    ), [data, genreFilterValue, languageFilterValue, yearFilterValue]);
+        });
+
+        // Filter by search query if present
+        if (query.trim()) {
+            filtered = filtered.filter((movie: any) =>
+                movie.title?.toLowerCase().includes(query.toLowerCase())
+            );
+        }
+
+        return filtered;
+    }, [watchlist, genreFilterValue, languageFilterValue, yearFilterValue, query]);
 
     const totalPage = Math.ceil(filteredApiRes.length / itemsPerPage);
     const startIndex = (currentPage - 1) * itemsPerPage
     const endIndex = startIndex + itemsPerPage
     const paginatedMovies = filteredApiRes.slice(startIndex, endIndex)
 
-    function handleSearch() {
-        setQuery(query)
-        setCurrentPage(1)
-        setGenreFilterValue("")
-        setLanguageFilterValue("")
-        setYearFilterValue("")
-    }
-    
+
     return (
         <>
             <Header/>
@@ -82,17 +81,7 @@ const ViewWatchlistPage = () => {
                     <section className="flex w-full items-center space-x-2 justify-between pb-[3vh]">
                         <div className="flex items-center space-x-2 w-[30%]">
                             <SearchBar query={query} setQuery={setQuery}/>
-                            <button
-                                onClick={() => handleSearch()}
-                                disabled={isLoading}
-                                className={
-                                    `bg-teal-600 h-[2.5rem] hover:bg-teal-700 border-teal-400 text-white shadow-inner transition-colors duration-200 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed
-                                    ${isLoading ? "w-[15%] flex items-center justify-center" : "w-[20%]"}`}
-                            >
-                                {isLoading ? (
-                                    <Loader className="animate-spin"/>
-                                ) : "Search"}
-                            </button>
+                            
                         </div>
                         <div className="flex items-center space-x-[1vw] w-fit">
                             <SearchFilter
@@ -117,6 +106,7 @@ const ViewWatchlistPage = () => {
                                 />
                             </section>
                             <GridListViewComponent
+                                setCurrentPage={setCurrentPage}
                                 listViewAmount={5}
                                 gridViewAmount={15} 
                                 listView={listView} 
@@ -127,10 +117,22 @@ const ViewWatchlistPage = () => {
                             />
                         </div>
                     </section>
-                    {listView && paginatedMovies.length > 0 ? (
+                    {isError ? (
+                        <div className="flex flex-col space-y-1 w-full h-[50vh] bg-[#394B51] rounded-lg items-center justify-center">
+                            <span className="text-2xl">Error Fetching Movies...</span>
+                            <span className="text-lg text-gray-400">Something went wrong when loading your movies</span>
+                        </div>
+                    ) : (paginatedMovies.length === 0 && query !== "") ? (
+                            <div className="flex items-center justify-center h-[50vh] items-center w-full ">
+                                <div className="text-center">
+                                    <span className="text-2xl text-gray-400">No movies in watchlist matching {query}</span>
+                                    <p className="text-gray-500 mt-2">Try a different search term or different filters</p>
+                                </div>
+                            </div>
+                    ) : listView && paginatedMovies.length > 0 ? (
                         <ul className="h-full w-full space-y-[2%]">
                             {paginatedMovies.map((item: any) => (
-                                <ListViewMovieCardComponent watchlist={watchlist} item={item} isSearchPage={false}/>
+                                <ListViewMovieCardComponent watchlist={watchlist} item={item} isSearchPage={false} showRating={true}/>
                             ))}
                         </ul>
                     ) : gridView && paginatedMovies.length > 0 ? (

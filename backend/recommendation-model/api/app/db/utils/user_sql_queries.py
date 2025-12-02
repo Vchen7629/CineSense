@@ -27,24 +27,6 @@ async def get_user_genres(session, user_id: str):
 
     return top_3_genres, genre_embedding
 
-async def get_user_watchlist(session, user_id: str):
-    query = text("""
-        SELECT 
-            w.user_id, 
-            w.user_rating,
-            w.movie_id,
-            m.movie_name,
-            m.poster_path
-        FROM user_watchlist w
-        JOIN movie_metadata m ON w.movie_id = m.movie_id
-        WHERE user_id = :user_id
-    """)
-
-    result = await session.execute(query, {"user_id": str(user_id)})
-
-    watchlist = [dict(row) for row in result.mappings().all()]
-    return watchlist
-
 # create a new user embedding using the 3 genres selected during signup
 async def new_user_genre_embedding(session, user_id: str, genre_embedding: str, top3_genres: List[str]):
     query = text("""
@@ -355,3 +337,41 @@ async def get_user_not_seen_movie_ids(session, user_id: str):
     rows = result.fetchall()
 
     return rows
+
+async def get_user_watchlist(session, user_id: str):
+    query = text("""
+        SELECT 
+            w.movie_id, 
+            w.user_rating, 
+            DATE(w.added_at) as added_at,
+            m.movie_name,
+            m.genres,
+            m.release_date,
+            m.language,
+            m.summary,
+            m.poster_path
+        FROM user_watchlist w
+        JOIN movie_metadata m ON w.movie_id = m.movie_id
+        WHERE w.user_id = :user_id
+    """)
+
+    result = await session.execute(query, {"user_id": user_id})
+
+    movies = result.fetchall()
+
+    watchlist_movies = [
+        {
+            "movie_id": row.movie_id,
+            "title": row.movie_name,
+            "rating": row.user_rating,
+            "added_at": row.added_at,
+            "release_date": row.release_date,
+            "genres": row.genres,
+            "language": row.language,
+            "poster_path": row.poster_path,
+            "overview": row.summary
+        }
+        for row in movies
+    ]
+
+    return watchlist_movies

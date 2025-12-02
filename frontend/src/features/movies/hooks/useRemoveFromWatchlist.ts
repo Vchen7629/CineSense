@@ -11,8 +11,8 @@ export function useRemoveFromWatchlist() {
         onSuccess: (_, variables) => {
             console.log('Movie removed From WatchList successfully:')
 
-            // Invalidate watchlist movies cache
-            queryClient.invalidateQueries({
+            // Force refetch watchlist movies to get updated data
+            queryClient.refetchQueries({
                 queryKey: ['watchlist_movies', variables.user_id]
             })
         },
