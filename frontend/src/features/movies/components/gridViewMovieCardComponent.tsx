@@ -1,7 +1,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/shared/components/shadcn/dialog"
 import { Check, Dot, Star } from "lucide-react"
 import { getGenreName } from "../utils/genreMap"
-import { useMemo, useState } from "react"
+import { useMemo, useState, useEffect } from "react"
 import type { movieWatchlistItem } from "../types/watchlist"
 import AddToWatchlistButton from "./addToWatchlistButton"
 import RateMovieStars from "@/shared/components/app/rateMovieStars"
@@ -12,8 +12,16 @@ import { useAuth } from "@/shared/hooks/useAuth"
 
 const GridViewMovieCardComponent = ({ movie, showRating, watchlist, isSearchPage }: any) => {
     const [rating, setRating] = useState(0);
+    const [watchlistRating, setWatchlistRating] = useState<number>(0)
     const { rateMovie, isLoading: isRating, isError: ratingError, isSuccess: ratingSuccess } = useRateMovie()
-    const { user } = useAuth() 
+    const { user } = useAuth()
+
+    // Set watchlist rating from movie prop
+    useEffect(() => {
+        if (movie.rating !== undefined) {
+            setWatchlistRating(movie.rating)
+        }
+    }, [movie.rating])
 
     const releaseYear = movie.release_date 
         ? String(movie.release_date).slice(0, 4)
@@ -84,10 +92,10 @@ const GridViewMovieCardComponent = ({ movie, showRating, watchlist, isSearchPage
                     </span>                        
                 </div>
                 <Dot size={18}/> 
-                {(showRating && rating > 0) && (
+                {(showRating && watchlistRating > 0) && (
                     <div className="flex w-fit justify-center gap-0.5">
                         {[1, 2, 3, 4, 5].map((starIndex) => {
-                            const fillPercentage = Math.max(0, Math.min(1, rating - (starIndex - 1)))
+                            const fillPercentage = Math.max(0, Math.min(1, watchlistRating - (starIndex - 1)))
                             return (
                                 <div key={starIndex} className="relative inline-block">
                                     <Star size={17} className="stroke-emerald-600" />
@@ -102,9 +110,9 @@ const GridViewMovieCardComponent = ({ movie, showRating, watchlist, isSearchPage
                         })}
                     </div>
                 )}
-                {(rating == 0 && showRating) && (
-                    <span className="inline-block bg-sky-500/20 backdrop-blur-sm text-teal-200 text-[10px] font-semibold rounded-full px-2.5 py-0.5 border
-                                border-teal-400/50 shadow-sm hover:bg-sky-500/30 transition-colors"
+                {(watchlistRating == 0 && showRating) && (
+                    <span className="inline-block bg-emerald-700/90 backdrop-blur-sm text-teal-200 text-[10px] font-semibold rounded-full px-2.5 py-0.5 border
+                                border-emerald-500 shadow-sm hover:bg-sky-500/30 transition-colors"
                     >
                         Not Rated
                     </span>

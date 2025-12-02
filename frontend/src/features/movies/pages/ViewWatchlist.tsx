@@ -1,7 +1,7 @@
 
 import Header from "@/features/navbar/components/Header"
 import { Skeleton } from "@/shared/components/shadcn/skeleton"
-import { BookMarked, ChevronRight, Dot, Loader } from "lucide-react"
+import { BookMarked, ChevronRight, Dot } from "lucide-react"
 import { useAuth } from "@/shared/hooks/useAuth"
 import GridViewMovieCardComponent from "../components/gridViewMovieCardComponent"
 import { useGetWatchlistMovies } from "../hooks/useGetWatchlistMovies"
@@ -52,10 +52,7 @@ const ViewWatchlistPage = () => {
     const endIndex = startIndex + itemsPerPage
     const paginatedMovies = filteredApiRes.slice(startIndex, endIndex)
 
-    function handleSearch() {
-        setCurrentPage(1)
-    }
-    
+
     return (
         <>
             <Header/>
@@ -84,17 +81,7 @@ const ViewWatchlistPage = () => {
                     <section className="flex w-full items-center space-x-2 justify-between pb-[3vh]">
                         <div className="flex items-center space-x-2 w-[30%]">
                             <SearchBar query={query} setQuery={setQuery}/>
-                            <button
-                                onClick={() => handleSearch()}
-                                disabled={isLoading}
-                                className={
-                                    `bg-teal-600 h-[2.5rem] hover:bg-teal-700 border-teal-400 text-white shadow-inner transition-colors duration-200 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed
-                                    ${isLoading ? "w-[15%] flex items-center justify-center" : "w-[20%]"}`}
-                            >
-                                {isLoading ? (
-                                    <Loader className="animate-spin"/>
-                                ) : "Search"}
-                            </button>
+                            
                         </div>
                         <div className="flex items-center space-x-[1vw] w-fit">
                             <SearchFilter
@@ -119,6 +106,7 @@ const ViewWatchlistPage = () => {
                                 />
                             </section>
                             <GridListViewComponent
+                                setCurrentPage={setCurrentPage}
                                 listViewAmount={5}
                                 gridViewAmount={15} 
                                 listView={listView} 
@@ -144,7 +132,7 @@ const ViewWatchlistPage = () => {
                     ) : listView && paginatedMovies.length > 0 ? (
                         <ul className="h-full w-full space-y-[2%]">
                             {paginatedMovies.map((item: any) => (
-                                <ListViewMovieCardComponent watchlist={watchlist} item={item} isSearchPage={false}/>
+                                <ListViewMovieCardComponent watchlist={watchlist} item={item} isSearchPage={false} showRating={true}/>
                             ))}
                         </ul>
                     ) : gridView && paginatedMovies.length > 0 ? (

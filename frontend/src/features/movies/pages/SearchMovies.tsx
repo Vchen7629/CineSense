@@ -56,7 +56,8 @@ const SearchMoviesPage = () => {
                         <span className="text-3xl text-white font-bold">Add Movies to your Watchlist</span>
                         <span className="text-xl text-gray-400">Search movies from tmdb and add them to your watchlist!</span>
                     </div>
-                    <GridListViewComponent 
+                    <GridListViewComponent
+                        setCurrentPage={setCurrentPage} 
                         listViewAmount={4}
                         gridViewAmount={12}
                         listView={listView} 
@@ -88,7 +89,7 @@ const SearchMoviesPage = () => {
                                 <ul className="h-full w-full space-y-[2%]">
                                     {paginatedMovies.map((item: TMDBMovieApiRes) => {
                                         return (
-                                            <ListViewMovieCardComponent watchlist={watchlist} item={item} isSearchPage={true}/>
+                                            <ListViewMovieCardComponent watchlist={watchlist} item={item} isSearchPage={true} showRating={false}/>
                                         )
                                     })}
                                 </ul>

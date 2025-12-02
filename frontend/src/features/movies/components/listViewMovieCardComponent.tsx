@@ -1,11 +1,11 @@
 import { Dialog, DialogContent, DialogHeader, DialogTrigger } from "@/shared/components/shadcn/dialog"
 import type { Movie } from "@/shared/types/tmdb"
 import { DialogTitle } from "@radix-ui/react-dialog"
-import { Check, Dot } from "lucide-react"
+import { Check, Dot, Star } from "lucide-react"
 import { getGenreName } from "../utils/genreMap"
 import AddToWatchlistButton from "./addToWatchlistButton"
 import type { movieWatchlistItem } from "../types/watchlist"
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import RateMovieStars from "@/shared/components/app/rateMovieStars"
 import RemoveFromWatchlistButton from "./removeFromWatchlistButton"
 import RateMovieButton from "@/shared/components/app/rateMovieButton"
@@ -13,8 +13,16 @@ import { useRateMovie } from "@/shared/hooks/useRateMovie"
 import { useAuth } from "@/shared/hooks/useAuth"
 import { useFetchMovieCredits } from "../hooks/useFetchMovieCredits"
 
-const ListViewMovieCardComponent = ({ item, isSearchPage, watchlist }: { item: Movie, isSearchPage: boolean, watchlist: movieWatchlistItem[]}) => {
+interface Props {
+    item: Movie, 
+    isSearchPage: boolean, 
+    watchlist: movieWatchlistItem[],
+    showRating: boolean
+}
+
+const ListViewMovieCardComponent = ({ item, isSearchPage, watchlist, showRating }: Props) => {
     const [rating, setRating] = useState(0);
+    const [watchlistRating, setWatchlistRating] = useState<number>(0)
     const watchlistIds = useMemo(() => 
         new Set(watchlist.map((m: movieWatchlistItem) => m.movie_id)),
         [watchlist]
@@ -24,15 +32,22 @@ const ListViewMovieCardComponent = ({ item, isSearchPage, watchlist }: { item: M
     const { user } = useAuth()
     const [creditsDialogOpen, setCreditsDialogOpen] = useState(false);
 
-    let genres = item.genre_ids 
-        ? item.genres
-        : []
+    const displayGenres = item.genres 
+        ? item.genres 
+        : item.genre_ids?.map(getGenreName)
 
     // Only fetch credits when dialog is opened
     const { data: credits, isLoading: creditsLoading } = useFetchMovieCredits({
         id: item.id,
         enabled: creditsDialogOpen
     });
+
+    // Set watchlist rating from movie prop
+    useEffect(() => {
+        if (item.rating !== undefined) {
+            setWatchlistRating(item.rating)
+        }
+    }, [item.rating])
 
     return (
         <article
@@ -64,18 +79,18 @@ const ListViewMovieCardComponent = ({ item, isSearchPage, watchlist }: { item: M
                             {item.original_language || item.language}
                     </span>
                     <Dot size={18}/>
-                    {genres?.length !== 0 ? (
+                    {displayGenres.length !== 0 ? (
                         <div className="flex flex-wrap w-fit gap-2 justify-center">
-                            {isSearchPage && item.genre_ids.map((genreId, idx) => (
+                            {isSearchPage && displayGenres.map((genre, idx) => (
                                 <div
                                     key={idx}
                                     className="inline-block bg-sky-500/20 backdrop-blur-sm text-teal-200 text-xs font-semibold rounded-full px-2.5 py-0.5 border
                                                         border-teal-400/50 shadow-sm hover:bg-sky-500/30 transition-colors"
                                 >
-                                    {getGenreName(genreId)}
+                                    {genre}
                                 </div>
                             ))}
-                            {!isSearchPage && item.genre_ids.map((genre, idx) => (
+                            {!isSearchPage && displayGenres.map((genre, idx) => (
                                 <div
                                     key={idx}
                                     className="inline-block bg-sky-500/20 backdrop-blur-sm text-teal-200 text-xs font-semibold rounded-full px-2.5 py-0.5 border
@@ -155,8 +170,33 @@ const ListViewMovieCardComponent = ({ item, isSearchPage, watchlist }: { item: M
                         </div>
                     </div>
                 ) : (
-                    <div className="">
+                    <div className="flex items-center space-x-[1vw]">
                         <RemoveFromWatchlistButton movie_id={String(item.id)}/>
+                        {(showRating && watchlistRating > 0) && (
+                            <div className="flex w-fit justify-center gap-0.5">
+                                {[1, 2, 3, 4, 5].map((starIndex) => {
+                                    const fillPercentage = Math.max(0, Math.min(1, watchlistRating - (starIndex - 1)))
+                                    return (
+                                        <div key={starIndex} className="relative inline-block">
+                                            <Star size={24} className="stroke-emerald-600" />
+                                            <div
+                                                className="absolute top-0 left-0 overflow-hidden"
+                                                style={{ width: `${fillPercentage * 100}%` }}
+                                            >
+                                                <Star size={24} className="stroke-emerald-600 fill-emerald-600" />
+                                            </div>
+                                        </div>
+                                    )
+                                })}
+                            </div>
+                        )}
+                        {(watchlistRating == 0 && showRating) && (
+                            <span className="inline-block bg-emerald-700/90 backdrop-blur-sm text-sm font-semibold rounded-lg px-3 py-1 border
+                                        border-emerald-500 shadow-sm hover:bg-emerald-500/30 transition-colors"
+                            >
+                                Not Rated
+                            </span>
+                        )}  
                     </div>
                 )}
             </section>
