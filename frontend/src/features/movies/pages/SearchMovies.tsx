@@ -9,8 +9,12 @@ import MovieFilterCard from "../components/movieFilterCard";
 import { getGenreName } from "../utils/genreMap";
 import { getLanguageName } from "../utils/languageMap";
 import { Toaster } from "sonner";
+import { filterMovies } from "../utils/filterMovieResults";
+import ListViewMovieCardComponent from "../components/listViewMovieCardComponent";
+import { useWatchlist } from "@/shared/hooks/useWatchlist";
+import GridViewMovieCardComponent from "../components/gridViewMovieCardComponent";
 
-const AddMovieWatchlistPage = () => {
+const SearchMoviesPage = () => {
     const [currentPage, setCurrentPage] = useState<number>(1)
     const [apiQuery, setApiQuery] = useState<string>("")
     const [searchQuery, setSearchQuery] = useState<string>("") // Only updates on button click
@@ -20,6 +24,7 @@ const AddMovieWatchlistPage = () => {
     const [genreFilterValue, setGenreFilterValue] = useState<string>("")
     const [languageFilterValue, setLanguageFilterValue] = useState<string>("")
     const [yearFilterValue, setYearFilterValue] = useState<string>("")
+    const { watchlist: watchlist = [] } = useWatchlist()
 
     // React Query hook with loading state
     const { data: apiRes = [], isLoading, error } = useSearchMovies({
@@ -29,34 +34,13 @@ const AddMovieWatchlistPage = () => {
     })
 
     // filtering logic
-    const filteredApiRes = useMemo(() => {
-        if (apiRes.length === 0) {
-            return [];
-        }
-
-        let filtered = [...apiRes];
-
-        if (genreFilterValue) {
-            filtered = filtered.filter((movie) =>
-                movie.genre_ids.some((genreId: number) => getGenreName(genreId) === genreFilterValue)
-            );
-        }
-
-        if (languageFilterValue) {
-            filtered = filtered.filter((movie) =>
-                getLanguageName(movie.original_language) === languageFilterValue
-            );
-        }
-
-        if (yearFilterValue) {
-            filtered = filtered.filter((movie) => {
-                const movieYear = movie.release_date?.split('-')[0];
-                return movieYear === yearFilterValue;
-            });
-        }
-
-        return filtered;
-    }, [apiRes, genreFilterValue, languageFilterValue, yearFilterValue]);
+    const filteredApiRes = useMemo(() => (
+        filterMovies(apiRes, {
+            genre: genreFilterValue,
+            language: languageFilterValue,
+            year: yearFilterValue
+        })
+    ), [apiRes, genreFilterValue, languageFilterValue, yearFilterValue]);
 
     const totalPage = Math.ceil(filteredApiRes.length / itemsPerPage);
     const startIndex = (currentPage - 1) * itemsPerPage
@@ -68,12 +52,20 @@ const AddMovieWatchlistPage = () => {
             <Header/>
             <Toaster position="bottom-right" expand visibleToasts={3} closeButton/>
             <main className="flex flex-col min-h-[90vh] overflow-auto w-full py-[6vh] px-[8vw]">
-                <section className="flex w-full h-[10%] items-center justify-between mb-[1%]">
+                <section className="flex w-full h-[10%] items-center justify-between mb-[2%]">
                     <div className="flex flex-col">
                         <span className="text-3xl text-white font-bold">Add Movies to your Watchlist</span>
                         <span className="text-xl text-gray-400">Search movies from tmdb and add them to your watchlist!</span>
                     </div>
-                    <GridListViewComponent listView={listView} setListView={setListView} gridView={gridView} setGridView={setGridView} setItemsPerPage={setItemsPerPage}/>
+                    <GridListViewComponent 
+                        listViewAmount={4}
+                        gridViewAmount={12}
+                        listView={listView} 
+                        setListView={setListView} 
+                        gridView={gridView} 
+                        setGridView={setGridView} 
+                        setItemsPerPage={setItemsPerPage}
+                    />
                 </section>
                 <section className="flex w-full min-h-[90vh] space-x-[5%]">
                     <MovieFilterCard
@@ -95,12 +87,12 @@ const AddMovieWatchlistPage = () => {
                         <div className="w-[70%] h-full flex flex-col">
                             {paginatedMovies.length > 0 ? (
                                 <ul className="h-full w-full space-y-[2%]">
-                                {paginatedMovies.map((item: TMDBMovieApiRes) => {
-                                    return (
-                                        <MovieCard item={item} listView={listView} gridView={gridView}/>
-                                    )
-                                })}
-                            </ul>
+                                    {paginatedMovies.map((item: TMDBMovieApiRes) => {
+                                        return (
+                                            <ListViewMovieCardComponent watchlist={watchlist} item={item} isSearchPage={true}/>
+                                        )
+                                    })}
+                                </ul>
                             ) : isLoading ? (
                                 <LoadingMovieSkeleton listView={listView} gridView={gridView}/>
                             ) : error ? (
@@ -131,7 +123,7 @@ const AddMovieWatchlistPage = () => {
                             {paginatedMovies.length > 0 ? (
                                 <div className="grid grid-cols-4 gap-4">
                                     {paginatedMovies.map((item: TMDBMovieApiRes) => (
-                                        <MovieCard item={item} listView={listView} gridView={gridView}/>
+                                        <GridViewMovieCardComponent movie={item} showRating={false} watchlist={watchlist} isSearchPage={true}/>
                                     ))}
                                 </div>
                             ) : isLoading ? (
@@ -166,4 +158,4 @@ const AddMovieWatchlistPage = () => {
     )
 }
 
-export default AddMovieWatchlistPage
+export default SearchMoviesPage

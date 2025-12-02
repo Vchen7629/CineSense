@@ -61,7 +61,7 @@ const MovieNotSeenButton = ({
     return (
         <button 
             onClick={() => handleMarkMovieUnseen(movie_id)}
-            className="px-3 py-1 bg-slate-700 rounded-lg"
+            className="px-3 py-1 bg-slate-600 hover:bg-slate-700 rounded-lg border-[0.1rem] border-black transition-colors duration-250"
         >
             {isLoading ? (
                 <Loader className="animate-spin w-fit"/>

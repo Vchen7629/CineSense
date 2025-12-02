@@ -71,6 +71,7 @@ async def add_to_watchlist(
     summary = body.summary
     actors = body.actors
     director = body.director
+    language = body.language
     poster_path = body.poster_path
     rating = body.rating
 
@@ -83,7 +84,7 @@ async def add_to_watchlist(
     except (ValueError, TypeError):
         raise HTTPException(status_code=400, detail="Invalid release_date format. Expected YYYY or full date string.")
 
-    await add_movie_metadata(session, movie_id, title, genres, release_year, summary, actors, director, poster_path)
+    await add_movie_metadata(session, movie_id, title, genres, release_year, summary, actors, director, language, poster_path)
     await add_new_movie_rating(session, userId, movie_id, rating)
 
     return {"message": "successfully added movie to watchlist!"}

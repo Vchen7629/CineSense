@@ -26,12 +26,12 @@ const Header = () => {
     return (
         <header className="flex justify-between w-screen h-[10vh] bg-[#394B51] shadow-lg px-[2.5%]">
             <div className="flex h-full items-center space-x-[2vw] w-fit"> 
-                <h2 className="text-3xl font-bold text-white">CineSense</h2>
-                <Link to="/" className="text-xl text-white font-medium hover:text-gray-500">Home</Link>
+                <Link to="/" className="text-3xl font-bold text-white hover:text-teal-400 transition-colors duration-250">CineSense</Link>
                 {isAuthenticated && (
                     <>
-                        <Link to="/add-movies" className="text-xl text-white font-medium hover:text-gray-500">Add Movies</Link>
-                        <Link to="/recommendations" className="text-xl text-white font-medium hover:text-gray-500">Recommendations</Link>
+                        <Link to="/search" className="text-xl text-white font-medium hover:text-teal-500 transition-colors duration-250">Search</Link>
+                        <Link to="/recommendations" className="text-xl text-white font-medium hover:text-teal-500 transition-colors duration-250">Recommendations</Link>
+                        <Link to="/watchlist" className="text-xl text-white font-medium hover:text-teal-500 transition-colors duration-250">My Movies</Link>
                     </>
                 )}
             </div>

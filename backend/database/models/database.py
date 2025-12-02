@@ -33,6 +33,7 @@ class MovieMetadata(Base):
     summary = Column(Text, nullable=False)
     actors = Column(PG_ARRAY(Text), nullable=False)
     director = Column(PG_ARRAY(Text), nullable=False)
+    language = Column(Text, nullable=True)
     poster_path = Column(Text, server_default='')
     
     __table_args__ = (

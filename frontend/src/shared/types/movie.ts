@@ -8,7 +8,8 @@ export interface RateMovieApi {
     summary: string,
     actors: string[],
     director: string[],
-    poster_path: string
+    poster_path: string,
+    language: string,
     rating?: number,
     tmdb_vote_avg: number,
     tmdb_vote_count: number,

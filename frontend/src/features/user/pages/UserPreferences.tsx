@@ -25,7 +25,7 @@ export default function UserPreferences() {
             Step 2 of 2: Select At Least 3 To Personalize Your Recommendations
           </span>
         </section>
-        <section className="flex flex-col w-[65%] h-[67.5vh] p-[2%] space-y-[2%] rounded-2xl bg-[#394B51] shadow-md shadow-black">
+        <section className="flex flex-col w-[65%] h-fit px-[2%] py-[4vh] space-y-[2%] rounded-2xl bg-[#394B51] shadow-md shadow-black">
           <UserPreferencesHeader selectedGenres={selectedGenres} setSelectedGenres={setSelectedGenres}/>
           <UserPreferencesGenresGrid selectedGenres={selectedGenres} setSelectedGenres={setSelectedGenres} setCanSignup={setCanSignup}/>
           <div className="flex items-center justify-between w-full h-1/4">

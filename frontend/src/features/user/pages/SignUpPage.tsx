@@ -18,7 +18,7 @@ const SignUpPage = () => {
           <span className="text-4xl text-white font-bold">Sign Up With CineSense</span>
           <span className="text-lg text-gray-300">Step 1 of 2: Enter Your Account Credentials</span>
         </section>
-        <section className="flex flex-col w-[30%] space-y-[1%] items-center h-[65vh] bg-[#394B51] shadow-md shadow-black rounded-xl py-[3%] px-[3%]">
+        <section className="flex flex-col w-[30%] space-y-[1%] items-center h-fit bg-[#394B51] shadow-md shadow-black rounded-xl py-[4vh] px-[3%]">
           <div className="relative flex justify-center items-center">
             <button
               className="absolute left-[-1.5vw] -translate-x-1/2 top-1/2 -translate-y-1/2 flex justify-center items-center bg-teal-600 w-8 h-8 rounded-full shadow-lg hover:bg-teal-700 transition-colors"

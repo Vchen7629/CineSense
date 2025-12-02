@@ -24,7 +24,7 @@ const RecommendationPage = () => {
     const [ isRefetching, setIsRefetching ] = useState<boolean>(false)
     const { recommendations = [], isLoading, refetchRecommendations } = useGetRecommendations(user?.user_id || '')
     const { currentIndex, nextMovie, resetIndex } = useRecommendationIndex(user?.user_id)
-    const { rateMovie, isLoading: isRating, isError: ratingError, isSuccess: ratingSuccess } = useRateMovie()
+    const { rateMovie, isLoading: isRating, isError: ratingError, isSuccess: ratingSuccess, reset } = useRateMovie()
 
     const currentMovie = recommendations[currentIndex]
     const isLoadingState = authLoading || isLoading || isRefetching
@@ -64,8 +64,10 @@ const RecommendationPage = () => {
                 resetIndex() // reset to 0
                 await refetchRecommendations() // refetch new batch of 10 movies
                 setIsRefetching(false)
+                reset()
             } else {
                 nextMovie()
+                reset()
             }
         } catch (error: any) {
             console.error("Failed to rate movie:", error)
@@ -77,11 +79,11 @@ const RecommendationPage = () => {
         <main>
             <Header/>
             <Toaster position="bottom-right" expand visibleToasts={3} closeButton/>
-            <section className="absolute flex flex-col space-y-2 px-[20vw] mt-[5vh]">
-                <span className="text-4xl font-bold">Your Movie Recommendations</span>
+            <section className="flex flex-col space-y-2 px-[20vw] mt-16">
+                <span className="text-4xl font-bold">Newest Movie Recommendations</span>
                 <span className="text-2xl text-gray-400">Recommendations based on similar user's tastes and your preferences</span>
             </section>
-            <section className="flex h-[90vh] space-x-[5%] px-[5%] w-full items-center justify-center mt-[3vh]">
+            <section className="flex h-fit space-x-[5%] mt-[4vh] w-full items-center justify-center">
                 {!displayedMovie && !isLoadingState ? (
                     <div className="flex h-[90vh] w-full justify-center items-center">
                         <p className="text-white text-3xl">No recommendations available</p>
@@ -103,7 +105,7 @@ const RecommendationPage = () => {
                                 alt={displayedMovie.title}
                             />
                         </section>
-                        <section className="flex flex-col space-y-[1vh] bg-[#394B51] h-fit w-[50.5rem] px-[0.5vw] py-[2.5vh] rounded-xl shadow-md shadow-black">
+                        <section className="flex flex-col space-y-[1vh] bg-[#394B51] h-fit w-[800px] px-[0.5vw] py-[2.5vh] rounded-xl shadow-md shadow-black">
                             {/* Skeleton overlay - visible only if loading takes > 500ms */}
                             {showSkeleton && 
                                 <LoadingMovieRecommendationsSkeleton 
@@ -138,11 +140,20 @@ const RecommendationPage = () => {
                                     </span>
                                     <Dot size={28}/>
                                     {/*Languages*/}
-                                    <span
-                                        className="inline-block bg-sky-500/20 backdrop-blur-sm text-teal-200 text-xs font-semibold rounded-full px-2.5 py-0.5 border
-                                                    border-teal-400/50 shadow-sm hover:bg-sky-500/30 transition-colors">
-                                        Language 1
-                                    </span>
+                                    
+                                    {displayedMovie.language.length !== 0 ? (
+                                        <span
+                                            className="inline-block bg-sky-500/20 backdrop-blur-sm text-teal-200 text-xs font-semibold rounded-full px-2.5 py-0.5 border
+                                                        border-teal-400/50 shadow-sm hover:bg-sky-500/30 transition-colors">
+                                            {displayedMovie.language}
+                                        </span>
+                                    ) : (
+                                        <span
+                                            className="inline-block bg-sky-500/20 backdrop-blur-sm text-teal-200 text-xs font-semibold rounded-full px-2.5 py-0.5 border
+                                                        border-teal-400/50 shadow-sm hover:bg-sky-500/30 transition-colors">
+                                            no languages
+                                        </span>
+                                    )}
                                     <Dot size={28}/>
                                     <div className="flex space-x-2 w-fit">
                                         {displayedMovie?.genres.map((genre: string, idx: number) => (
@@ -243,12 +254,13 @@ const RecommendationPage = () => {
                     </div>
                 )}
             </section>
-            <section className="flex flex-col w-full px-[18vw] h-[30vh]">
+            {/*I'll implement this after demo day probably */}
+            {/*<section className="flex flex-col w-full px-[18vw] h-[30vh]">
                 <span className="text-4xl font-bold">Related Movies</span>
                 <div className="grid grid-col-7 text-5xl">
                     To be Implemented
                 </div>
-            </section>
+            </section>*/}
         </main>
     )
 }

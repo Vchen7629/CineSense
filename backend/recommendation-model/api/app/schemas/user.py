@@ -9,6 +9,7 @@ class AddToWatchlistRequest(BaseModel):
     summary: str
     actors: List[str]
     director: List[str]
+    language: str
     poster_path: str
     rating: float
 

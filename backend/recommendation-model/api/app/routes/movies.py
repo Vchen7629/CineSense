@@ -6,7 +6,8 @@ from db.utils.movies_sql_queries import (
     add_new_movie_embedding, 
     add_new_movie_rating, 
     add_movie_metadata,
-    update_movie_rating_stats
+    update_movie_rating_stats,
+    get_watchlist_movies
 )
 from db.config.conn import get_session
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -24,6 +25,7 @@ class RateMovieRequest(BaseModel):
     summary: str
     actors: List[str]
     director: List[str]
+    language: str
     poster_path: str
     rating: float
     tmdb_vote_avg: float
@@ -44,6 +46,7 @@ async def new_rated_movie(
     summary = body.summary
     actors = body.actors
     director = body.director
+    language = body.language
     poster_path = body.poster_path
     rating = body.rating
     tmdb_vote_avg = body.tmdb_vote_avg
@@ -67,7 +70,7 @@ async def new_rated_movie(
     # release date needs to be just year YYYY
     movie_embedding = movie_tower.generate_new_movie_embedding(title, genres, release_year, actors, director, summary)
 
-    await add_movie_metadata(session, imdb_id, title, genres, release_year, summary, actors, director, poster_path)
+    await add_movie_metadata(session, imdb_id, title, genres, release_year, summary, actors, director, language, poster_path)
 
     await add_new_movie_embedding(session, imdb_id, movie_embedding)
 
@@ -87,6 +90,11 @@ async def new_rated_movie(
         "rating": rating
     }
 
+@router.get("/get_watchlist/{user_id}")
+async def get_user_watchlist_movies(user_id: str, session: AsyncSession = Depends(get_session)):
+    if not user_id:
+        raise HTTPException(status_code=404, detail="No user_id provided")
     
-    
-    
+    watchlist_movies = await get_watchlist_movies(session, user_id)
+
+    return watchlist_movies
