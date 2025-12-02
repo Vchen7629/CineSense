@@ -27,6 +27,8 @@ export type Movie = TMDBMovieApiRes & {
     director?: string[]
     genres?: string[]
     summary?: string
+    language?: string
+    added_at?: string
     tmdb_avg_rating?: number
     tmdb_popularity?: number
     tmdb_vote_count?: number

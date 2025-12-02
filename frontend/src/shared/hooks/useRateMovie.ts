@@ -2,11 +2,12 @@ import type { Movie } from "@/shared/types/tmdb";
 import { MovieService } from '../../api/services/movie';
 import { TMDBServices } from "@/api/services/tmdb";
 import { getGenreNames } from "../../features/movies/utils/genreMap";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 
 // function for sending the movie metadata to the backend api
 export function useRateMovie() {
+
     const mutation = useMutation({
         mutationFn: MovieService.rate,
         retry: 1,
@@ -35,6 +36,7 @@ export function useRateMovie() {
             let tmdb_popularity: number
             let tmdb_vote_count: number
             let release_date: string
+            let language: string
 
             // fetch movie credits from tmdb api only from add movie page
             if (!user_recommendations) {
@@ -57,6 +59,7 @@ export function useRateMovie() {
                 tmdb_avg_rating = item.vote_average
                 tmdb_popularity = item.popularity
                 tmdb_vote_count = item.vote_count
+                language = item.original_language
                 release_date = item.release_date.split('-')[0]
             } else {
                 movie_id = item.movie_id || ""
@@ -67,6 +70,7 @@ export function useRateMovie() {
                 tmdb_avg_rating = item.tmdb_avg_rating || 0.0
                 tmdb_popularity = item.tmdb_popularity || 0.0
                 tmdb_vote_count = item.tmdb_vote_count || 0.0
+                language = item.language || ""
                 release_date = String(item.release_date)
             }
 
@@ -79,6 +83,7 @@ export function useRateMovie() {
                 summary: summary,
                 actors: actors,
                 director: directors,
+                language: language,
                 poster_path: item.poster_path || "",
                 rating: rating,
                 tmdb_vote_avg: tmdb_avg_rating,
@@ -97,6 +102,7 @@ export function useRateMovie() {
                 summary: item.overview,
                 actors: [],
                 director: [],
+                language: "",
                 poster_path: item.poster_path || "",
                 rating: rating,
                 tmdb_vote_avg: item.vote_average,
