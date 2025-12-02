@@ -26,6 +26,9 @@ export function useLogout() {
         // Call logout API
         await mutation.mutateAsync();
 
+        // Clear user cached recommendations on logout
+        localStorage.clear()
+
         // Remove ALL queries including auth
         queryClient.removeQueries()
 
