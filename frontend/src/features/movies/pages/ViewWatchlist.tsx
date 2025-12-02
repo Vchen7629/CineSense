@@ -14,14 +14,13 @@ import { genres, languages } from "../misc/filterItems"
 import { filterMovies } from "../utils/filterMovieResults"
 import YearFilterComponent from "../components/yearFilter"
 import ListViewMovieCardComponent from "../components/listViewMovieCardComponent"
-import { useWatchlist } from "@/shared/hooks/useWatchlist"
 import { Link } from "react-router"
 import PaginationComponent from "../components/pagination"
 
 const ViewWatchlistPage = () => {
     const { user } = useAuth()
     const [currentPage, setCurrentPage] = useState<number>(1)
-    const { data = [], isLoading, isError, } = useGetWatchlistMovies(user.user_id)
+    const { data: watchlist = [], isLoading, isError, } = useGetWatchlistMovies(user.user_id)
     const [itemsPerPage, setItemsPerPage] = useState<number>(15)
     const [listView, setListView] = useState<boolean>(false)
     const [gridView, setGridView] = useState<boolean>(true)
@@ -29,16 +28,24 @@ const ViewWatchlistPage = () => {
     const [genreFilterValue, setGenreFilterValue] = useState<string>("")
     const [languageFilterValue, setLanguageFilterValue] = useState<string>("")
     const [yearFilterValue, setYearFilterValue] = useState<string>("")
-    const { watchlist: watchlist = [] } = useWatchlist()
     
     // filtering logic
-    const filteredApiRes = useMemo(() => (
-        filterMovies(data, {
+    const filteredApiRes = useMemo(() => {
+        let filtered = filterMovies(watchlist, {
             genre: genreFilterValue,
             language: languageFilterValue,
             year: yearFilterValue
-        })
-    ), [data, genreFilterValue, languageFilterValue, yearFilterValue]);
+        });
+
+        // Filter by search query if present
+        if (query.trim()) {
+            filtered = filtered.filter((movie: any) =>
+                movie.title?.toLowerCase().includes(query.toLowerCase())
+            );
+        }
+
+        return filtered;
+    }, [watchlist, genreFilterValue, languageFilterValue, yearFilterValue, query]);
 
     const totalPage = Math.ceil(filteredApiRes.length / itemsPerPage);
     const startIndex = (currentPage - 1) * itemsPerPage
@@ -46,11 +53,7 @@ const ViewWatchlistPage = () => {
     const paginatedMovies = filteredApiRes.slice(startIndex, endIndex)
 
     function handleSearch() {
-        setQuery(query)
         setCurrentPage(1)
-        setGenreFilterValue("")
-        setLanguageFilterValue("")
-        setYearFilterValue("")
     }
     
     return (
@@ -131,6 +134,13 @@ const ViewWatchlistPage = () => {
                             <span className="text-2xl">Error Fetching Movies...</span>
                             <span className="text-lg text-gray-400">Something went wrong when loading your movies</span>
                         </div>
+                    ) : (paginatedMovies.length === 0 && query !== "") ? (
+                            <div className="flex items-center justify-center h-[50vh] items-center w-full ">
+                                <div className="text-center">
+                                    <span className="text-2xl text-gray-400">No movies in watchlist matching {query}</span>
+                                    <p className="text-gray-500 mt-2">Try a different search term or different filters</p>
+                                </div>
+                            </div>
                     ) : listView && paginatedMovies.length > 0 ? (
                         <ul className="h-full w-full space-y-[2%]">
                             {paginatedMovies.map((item: any) => (

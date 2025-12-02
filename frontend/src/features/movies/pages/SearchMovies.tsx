@@ -8,8 +8,9 @@ import MovieFilterCard from "../components/movieFilterCard";
 import { Toaster } from "sonner";
 import { filterMovies } from "../utils/filterMovieResults";
 import ListViewMovieCardComponent from "../components/listViewMovieCardComponent";
-import { useWatchlist } from "@/shared/hooks/useWatchlist";
 import GridViewMovieCardComponent from "../components/gridViewMovieCardComponent";
+import { useGetWatchlistMovies } from "../hooks/useGetWatchlistMovies";
+import { useAuth } from "@/shared/hooks/useAuth";
 
 const SearchMoviesPage = () => {
     const [currentPage, setCurrentPage] = useState<number>(1)
@@ -21,7 +22,8 @@ const SearchMoviesPage = () => {
     const [genreFilterValue, setGenreFilterValue] = useState<string>("")
     const [languageFilterValue, setLanguageFilterValue] = useState<string>("")
     const [yearFilterValue, setYearFilterValue] = useState<string>("")
-    const { watchlist: watchlist = [] } = useWatchlist()
+    const { user } = useAuth()
+    const { data: watchlist = [] } = useGetWatchlistMovies(user.user_id)
 
     // React Query hook with loading state
     const { data: apiRes = [], isLoading, error } = useSearchMovies({

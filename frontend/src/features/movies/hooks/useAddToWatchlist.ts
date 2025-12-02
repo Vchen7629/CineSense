@@ -13,8 +13,8 @@ export function useAddToWatchlist() {
         onSuccess: (data, variables) => {
             console.log('Movie added to WatchList successfully:', data)
 
-            // Invalidate watchlist movies cache
-            queryClient.invalidateQueries({
+            // Force refetch watchlist movies to get updated data
+            queryClient.refetchQueries({
                 queryKey: ['watchlist_movies', variables.user_id]
             })
         },

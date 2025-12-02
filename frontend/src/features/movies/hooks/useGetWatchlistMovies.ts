@@ -6,7 +6,7 @@ export function useGetWatchlistMovies(user_id: string) {
     const { data, isLoading, isError, error, refetch } = useQuery({
         queryKey: ['watchlist_movies', user_id],
         queryFn: async () => {
-            const rated_movies = await MovieService.getWatchlistMovie({ user_id })
+            const rated_movies = await MovieService.getWatchlist({ user_id })
 
             return rated_movies
         },

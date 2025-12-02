@@ -2,17 +2,22 @@ import type { Movie } from "@/shared/types/tmdb";
 import { MovieService } from '../../api/services/movie';
 import { TMDBServices } from "@/api/services/tmdb";
 import { getGenreNames } from "../../features/movies/utils/genreMap";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 
 // function for sending the movie metadata to the backend api
 export function useRateMovie() {
-
+    const queryClient = useQueryClient()
     const mutation = useMutation({
         mutationFn: MovieService.rate,
         retry: 1,
-        onSuccess: (data) => {
+        onSuccess: (data, variables) => {
             console.log('Movie rated successfully:', data)
+
+            // Force refetch watchlist movies to get updated added_at timestamp
+            queryClient.refetchQueries({
+                queryKey: ['watchlist_movies', variables.user_id]
+            })
         },
         onError: (error: unknown) => {
             if (error instanceof AxiosError) {
