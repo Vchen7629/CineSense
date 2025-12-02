@@ -1,16 +1,22 @@
 import { MovieService } from "@/api/services/movie";
 import { TMDBServices } from "@/api/services/tmdb";
 import type { Movie } from "@/shared/types/tmdb";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { getGenreNames } from "../utils/genreMap";
 
 export function useAddToWatchlist() {
+    const queryClient = useQueryClient()
     const mutation = useMutation({
         mutationFn: MovieService.addToWatchlist,
-        retry: 1,
-        onSuccess: () => {
-            console.log('Movie added to WatchList successfully:')
+        retry: false,
+        onSuccess: (data, variables) => {
+            console.log('Movie added to WatchList successfully:', data)
+
+            // Invalidate watchlist movies cache
+            queryClient.invalidateQueries({
+                queryKey: ['watchlist_movies', variables.user_id]
+            })
         },
         onError: (error: unknown) => {
             if (error instanceof AxiosError) {
@@ -47,6 +53,7 @@ export function useAddToWatchlist() {
                 summary: item.overview,
                 actors: actors,
                 director: directors,
+                language: item.original_language || "",
                 poster_path: item.poster_path || "",
                 rating: 0,
             });
@@ -62,6 +69,7 @@ export function useAddToWatchlist() {
                 summary: item.overview,
                 actors: [],
                 director: [],
+                language: "",
                 poster_path: item.poster_path || "",
                 rating: 0,
             });

@@ -1,13 +1,20 @@
 import { MovieService } from "@/api/services/movie";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 
 export function useRemoveFromWatchlist() {
+    const queryClient = useQueryClient()
+
     const mutation = useMutation({
         mutationFn: MovieService.removeFromWatchlist,
         retry: 1,
-        onSuccess: () => {
+        onSuccess: (data, variables) => {
             console.log('Movie removed From WatchList successfully:')
+
+            // Invalidate watchlist movies cache
+            queryClient.invalidateQueries({
+                queryKey: ['watchlist_movies', variables.user_id]
+            })
         },
         onError: (error: unknown) => {
             if (error instanceof AxiosError) {
