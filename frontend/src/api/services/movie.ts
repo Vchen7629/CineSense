@@ -14,6 +14,7 @@ export const MovieService = {
         summary, 
         actors, 
         director, 
+        language,
         poster_path, 
         rating,
         tmdb_vote_avg,
@@ -29,6 +30,7 @@ export const MovieService = {
                 summary: summary,
                 actors: actors,
                 director: director,
+                language: language,
                 poster_path: poster_path,
                 rating: rating,
                 tmdb_vote_avg: tmdb_vote_avg,
@@ -92,7 +94,7 @@ export const MovieService = {
         }
     },
 
-    addToWatchlist: async({ user_id, movie_id, title, genres, release_date, summary, actors, director, poster_path, rating }: any) => {
+    addToWatchlist: async({ user_id, movie_id, title, genres, release_date, summary, actors, director, language, poster_path, rating }: any) => {
         try {
             const response = await recommendations_api.post(`user/watchlist/add/${user_id}`, {
                 movie_id: movie_id,
@@ -102,6 +104,7 @@ export const MovieService = {
                 summary: summary,
                 actors: actors,
                 director: director,
+                language: language,
                 poster_path: poster_path,
                 rating: rating
             })
@@ -149,6 +152,44 @@ export const MovieService = {
             const response = await recommendations_api.post(`user/not_seen_movie/${user_id}`, {
                 movie_id: movie_id
             })
+
+            return response.data
+        } catch (error: unknown) {
+            if (error instanceof AxiosError) {
+                console.error(error.response?.data || error.message);
+                throw error;
+            } else if (error instanceof Error) {
+                console.error(error.message);
+                throw error;
+            } else {
+                console.error(error);
+                throw error;
+            }
+        }
+    },
+
+    getRatedMovie: async({ user_id }: { user_id: string }) => {
+        try {
+            const response = await recommendations_api.get(`movie/get_rated/${user_id}`)
+
+            return response.data
+        } catch (error: unknown) {
+            if (error instanceof AxiosError) {
+                console.error(error.response?.data || error.message);
+                throw error;
+            } else if (error instanceof Error) {
+                console.error(error.message);
+                throw error;
+            } else {
+                console.error(error);
+                throw error;
+            }
+        }
+    },
+
+    getWatchlistMovie: async({ user_id }: { user_id: string }) => {
+        try {
+            const response = await recommendations_api.get(`movie/get_watchlist/${user_id}`)
 
             return response.data
         } catch (error: unknown) {

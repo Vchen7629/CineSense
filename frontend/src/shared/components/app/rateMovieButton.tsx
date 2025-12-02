@@ -1,4 +1,7 @@
-import { Check, Loader, ThumbsUpIcon, X } from "lucide-react"
+import { queryClient } from "@/api/client/queryClient"
+import { Check, CheckCircle, Loader, ThumbsUpIcon, X } from "lucide-react"
+import { useEffect } from "react"
+import { toast } from "sonner"
 
 interface SubmitRatingButtonProps {
     onClick: () => void
@@ -8,6 +11,31 @@ interface SubmitRatingButtonProps {
 }
 
 const RateMovieButton = ({ onClick, isLoading, isError, isSuccess }: SubmitRatingButtonProps) => {
+    useEffect(() => {
+        if (isSuccess) {
+            toast.success("successfully rated movie!", { 
+                icon: <CheckCircle/>,
+                style: { 
+                    background: "#448094ff",
+                    color: "#ffffff",
+                    border: "#448094ff",
+                }
+            });
+        }
+    }, [isSuccess])
+
+    useEffect(() => {
+        if (isError) {
+            toast.error("Failed to rate movie...", { 
+                icon: <X/>,
+                style: { 
+                    background: "red",
+                    color: "#ffffff",
+                    border: "#448094ff",
+                }
+            })
+        }
+    }, [isError])
     
     return (
         <button
