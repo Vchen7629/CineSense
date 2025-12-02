@@ -21,7 +21,7 @@ import PaginationComponent from "../components/pagination"
 const ViewWatchlistPage = () => {
     const { user } = useAuth()
     const [currentPage, setCurrentPage] = useState<number>(1)
-    const { data = [], isLoading, isError, error, refetch } = useGetWatchlistMovies(user.user_id)
+    const { data = [], isLoading, isError, } = useGetWatchlistMovies(user.user_id)
     const [itemsPerPage, setItemsPerPage] = useState<number>(15)
     const [listView, setListView] = useState<boolean>(false)
     const [gridView, setGridView] = useState<boolean>(true)
@@ -31,7 +31,6 @@ const ViewWatchlistPage = () => {
     const [yearFilterValue, setYearFilterValue] = useState<string>("")
     const { watchlist: watchlist = [] } = useWatchlist()
     
-
     // filtering logic
     const filteredApiRes = useMemo(() => (
         filterMovies(data, {
@@ -127,7 +126,12 @@ const ViewWatchlistPage = () => {
                             />
                         </div>
                     </section>
-                    {listView && paginatedMovies.length > 0 ? (
+                    {isError ? (
+                        <div className="flex flex-col space-y-1 w-full h-[50vh] bg-[#394B51] rounded-lg items-center justify-center">
+                            <span className="text-2xl">Error Fetching Movies...</span>
+                            <span className="text-lg text-gray-400">Something went wrong when loading your movies</span>
+                        </div>
+                    ) : listView && paginatedMovies.length > 0 ? (
                         <ul className="h-full w-full space-y-[2%]">
                             {paginatedMovies.map((item: any) => (
                                 <ListViewMovieCardComponent watchlist={watchlist} item={item} isSearchPage={false}/>

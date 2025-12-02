@@ -1,4 +1,3 @@
-import { queryClient } from "@/api/client/queryClient"
 import { Check, CheckCircle, Loader, ThumbsUpIcon, X } from "lucide-react"
 import { useEffect } from "react"
 import { toast } from "sonner"

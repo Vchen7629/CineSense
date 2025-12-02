@@ -2,7 +2,7 @@ import type { Movie } from "@/shared/types/tmdb";
 import { MovieService } from '../../api/services/movie';
 import { TMDBServices } from "@/api/services/tmdb";
 import { getGenreNames } from "../../features/movies/utils/genreMap";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 
 // function for sending the movie metadata to the backend api
