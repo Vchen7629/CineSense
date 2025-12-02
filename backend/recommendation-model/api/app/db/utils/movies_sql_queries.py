@@ -393,43 +393,6 @@ async def get_movie_tmdb_stats(session, movie_id: str):
 
     return row.tmdb_avg_rating, row.tmdb_vote_log, row.tmdb_popularity
 
-async def get_rated_movies(session, user_id: str):
-    query = text("""
-        SELECT 
-            w.movie_id, 
-            w.user_rating, 
-            DATE(w.added_at) as added_at,
-            m.movie_name,
-            m.genres,
-            m.release_date,
-            m.language,
-            m.poster_path
-        FROM user_watchlist w
-        JOIN movie_metadata m ON w.movie_id = m.movie_id
-        WHERE w.user_id = :user_id
-        AND w.user_rating > 0
-    """)
-
-    result = await session.execute(query, {"user_id": user_id})
-
-    movies = result.fetchall()
-
-    rated_movies = [
-        {
-            "movie_id": row.movie_id,
-            "title": row.movie_name,
-            "rating": row.user_rating,
-            "added_at": row.added_at,
-            "release_date": row.release_date,
-            "genres": row.genres,
-            "language": row.language,
-            "poster_path": row.poster_path
-        }
-        for row in movies
-    ]
-
-    return rated_movies
-
 async def get_watchlist_movies(session, user_id: str):
     query = text("""
         SELECT 
@@ -440,6 +403,7 @@ async def get_watchlist_movies(session, user_id: str):
             m.genres,
             m.release_date,
             m.language,
+            m.summary,
             m.poster_path
         FROM user_watchlist w
         JOIN movie_metadata m ON w.movie_id = m.movie_id
@@ -459,7 +423,8 @@ async def get_watchlist_movies(session, user_id: str):
             "release_date": row.release_date,
             "genres": row.genres,
             "language": row.language,
-            "poster_path": row.poster_path
+            "poster_path": row.poster_path,
+            "overview": row.summary
         }
         for row in movies
     ]
