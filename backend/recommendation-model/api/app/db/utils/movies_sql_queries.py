@@ -7,22 +7,22 @@ from fastapi import HTTPException
 # sql function that inserts movie metadata and does nothing if it already exists
 async def add_movie_metadata(
     session,
-    movie_id: str, 
-    movie_name: str, 
-    genres: List[str], 
-    release_date: int, 
-    summary: str, 
+    movie_id: str,
+    movie_name: str,
+    genres: List[str],
+    release_date: int,
+    summary: str,
     actors: List[str],
-    language: str,
     director: List[str],
+    language: str,
     poster_path: str
 ):
     query = text("""
         INSERT INTO movie_metadata (
-            movie_id, movie_name, genres, release_date, summary, actors, director, language, poster_path
+            movie_id, movie_name, genres, release_date, summary, actors, director, poster_path, language
         )
         VALUES (
-            :movie_id, :movie_name, :genres, :release_date, :summary, :actors, :director, :language, :poster_path
+            :movie_id, :movie_name, :genres, :release_date, :summary, :actors, :director, :poster_path, :language
         )
         ON CONFLICT (movie_id) DO NOTHING
     """)
@@ -429,3 +429,39 @@ async def get_rated_movies(session, user_id: str):
     ]
 
     return rated_movies
+
+async def get_watchlist_movies(session, user_id: str):
+    query = text("""
+        SELECT 
+            w.movie_id, 
+            w.user_rating, 
+            DATE(w.added_at) as added_at,
+            m.movie_name,
+            m.genres,
+            m.release_date,
+            m.language,
+            m.poster_path
+        FROM user_watchlist w
+        JOIN movie_metadata m ON w.movie_id = m.movie_id
+        WHERE w.user_id = :user_id
+    """)
+
+    result = await session.execute(query, {"user_id": user_id})
+
+    movies = result.fetchall()
+
+    watchlist_movies = [
+        {
+            "movie_id": row.movie_id,
+            "title": row.movie_name,
+            "rating": row.user_rating,
+            "added_at": row.added_at,
+            "release_date": row.release_date,
+            "genres": row.genres,
+            "language": row.language,
+            "poster_path": row.poster_path
+        }
+        for row in movies
+    ]
+
+    return watchlist_movies
