@@ -21,7 +21,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# lifespan function to manage startup/shutdown
+# lifespan function to manage startup/shutdown..
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Starting CineSense Recommendation API")

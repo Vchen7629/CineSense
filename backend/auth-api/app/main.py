@@ -15,7 +15,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# lifespan for managing database connection/cleanup.
+# lifespan for managing database connection/cleanup...
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Starting CineSense User Auth API")
