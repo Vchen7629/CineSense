@@ -15,17 +15,14 @@ ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 RUN npm run build
 
 #Server
-FROM node:23-alpine
+FROM nginx:alpine
 
-WORKDIR /app
+# Copy built assets to nginx html directory
+COPY --from=build /app/dist /usr/share/nginx/html
 
-COPY --from=build /app/dist ./build
+#  custom nginx config for SPA routing
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# non-root-user for security
-USER node
+EXPOSE 80
 
-EXPOSE 3000
-
-RUN npm install -g serve
-
-CMD ["serve", "-s", "build", "-l", "3000"]
+CMD ["nginx", "g", "daemon off;"]
