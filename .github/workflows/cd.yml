@@ -87,7 +87,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ./backend/recommendation-model/api
-          file: ./backend/api/Dockerfile
+          file: ./backend/recommedendation-model/api/Dockerfile
           push: true
           tags: |
             ghcr.io/vchen7629/cinesense-recommendation-api:latest
