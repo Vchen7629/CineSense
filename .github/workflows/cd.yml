@@ -5,7 +5,11 @@ on:
     branches: 
         - main
         - kubernetes-migration
-    
+
+permissions:
+  contents: read
+  packages: write
+  
 jobs:
   detect_changes:
     runs-on: ubuntu-latest
