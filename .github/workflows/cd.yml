@@ -9,7 +9,7 @@ on:
 permissions:
   contents: read
   packages: write
-  
+
 jobs:
   detect_changes:
     runs-on: ubuntu-latest
@@ -118,7 +118,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ./backend/auth-api
-          file: ./auth-api/Dockerfile
+          file: ./backend/auth-api/Dockerfile
           push: true
           tags: |
             ghcr.io/vchen7629/cinesense-auth-api:latest
