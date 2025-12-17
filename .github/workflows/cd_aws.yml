@@ -1,0 +1,269 @@
+name: deploy frontend/backend to AWS
+
+on:
+  push:
+    branches: 
+        - deprecated
+    
+jobs:
+  detect_changes:
+    runs-on: ubuntu-latest
+    outputs:
+      frontend: ${{ steps.filter.outputs.frontend }}
+      recommendation: ${{ steps.filter.outputs.recommendation }}
+      auth: ${{ steps.filter.outputs.auth }}
+      database-migration: ${{ steps.filter.outputs.database-migration }}
+      movie-data-database-table-update: ${{ steps.filter.outputs.movie-data-database-table-update }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with: 
+          filters: |
+            frontend:
+              - 'frontend/**'
+            recommendation:
+              - 'backend/recommendation-model/api/**'
+            auth:
+              - 'backend/user-api/**'
+            database-migration:
+              - 'backend/database/models/**'
+              - 'backend/database/alembic/**'
+              - 'backend/database/db_migration_lambda_handler.py'
+              - 'backend/database/Dockerfile.db_migration'
+            movie-data-database-table-update:
+              - 'backend/database/update_movie_table_lambda_handler.py'
+              - 'backend/database/Dockerfile.update_movie_tables'
+              - 'backend/database/utils/'
+            
+  deploy-frontend:
+    needs: detect_changes
+    if: needs.detect_changes.outputs.frontend == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps: 
+        - name: Checkout repository
+          uses: actions/checkout@v4
+
+        - name: setup node
+          uses: actions/setup-node@v5
+          with:
+            node-version: '>=23.6.1'
+            cache: 'npm'
+            cache-dependency-path: frontend/package-lock.json
+        
+        - name: Install dependencies
+          working-directory: frontend
+          run: npm install
+
+        - name: Build with environment variables
+          env:
+            VITE_API_BASE_URL: ${{ secrets.PRODUCTION_API_URL }}
+          working-directory: frontend
+          run: npm run build
+        
+        - name: set aws credentials
+          uses: aws-actions/configure-aws-credentials@v5.0.0
+          with:
+            aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+            aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            aws-region: us-west-1
+
+        - name: Sync files to S3
+          run: aws s3 sync frontend/dist s3://$S3_BUCKET_NAME --delete
+          env:
+            S3_BUCKET_NAME: ${{ secrets.AWS_BUCKET_NAME }}
+
+        - name: Invalidate CloudFront cache
+          run: |
+            aws cloudfront create-invalidation \
+              --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
+              --paths "/*"
+  
+  deploy-recommendation-api:
+    needs: detect_changes
+    if: needs.detect_changes.outputs.recommendation == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps: 
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: set aws credentials
+        uses: aws-actions/configure-aws-credentials@v5.0.0
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_BACKEND }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_BACKEND }}
+          aws-region: us-west-1
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+      
+      - name: Build and push recommendation Docker Image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: cinesense-recommendation-api
+          IMAGE_TAG: ${{ github.sha }}
+        working-directory: backend/recommendation-model/api
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f Dockerfile .
+          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+        
+      - name: Update ECS service
+        run: |
+          aws ecs update-service \
+            --cluster cinesense-cluster \
+            --service recommendation-service \
+            --force-new-deployment \
+            --region us-west-1
+      
+      - name: Wait for deployment
+        run: |
+          aws ecs wait services-stable \
+            --cluster cinesense-cluster \
+            --service recommendation-service \
+            --region us-west-1
+  
+  deploy-auth-api:
+    needs: detect_changes
+    if: needs.detect_changes.outputs.auth == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps: 
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: set aws credentials
+        uses: aws-actions/configure-aws-credentials@v5.0.0
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_BACKEND }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_BACKEND }}
+          aws-region: us-west-1
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+      
+      - name: Build and push user auth Docker Image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: cinesense-auth-api
+          IMAGE_TAG: ${{ github.sha }}
+        working-directory: backend/user-api
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f Dockerfile .
+          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+        
+      - name: Update ECS service
+        run: |
+          aws ecs update-service \
+            --cluster cinesense-cluster \
+            --service auth-service \
+            --force-new-deployment \
+            --region us-west-1
+      
+      - name: Wait for deployment
+        run: |
+          aws ecs wait services-stable \
+            --cluster cinesense-cluster \
+            --service auth-service \
+            --region us-west-1
+
+  deploy-database-migration:
+    needs: detect_changes
+    if: needs.detect_changes.outputs.database-migration == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps: 
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: set aws credentials
+        uses: aws-actions/configure-aws-credentials@v5.0.0
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_BACKEND }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_BACKEND }}
+          aws-region: us-west-1
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+      
+      - name: Build and push database migration Docker Image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: cinesense-migration
+          IMAGE_TAG: ${{ github.sha }}
+        working-directory: backend/database
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f Dockerfile.db_migration .
+          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+        
+      - name: Update Lambda Function
+        run: |
+          aws lambda update-function-code \
+            --function-name cinesense-db-migration \
+            --image-uri ${{ steps.login-ecr.outputs.registry }}/cinesense-migration:${{ github.sha }} \
+            --region us-west-1
+
+      - name: Invoke lambda to run migrations
+        run: |
+          aws lambda invoke \
+            --function-name cinesense-db-migration \
+            --region us-west-1 \
+            --log-type Tail \
+            response.json
+
+            cat response.json
+
+            if grep -q "errorMessage" response.json; then
+              echo "Migration failed!"
+              exit 1
+            fi
+
+  deploy-movie-data-table-update:
+    needs: detect_changes
+    if: needs.detect_changes.outputs.movie-data-database-table-update == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps: 
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: set aws credentials
+        uses: aws-actions/configure-aws-credentials@v5.0.0
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_BACKEND }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_BACKEND }}
+          aws-region: us-west-1
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+      
+      - name: Build and push database update Docker Image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: cinesense-database-update
+          IMAGE_TAG: ${{ github.sha }}
+        working-directory: backend/database
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f Dockerfile.update_movie_tables .
+          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+        
+      - name: Update Lambda Function
+        run: |
+          aws lambda update-function-code \
+            --function-name cinesense-update-movie-data-tables \
+            --image-uri ${{ steps.login-ecr.outputs.registry }}/cinesense-database-update:${{ github.sha }} \
+            --region us-west-1
+          echo "Lambda updated successfully. It will be triggered automatically when model files are uploaded to S3."
