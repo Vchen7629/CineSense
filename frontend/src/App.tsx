@@ -12,7 +12,7 @@ import ViewWatchlistPage from './features/movies/pages/ViewWatchlist'
 function App() {
   return (
     <Routes>
-      {/* Public routes */}
+      {/* Public routes. */}
       <Route path='' element={<HomePage/>}/>
       <Route path='login' element={<LoginPage/>}/>
       <Route path='signup' element={<SignUpPage/>}/>
