@@ -220,7 +220,7 @@ if __name__ == "__main__":
         movie_tower=train.movie_tower,
         num_movies=train.num_movies,
         personalized=False
-    ).save_all(save_to_local_db=False)
+    ).save_all(save_to_local_db=True)
 
     # save models to s3 for use in production
     SaveModelProd(

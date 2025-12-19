@@ -55,4 +55,4 @@ def preprocess_candidate_generation_model_files(cold_start: bool = True, large_d
         )
 
 if __name__ == "__main__":
-    preprocess_candidate_generation_model_files(cold_start=True)
+    preprocess_candidate_generation_model_files(cold_start=False)

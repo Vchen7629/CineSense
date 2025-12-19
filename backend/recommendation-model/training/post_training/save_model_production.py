@@ -141,6 +141,7 @@ class SaveModelProd:
             pl.col("overview"),
             pl.col("cast_normalized"),
             pl.col("director"),
+            pl.col("original_language"),
             pl.col("poster_path")
         ])
 
