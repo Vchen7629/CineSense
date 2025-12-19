@@ -74,9 +74,17 @@ class SaveModel:
             # insert movie metadata into movie_metadata table
             cursor.execute("""
                 INSERT INTO movie_metadata (
-                    movie_id, movie_name, genres, release_date, summary, actors, director, poster_path
+                    movie_id, 
+                    movie_name, 
+                    genres, 
+                    release_date, 
+                    summary, 
+                    actors, 
+                    director,
+                    language,
+                    poster_path
                 )
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
                 ON CONFLICT (movie_id) DO NOTHING
             """, (
                 str(row['tmdbId']),
@@ -86,6 +94,7 @@ class SaveModel:
                 row['overview'],
                 row['cast_normalized'].split("|"),
                 row['director'].split("|"),
+                row['original_language'],
                 row['poster_path']
             ))
 
@@ -110,7 +119,7 @@ class SaveModel:
             # personalized or cold start
             if self.personalized:
                 cursor.execute("""
-                    INSERT INTO movie_embedding_personalized (movie_id, embedding)
+                    INSERT INTO movie_embedding_personalized_prod (movie_id, embedding)
                     VALUES (%s, %s::vector)
                 """, (
                     str(row['tmdbId']),
@@ -118,7 +127,7 @@ class SaveModel:
                 ))
             else:
                 cursor.execute("""
-                    INSERT INTO movie_embedding_coldstart (movie_id, embedding)
+                    INSERT INTO movie_embedding_coldstart_prod (movie_id, embedding)
                     VALUES (%s, %s::vector)
                 """, (
                     str(row['tmdbId']),
